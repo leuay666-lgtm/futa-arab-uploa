@@ -3,15 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>مبيض الفصول التلقائي - FutaArab</title>
-  <!-- مكتبة فك وضغط ملفات ZIP -->
+  <title>مبيض الفصول الذكي - FutaArab</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <!-- مكتبة لاكتشاف مكان النص الإنجليزي مجاناً وبدون أي مفتاح API -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
 
   <style>
-    /* يمكنك تعديل هذه الألوان لتطابق ملف CSS الخاص بموقعك تماماً */
     :root {
       --bg-main: #0a0a0c;
       --bg-card: #141418;
@@ -24,7 +20,7 @@
     body { background: var(--bg-main); color: var(--text-light); padding: 12px; }
 
     .container { max-width: 600px; margin: 0 auto; }
-    .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
     .title { font-size: 16px; font-weight: 900; color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; }
 
     .btn {
@@ -33,6 +29,7 @@
     }
     .btn:disabled { opacity: 0.5; }
     .btn-dark { background: #26262e; }
+    .btn-active { background: #10b981; }
     .btn-send { background: #10b981; font-size: 15px; }
 
     .row { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: 8px; }
@@ -49,18 +46,18 @@
 <div class="container">
   <div class="card">
     <div class="title">
-      <span>1. رفع وتبييض الفصل بنقرة زر</span>
+      <span>1. رفع وتبييض الفقاعات الذكي</span>
       <span style="color:var(--text-gray); font-size:12px;">futaarab.com</span>
     </div>
     
     <input type="file" id="fileInput" accept=".zip,image/*" multiple>
     <div class="status" id="statusMsg">اختر ملف ZIP أو صور الفصل للبدء...</div>
 
-    <!-- زر التبييض التلقائي بنقرة واحدة -->
-    <button class="btn" id="autoCleanBtn" onclick="autoCleanAllPages()" disabled>✨ تبييض كل الصفحات تلقائياً (بنقرة زر)</button>
+    <button class="btn" id="autoCleanBtn" onclick="autoCleanAllBubbles()" disabled>
+      ✨ تبييض الفقاعات تلقائياً (فوري وبدون لمس الرسمة)
+    </button>
   </div>
 
-  <!-- معاينة الصفحات والتعديل اليدوي باللمس عند الحاجة -->
   <div class="card">
     <div class="row" style="margin-top:0; margin-bottom:8px;">
       <button class="btn btn-dark" style="width:auto; margin:0; padding:8px 16px;" onclick="changePage(-1)">◀ السابق</button>
@@ -68,18 +65,26 @@
       <button class="btn btn-dark" style="width:auto; margin:0; padding:8px 16px;" onclick="changePage(1)">التالي ▶</button>
     </div>
 
-    <p style="font-size:11px; color:var(--text-gray); text-align:center;">💡 يمكنك أيضاً لمس وسحب أي منطقة على الصورة لتبييضها يدوياً</p>
+    <!-- أزرار اختيار أداة اللمس -->
+    <div class="row" style="margin-bottom: 8px;">
+      <button class="btn btn-active" id="wandModeBtn" style="margin:0; font-size:12px;" onclick="setTool('wand')">
+        🪄 لمسة سحرية (المس الفقاعة لتفريغها)
+      </button>
+      <button class="btn btn-dark" id="rectModeBtn" style="margin:0; font-size:12px;" onclick="setTool('rect')">
+        ⬛ سحب مربع يدوي
+      </button>
+    </div>
     
     <div class="canvas-box">
       <canvas id="pageCanvas"></canvas>
     </div>
 
     <div class="row">
-      <button class="btn btn-dark" onclick="undoManualBox()">↩️ تراجع عن آخر مسحة</button>
+      <button class="btn btn-dark" onclick="undoLastAction()">↩️ تراجع عن آخر مسحة</button>
+      <button class="btn btn-dark" onclick="resetCurrentPage()">🔄 استعادة الصفحة الأصلية</button>
     </div>
   </div>
 
-  <!-- زر الإرسال المباشر إلى صفحة uploader.html -->
   <div class="card">
     <button class="btn btn-send" id="sendToUploaderBtn" onclick="sendToUploaderPage()" disabled>
       🚀 حفظ وإرسال الفصل جاهزاً إلى صفحة الرفع (Uploader)
@@ -92,19 +97,26 @@ const canvas = document.getElementById('pageCanvas');
 const ctx = canvas.getContext('2d');
 let pages = []; // [{ name, img, boxes: [{x, y, w, h}] }]
 let currentIdx = 0;
+let currentTool = 'wand'; // 'wand' or 'rect'
 let isDrawing = false, startX = 0, startY = 0;
 
 function setStatus(text) {
   document.getElementById('statusMsg').innerText = text;
 }
 
-// 1. قراءة ملف الـ ZIP أو الصور
+function setTool(tool) {
+  currentTool = tool;
+  document.getElementById('wandModeBtn').className = tool === 'wand' ? 'btn btn-active' : 'btn btn-dark';
+  document.getElementById('rectModeBtn').className = tool === 'rect' ? 'btn btn-active' : 'btn btn-dark';
+}
+
+// 1. رفع ملف ZIP أو الصور
 document.getElementById('fileInput').addEventListener('change', async (e) => {
   const files = Array.from(e.target.files);
   if (!files.length) return;
   pages = [];
   currentIdx = 0;
-  setStatus("⏳ جاري فك الضغط وتجهيز الصفحات...");
+  setStatus("⏳ جاري قراءة وتجهيز الصفحات...");
 
   if (files[0].name.endsWith('.zip')) {
     const zip = await JSZip.loadAsync(files[0]);
@@ -126,7 +138,7 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
 
   document.getElementById('autoCleanBtn').disabled = false;
   document.getElementById('sendToUploaderBtn').disabled = false;
-  setStatus(`✅ تم تجهيز ${pages.length} صفحة! اضغط على زر التبييض التلقائي.`);
+  setStatus(`✅ تم تجهيز ${pages.length} صفحة! اضغط على التبييض التلقائي أو المس أي فقاعة.`);
   drawPage();
 });
 
@@ -148,16 +160,15 @@ function drawPage() {
   canvas.width = img.width;
   canvas.height = img.height + footerH;
 
-  // رسم الصورة الأصلية
   ctx.drawImage(img, 0, 0);
 
-  // رسم مربعات التبييض فوق الكلام الإنجليزي
+  // رسم التبييض فوق النص فقط داخل الفقاعات
   ctx.fillStyle = "#ffffff";
   page.boxes.forEach(b => {
     ctx.fillRect(b.x, b.y, b.w, b.h);
   });
 
-  // علامة مائية شفافة
+  // العلامة المائية الشفافة
   ctx.save();
   ctx.font = `900 ${Math.max(18, Math.floor(img.width * 0.03))}px 'Tajawal', sans-serif`;
   ctx.fillStyle = "rgba(255, 42, 95, 0.30)";
@@ -165,7 +176,7 @@ function drawPage() {
   ctx.fillText("futaarab.com", 20, img.height - 20);
   ctx.restore();
 
-  // شريط سفلي ثابت باسم الموقع
+  // الشريط السفلي الثابت
   ctx.fillStyle = "#0a0a0c";
   ctx.fillRect(0, img.height, canvas.width, footerH);
   ctx.fillStyle = "#ffffff";
@@ -177,57 +188,209 @@ function drawPage() {
   document.getElementById('pageCount').innerText = `${currentIdx + 1} / ${pages.length}`;
 }
 
-// 3. التبييض التلقائي لكل الصفحات بنقرة زر واحدة!
-async function autoCleanAllPages() {
+// 3. خوارزمية كشف فقاعات المانغا المغلقة ومسح النص بداخلها فقط (بدون لمس الرسمة!)
+function detectAndCleanBubblesOnImage(img) {
+  // نصغر الصورة مؤقتاً في الذاكرة لسرعة فائقة (أقل من 0.2 ثانية للصفحة)
+  const scale = 400 / img.width;
+  const w = Math.floor(img.width * scale);
+  const h = Math.floor(img.height * scale);
+
+  const tempC = document.createElement('canvas');
+  tempC.width = w; tempC.height = h;
+  const tCtx = tempC.getContext('2d');
+  tCtx.drawImage(img, 0, 0, w, h);
+  const data = tCtx.getImageData(0, 0, w, h).data;
+
+  const visited = new Uint8Array(w * h);
+  const detectedBoxes = [];
+
+  const isWhite = (idx) => data[idx*4] > 235 && data[idx*4+1] > 235 && data[idx*4+2] > 235;
+  const isDark = (idx) => data[idx*4] < 100 && data[idx*4+1] < 100 && data[idx*4+2] < 100;
+
+  for (let y = 5; y < h - 5; y += 2) {
+    for (let x = 5; x < w - 5; x += 2) {
+      const startIdx = y * w + x;
+      if (visited[startIdx] || !isWhite(startIdx)) continue;
+
+      // Flood Fill لإيجاد حدود المنطقة البيضاء (الفقاعة)
+      let queue = [startIdx];
+      visited[startIdx] = 1;
+      let minX = x, maxX = x, minY = y, maxY = y;
+      let count = 0;
+      let touchesEdge = false;
+
+      while (queue.length > 0) {
+        const curr = queue.pop();
+        const cy = Math.floor(curr / w);
+        const cx = curr % w;
+        count++;
+
+        if (cx < minX) minX = cx;
+        if (cx > maxX) maxX = cx;
+        if (cy < minY) minY = cy;
+        if (cy > maxY) maxY = cy;
+
+        if (cx <= 2 || cx >= w - 3 || cy <= 2 || cy >= h - 3) touchesEdge = true;
+
+        const neighbors = [curr - 1, curr + 1, curr - w, curr + w];
+        for (const n of neighbors) {
+          if (n >= 0 && n < w * h && !visited[n] && isWhite(n)) {
+            visited[n] = 1;
+            queue.push(n);
+          }
+        }
+      }
+
+      const bw = maxX - minX;
+      const bh = maxY - minY;
+      const area = bw * bh;
+
+      // شروط فقاعة المانغا: لا تلمس حواف الصفحة، وحجمها منطقي، وشكلها شبه بيضاوي/عمودي
+      if (!touchesEdge && count > 180 && area < (w * h * 0.28) && (bw / bh) < 2.2 && (bh / bw) < 4.5) {
+        // نفحص قلب الفقاعة فقط (نترك هامش 18% من الحواف لكي لا نمسح إطار الفقاعة الأسود)
+        const padX = Math.floor(bw * 0.18);
+        const padY = Math.floor(bh * 0.18);
+        const inMinX = minX + padX, inMaxX = maxX - padX;
+        const inMinY = minY + padY, inMaxY = maxY - padY;
+
+        let darkPixels = 0, whitePixels = 0, innerTotal = 0;
+        let textMinX = inMaxX, textMaxX = inMinX, textMinY = inMaxY, textMaxY = inMinY;
+
+        for (let iy = inMinY; iy <= inMaxY; iy++) {
+          for (let ix = inMinX; ix <= inMaxX; ix++) {
+            const idx = iy * w + ix;
+            innerTotal++;
+            if (isWhite(idx)) whitePixels++;
+            if (isDark(idx)) {
+              darkPixels++;
+              if (ix < textMinX) textMinX = ix;
+              if (ix > textMaxX) textMaxX = ix;
+              if (iy < textMinY) textMinY = iy;
+              if (iy > textMaxY) textMaxY = iy;
+            }
+          }
+        }
+
+        const darkRatio = darkPixels / (innerTotal || 1);
+        const whiteRatio = whitePixels / (innerTotal || 1);
+
+        // الفقاعة الحقيقية يكون قلبها أبيض (>65%) وفيها نص أسود بنسبة بين 2% و 30%
+        if (whiteRatio > 0.65 && darkRatio > 0.015 && darkRatio < 0.32 && textMaxX > textMinX) {
+          detectedBoxes.push({
+            x: (textMinX - 3) / scale,
+            y: (textMinY - 3) / scale,
+            w: (textMaxX - textMinX + 6) / scale,
+            h: (textMaxY - textMinY + 6) / scale
+          });
+        }
+      }
+    }
+  }
+  return detectedBoxes;
+}
+
+// تشغيل التبييض التلقائي لكل الصفحات
+async function autoCleanAllBubbles() {
   if (!pages.length) return;
   document.getElementById('autoCleanBtn').disabled = true;
 
   for (let i = 0; i < pages.length; i++) {
-    setStatus(`⏳ جاري تبييض الصفحة ${i + 1} من ${pages.length} تلقائياً...`);
-    const page = pages[i];
-
-    // اكتشاف أماكن الكلمات الإنجليزية في الصفحة
-    const result = await Tesseract.recognize(page.img, 'eng');
-    const words = result.data.words || [];
-
-    words.forEach(w => {
-      // نتأكد أن خلفية الكلمة بيضاء (داخل فقاعة كلام) حتى لا نمسح جزءاً من الرسمة
-      if (w.confidence > 45 && isBubbleBackgroundWhite(page.img, w.bbox)) {
-        const pad = 4; // توسيع بسيط لضمان مسح الحروف بالكامل
-        page.boxes.push({
-          x: w.bbox.x0 - pad,
-          y: w.bbox.y0 - pad,
-          w: (w.bbox.x1 - w.bbox.x0) + pad * 2,
-          h: (w.bbox.y1 - w.bbox.y0) + pad * 2
-        });
-      }
-    });
+    setStatus(`⏳ جاري تنظيف فقاعات الصفحة ${i + 1} من ${pages.length}...`);
+    await new Promise(r => setTimeout(r, 30)); // لتحديث الواجهة
+    const newBoxes = detectAndCleanBubblesOnImage(pages[i].img);
+    pages[i].boxes.push(...newBoxes);
   }
 
   drawPage();
   document.getElementById('autoCleanBtn').disabled = false;
-  setStatus("🎉 تم تبييض جميع الصفحات تلقائياً! راجعها أو أرسلها لصفحة الرفع.");
+  setStatus("🎉 تم تبييض الفقاعات! إذا بقيت فقاعة المسها بإصبعك لتفريغها فوراً.");
 }
 
-// دالة ذكية تتأكد أن الكلام موجود داخل فقاعة بيضاء وليس فوق الرسمة
-function isBubbleBackgroundWhite(imgElement, bbox) {
+// 4. أداة اللمسة السحرية (Magic Wand): تلمس أي مكان داخل الفقاعة فيمسح الكلام كله فوراً!
+function magicWandCleanAt(clickX, clickY) {
+  const page = pages[currentIdx];
+  const img = page.img;
+  const scale = 500 / img.width;
+  const w = Math.floor(img.width * scale);
+  const h = Math.floor(img.height * scale);
+
   const tempC = document.createElement('canvas');
-  const w = bbox.x1 - bbox.x0;
-  const h = bbox.y1 - bbox.y0;
-  if (w <= 0 || h <= 0) return false;
   tempC.width = w; tempC.height = h;
   const tCtx = tempC.getContext('2d');
-  tCtx.drawImage(imgElement, bbox.x0, bbox.y0, w, h, 0, 0, w, h);
+  tCtx.drawImage(img, 0, 0, w, h);
   const data = tCtx.getImageData(0, 0, w, h).data;
-  let whitePixels = 0, total = data.length / 4;
 
-  for (let i = 0; i < data.length; i += 4) {
-    if (data[i] > 200 && data[i+1] > 200 && data[i+2] > 200) whitePixels++;
+  const startX = Math.floor(clickX * scale);
+  const startY = Math.floor(clickY * scale);
+  if (startY >= h || startX >= w) return;
+
+  // نبحث عن أقرب نقطة بيضاء حول مكان لمس الإصبع
+  const isWhite = (idx) => data[idx*4] > 210 && data[idx*4+1] > 210 && data[idx*4+2] > 210;
+  const isDark = (idx) => data[idx*4] < 130 && data[idx*4+1] < 130 && data[idx*4+2] < 130;
+
+  let seedIdx = startY * w + startX;
+  if (!isWhite(seedIdx)) {
+    for (let r = 1; r <= 12; r++) {
+      const testIdx = (startY + r) * w + startX;
+      if (testIdx < w * h && isWhite(testIdx)) { seedIdx = testIdx; break; }
+    }
   }
-  return (whitePixels / total) > 0.45; // إذا كان أكثر من 45% من المربع أبيض فهو فقاعة نص
+
+  const visited = new Uint8Array(w * h);
+  const queue = [seedIdx];
+  visited[seedIdx] = 1;
+  let minX = startX, maxX = startX, minY = startY, maxY = startY;
+  let count = 0;
+
+  while (queue.length > 0 && count < 45000) {
+    const curr = queue.pop();
+    const cy = Math.floor(curr / w);
+    const cx = curr % w;
+    count++;
+
+    if (cx < minX) minX = cx;
+    if (cx > maxX) maxX = cx;
+    if (cy < minY) minY = cy;
+    if (cy > maxY) maxY = cy;
+
+    const neighbors = [curr - 1, curr + 1, curr - w, curr + w];
+    for (const n of neighbors) {
+      if (n >= 0 && n < w * h && !visited[n] && isWhite(n)) {
+        visited[n] = 1;
+        queue.push(n);
+      }
+    }
+  }
+
+  // نجد حدود النص الأسود داخل هذه الفقاعة التي لمستها ونمسحه بالكامل
+  const padX = Math.max(3, Math.floor((maxX - minX) * 0.14));
+  const padY = Math.max(3, Math.floor((maxY - minY) * 0.14));
+  let tMinX = maxX, tMaxX = minX, tMinY = maxY, tMaxY = minY, foundDark = false;
+
+  for (let y = minY + padY; y <= maxY - padY; y++) {
+    for (let x = minX + padX; x <= maxX - padX; x++) {
+      if (isDark(y * w + x)) {
+        foundDark = true;
+        if (x < tMinX) tMinX = x;
+        if (x > tMaxX) tMaxX = x;
+        if (y < tMinY) tMinY = y;
+        if (y > tMaxY) tMaxY = y;
+      }
+    }
+  }
+
+  if (foundDark) {
+    page.boxes.push({
+      x: (tMinX - 4) / scale,
+      y: (tMinY - 4) / scale,
+      w: (tMaxX - tMinX + 8) / scale,
+      h: (tMaxY - tMinY + 8) / scale
+    });
+    drawPage();
+  }
 }
 
-// 4. التبييض اليدوي الإضافي باللمس (إذا أردت مسح شيء بنفسك)
+// التفاعل باللمس على الكانفاس
 function getCoords(e) {
   const r = canvas.getBoundingClientRect();
   const cx = e.touches ? e.touches[0].clientX : e.clientX;
@@ -237,24 +400,35 @@ function getCoords(e) {
 
 canvas.addEventListener('pointerdown', e => {
   if (!pages.length) return;
-  const p = getCoords(e); startX = p.x; startY = p.y; isDrawing = true;
+  const p = getCoords(e);
+  if (currentTool === 'wand') {
+    magicWandCleanAt(p.x, p.y);
+  } else {
+    startX = p.x; startY = p.y; isDrawing = true;
+  }
 });
 
 canvas.addEventListener('pointerup', e => {
-  if (!isDrawing) return;
+  if (!isDrawing || currentTool !== 'rect') return;
   isDrawing = false;
   const p = getCoords(e);
   const bx = Math.min(startX, p.x), by = Math.min(startY, p.y);
   const bw = Math.abs(p.x - startX), bh = Math.abs(p.y - startY);
-  if (bw > 10 && bh > 10) {
+  if (bw > 8 && bh > 8) {
     pages[currentIdx].boxes.push({ x: bx, y: by, w: bw, h: bh });
     drawPage();
   }
 });
 
-function undoManualBox() {
+function undoLastAction() {
   if (!pages.length) return;
   pages[currentIdx].boxes.pop();
+  drawPage();
+}
+
+function resetCurrentPage() {
+  if (!pages.length) return;
+  pages[currentIdx].boxes = [];
   drawPage();
 }
 
@@ -263,7 +437,7 @@ function changePage(dir) {
   if (next >= 0 && next < pages.length) { currentIdx = next; drawPage(); }
 }
 
-// 5. تحويل الصفحات إلى ملف ZIP بصيغة WebP وإرساله تلقائياً إلى uploader.html
+// 5. إرسال الفصل جاهزاً إلى صفحة الرفع uploader.html
 async function sendToUploaderPage() {
   if (!pages.length) return;
   setStatus("⏳ جاري ضغط الصفحات بصيغة WebP وتجهيزها للنقل...");
@@ -281,7 +455,6 @@ async function sendToUploaderPage() {
 
   const zipBlob = await zip.generateAsync({ type: 'blob' });
 
-  // حفظ ملف الـ ZIP في ذاكرة المتصفح (IndexedDB) ليقرأه ملف uploader.html فوراً
   const req = indexedDB.open("FutaArabBridgeDB", 1);
   req.onupgradeneeded = e => e.target.result.createObjectStore("files");
   req.onsuccess = e => {
@@ -289,7 +462,6 @@ async function sendToUploaderPage() {
     const tx = db.transaction("files", "readwrite");
     tx.objectStore("files").put(zipBlob, "readyChapterZip");
     tx.oncomplete = () => {
-      // توجيه المستخدم تلقائياً إلى صفحة الرفع الخاصة بموقعك!
       window.location.href = "uploader.html?autoLoad=true";
     };
   };
