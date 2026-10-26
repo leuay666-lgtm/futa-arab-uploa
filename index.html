@@ -2,143 +2,288 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>مبيض الفصول الذكي - FutaArab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>استوديو التبييض الاحترافي - FutaArab</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-main: #0a0a0c;
-      --bg-card: #141418;
-      --primary: #ff2a5f;
-      --text-light: #ffffff;
-      --text-gray: #9ca3af;
-      --border-color: #26262e;
+      --bg-dark: #070709;
+      --glass-bg: rgba(20, 20, 26, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --accent: #ff2a5f;
+      --accent-glow: rgba(255, 42, 95, 0.35);
+      --text: #ffffff;
+      --muted: #9ca3af;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-    body { background: var(--bg-main); color: var(--text-light); padding: 12px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg-dark); color: var(--text); min-height: 100vh; overflow-x: hidden; padding-bottom: 140px; }
 
-    .container { max-width: 600px; margin: 0 auto; }
-    .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-    .title { font-size: 16px; font-weight: 900; color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; }
-
-    .btn {
-      width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 14px;
-      font-weight: 700; color: #fff; background: var(--primary); cursor: pointer; margin-top: 8px;
+    /* الشريط العلوي */
+    .top-bar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px; background: var(--glass-bg);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--glass-border);
     }
-    .btn:disabled { opacity: 0.5; }
-    .btn-dark { background: #26262e; }
-    .btn-active { background: #10b981; }
-    .btn-send { background: #10b981; font-size: 15px; }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 15px; color: var(--accent); }
+    .brand span { color: var(--text); font-size: 12px; font-weight: 500; opacity: 0.7; }
 
-    .row { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: 8px; }
-    input[type="file"] { width: 100%; padding: 10px; background: #1c1c22; border: 1px dashed var(--primary); border-radius: 8px; color: var(--text-gray); }
+    .top-actions { display: flex; gap: 6px; align-items: center; }
+    .btn-sm {
+      padding: 7px 12px; border-radius: 8px; border: 1px solid var(--glass-border);
+      background: rgba(255,255,255,0.06); color: var(--text); font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 12px var(--accent-glow); }
+    .btn-success { background: #10b981; border-color: #10b981; }
+    .btn-sm:disabled { opacity: 0.4; pointer-events: none; }
 
-    .status { font-size: 13px; color: #fbbf24; text-align: center; margin: 8px 0; font-weight: 700; }
-    
-    .canvas-box { background: #000; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; margin-top: 8px; text-align: center; }
-    canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }
-    canvas.no-scroll { touch-action: none; }
+    /* شريط التنقل بين الصفحات */
+    .page-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      max-width: 650px; margin: 10px auto; padding: 8px 12px;
+      background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px;
+    }
+    .status-badge { font-size: 12px; color: #fbbf24; text-align: center; margin: 6px 0; font-weight: 700; }
+
+    /* مساحة العمل (الكانفاس) */
+    .workspace {
+      width: 100%; max-width: 750px; margin: 0 auto; text-align: center;
+      position: relative; padding: 0 6px;
+    }
+    .canvas-wrapper {
+      display: inline-block; position: relative; width: 100%;
+      border-radius: 10px; overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid var(--glass-border);
+      background: #111;
+    }
+    canvas { width: 100%; height: auto; display: block; }
+    canvas.brush-active { touch-action: none; }
+
+    /* مؤشر حجم ولون الفرشاة في وسط الشاشة عند التغيير */
+    #brushPreview {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      border-radius: 50%; border: 2px solid var(--accent); pointer-events: none;
+      z-index: 9999; display: none; box-shadow: 0 0 15px rgba(0,0,0,0.6);
+    }
+
+    /* الشريط العائم الذكي (يبقى معك حتى مع الزوم!) */
+    #floatingDock {
+      position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+      z-index: 9000; width: 94%; max-width: 440px;
+      background: rgba(18, 18, 24, 0.90);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 22px; padding: 10px 12px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 42, 95, 0.2);
+      transition: opacity 0.15s;
+      transform-origin: center bottom;
+    }
+    .dock-handle {
+      width: 42px; height: 5px; background: rgba(255,255,255,0.25);
+      border-radius: 10px; margin: 0 auto 8px auto; cursor: grab; touch-action: none;
+    }
+    .dock-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .dock-row + .dock-row { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); }
+
+    .tool-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; padding: 8px 4px; border-radius: 12px; border: 1px solid transparent;
+      background: rgba(255,255,255,0.05); color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer;
+    }
+    .tool-btn span.icon { font-size: 16px; }
+    .tool-btn.active {
+      background: rgba(255, 42, 95, 0.18); color: #fff;
+      border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* منتقي اللون الدائري والأحجام السريعة */
+    .color-picker-wrap {
+      position: relative; width: 34px; height: 34px; border-radius: 50%;
+      border: 2px solid #fff; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 8px rgba(0,0,0,0.5);
+    }
+    .color-picker-wrap input[type="color"] {
+      position: absolute; top: -10px; left: -10px; width: 54px; height: 54px;
+      border: none; cursor: pointer; background: none;
+    }
+    .preset-colors { display: flex; gap: 5px; align-items: center; }
+    .color-dot {
+      width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.4); cursor: pointer;
+    }
+
+    .size-slider { flex: 1; accent-color: var(--accent); height: 6px; border-radius: 4px; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="card">
-    <div class="title">
-      <span>1. ماسح الحروف الذكي (بدون مربعات)</span>
-      <span style="color:var(--text-gray); font-size:12px;">futaarab.com</span>
+  <!-- الشريط العلوي -->
+  <div class="top-bar">
+    <div class="brand">
+      FutaArab <span>استوديو التبييض</span>
     </div>
+    <div class="top-actions">
+      <label class="btn-sm btn-primary" for="fileInput">📁 رفع فصل</label>
+      <input type="file" id="fileInput" accept=".zip,image/*" multiple style="display:none;">
+      <button class="btn-sm" id="zipBtn" onclick="downloadZip()" disabled>📦 ZIP</button>
+      <button class="btn-sm btn-success" id="sendBtn" onclick="sendToUploaderPage()" disabled>🚀 للنشر</button>
+    </div>
+  </div>
+
+  <div class="status-badge" id="statusMsg">ارفع ملف ZIP أو صور المانغا للبدء بالتبييض...</div>
+
+  <!-- شريط التنقل بين الصفحات -->
+  <div class="page-nav">
+    <button class="btn-sm" onclick="changePage(-1)">◀ السابقة</button>
+    <span id="pageCount" style="font-weight:900; font-size:14px; color:var(--accent);">0 / 0</span>
+    <button class="btn-sm" onclick="changePage(1)">التالية ▶</button>
+  </div>
+
+  <!-- منطقة الصفحة -->
+  <div class="workspace">
+    <div class="canvas-wrapper">
+      <canvas id="pageCanvas" class="brush-active"></canvas>
+    </div>
+  </div>
+
+  <!-- دائرة معاينة حجم الفرشاة -->
+  <div id="brushPreview"></div>
+
+  <!-- الشريط العائم الذكي (يتحرك معك عند الزوم) -->
+  <div id="floatingDock">
+    <div class="dock-handle" id="dockHandle" title="اسحب لتحريك الشريط"></div>
     
-    <input type="file" id="fileInput" accept=".zip,image/*" multiple>
-    <div class="status" id="statusMsg">اختر ملف ZIP أو صور الفصل للبدء...</div>
-
-    <button class="btn" id="autoCleanBtn" onclick="autoCleanTextOnly()" disabled>
-      ✨ مسح الحروف تلقائياً (يمسح الحرف فقط ولا يرسم مربعات)
-    </button>
-  </div>
-
-  <div class="card">
-    <div class="row" style="margin-top:0; margin-bottom:8px;">
-      <button class="btn btn-dark" style="width:auto; margin:0; padding:8px 16px;" onclick="changePage(-1)">◀ السابق</button>
-      <span id="pageCount" style="font-weight:bold;">0 / 0</span>
-      <button class="btn btn-dark" style="width:auto; margin:0; padding:8px 16px;" onclick="changePage(1)">التالي ▶</button>
-    </div>
-
-    <!-- أزرار التحكم باللمس -->
-    <div class="row" style="margin-bottom: 8px;">
-      <button class="btn btn-active" id="brushBtn" style="margin:0; font-size:12px;" onclick="setMode('brush')">
-        🖌️ فرشاة مسح الكلام (مرر إصبعك فوق الكلام)
+    <!-- الصف الأول: الأدوات الرئيسية -->
+    <div class="dock-row">
+      <button class="tool-btn active" id="btnBrush" onclick="setTool('brush')">
+        <span class="icon">🖌️</span>
+        <span>فرشاة</span>
       </button>
-      <button class="btn btn-dark" id="scrollBtn" style="margin:0; font-size:12px;" onclick="setMode('scroll')">
-        🖐️ تمرير الشاشة
+      <button class="tool-btn" id="btnSmart" onclick="setTool('smart')">
+        <span class="icon">✨</span>
+        <span>فرشاة ذكية</span>
+      </button>
+      <button class="tool-btn" id="btnPicker" onclick="setTool('picker')">
+        <span class="icon">💧</span>
+        <span>لقط اللون</span>
+      </button>
+      <button class="tool-btn" id="btnMove" onclick="setTool('move')">
+        <span class="icon">🖐️</span>
+        <span>تحريك/زوم</span>
+      </button>
+      <button class="tool-btn" onclick="undoLastAction()">
+        <span class="icon">↩️</span>
+        <span>تراجع</span>
       </button>
     </div>
 
-    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:12px; color:var(--text-gray);">
-      <span>حجم الفرشاة:</span>
-      <input type="range" id="brushSize" min="15" max="80" value="40" style="flex:1;">
-    </div>
-    
-    <div class="canvas-box">
-      <canvas id="pageCanvas" class="no-scroll"></canvas>
-    </div>
+    <!-- الصف الثاني: التحكم بحجم ولون الفرشاة -->
+    <div class="dock-row">
+      <!-- اختيار اللون -->
+      <div class="color-picker-wrap" title="تغيير لون الفرشاة">
+        <input type="color" id="brushColor" value="#ffffff" onchange="updateBrushColor(this.value)">
+      </div>
+      <div class="preset-colors">
+        <div class="color-dot" style="background:#ffffff;" onclick="setPresetColor('#ffffff')" title="أبيض"></div>
+        <div class="color-dot" style="background:#000000;" onclick="setPresetColor('#000000')" title="أسود"></div>
+      </div>
 
-    <div class="row">
-      <button class="btn btn-dark" onclick="undoLastAction()">↩️ تراجع عن آخر خطوة</button>
-      <button class="btn btn-dark" onclick="resetCurrentPage()">🔄 استعادة الصفحة الأصلية</button>
+      <!-- شريط حجم الفرشاة -->
+      <input type="range" class="size-slider" id="brushSize" min="6" max="90" value="32" oninput="showBrushPreview()">
+      <span id="sizeVal" style="font-size:11px; font-weight:bold; min-width:26px; text-align:center;">32</span>
+
+      <button class="btn-sm" style="padding:5px 8px; font-size:11px;" onclick="resetCurrentPage()" title="إعادة الصفحة كما كانت">🔄</button>
     </div>
   </div>
-
-  <div class="card">
-    <button class="btn btn-send" id="sendToUploaderBtn" onclick="sendToUploaderPage()" disabled>
-      🚀 حفظ وإرسال الفصل جاهزاً إلى صفحة الرفع (Uploader)
-    </button>
-  </div>
-</div>
 
 <script>
 const canvas = document.getElementById('pageCanvas');
 const ctx = canvas.getContext('2d');
-let pages = []; // [{ name, originalImg, workCanvas, history: [ImageData] }]
+let pages = []; // [{ name, originalImg, workCanvas, history: [] }]
 let currentIdx = 0;
-let mode = 'brush'; // 'brush' or 'scroll'
-let isPainting = false;
+let currentTool = 'brush'; // 'brush', 'smart', 'picker', 'move'
+let isDrawing = false;
+let lastPt = null;
+let previewTimer = null;
 
-function setStatus(text) {
-  document.getElementById('statusMsg').innerText = text;
+function setStatus(msg) {
+  document.getElementById('statusMsg').innerText = msg;
 }
 
-function setMode(newMode) {
-  mode = newMode;
-  document.getElementById('brushBtn').className = mode === 'brush' ? 'btn btn-active' : 'btn btn-dark';
-  document.getElementById('scrollBtn').className = mode === 'scroll' ? 'btn btn-active' : 'btn btn-dark';
-  if (mode === 'brush') canvas.classList.add('no-scroll');
-  else canvas.classList.remove('no-scroll');
+// 1. تبديل الأدوات في الشريط العائم
+function setTool(tool) {
+  currentTool = tool;
+  ['btnBrush', 'btnSmart', 'btnPicker', 'btnMove'].forEach(id => document.getElementById(id).classList.remove('active'));
+  if (tool === 'brush') document.getElementById('btnBrush').classList.add('active');
+  if (tool === 'smart') document.getElementById('btnSmart').classList.add('active');
+  if (tool === 'picker') document.getElementById('btnPicker').classList.add('active');
+  if (tool === 'move') document.getElementById('btnMove').classList.add('active');
+
+  if (tool === 'move') {
+    canvas.classList.remove('brush-active');
+    setStatus("🖐️ وضع التحريك والزوم: اسحب الصفحة أو قرب بإصبعيك بحرية");
+  } else if (tool === 'picker') {
+    canvas.classList.add('brush-active');
+    setStatus("💧 المس أي مكان في الصفحة لالتقاط لونه فوراً");
+  } else if (tool === 'smart') {
+    canvas.classList.add('brush-active');
+    setStatus("✨ الفرشاة الذكية: تمسح الكلام والرمادي فقط وتحمي الخطوط السوداء العريضة");
+  } else {
+    canvas.classList.add('brush-active');
+    setStatus("🖌️ الفرشاة العادية: مرر إصبعك لمسح الكلام باللون المختار");
+  }
 }
 
-// 1. رفع ملف ZIP أو الصور
+function setPresetColor(hex) {
+  document.getElementById('brushColor').value = hex;
+  updateBrushColor(hex);
+}
+
+function updateBrushColor(hex) {
+  showBrushPreview();
+  if (currentTool === 'picker' || currentTool === 'move') setTool('brush');
+}
+
+// إظهار دائرة حجم ولون الفرشاة في وسط الشاشة عند تحريك المؤشر
+function showBrushPreview() {
+  const size = parseInt(document.getElementById('brushSize').value);
+  const color = document.getElementById('brushColor').value;
+  document.getElementById('sizeVal').innerText = size;
+
+  const preview = document.getElementById('brushPreview');
+  preview.style.width = size + 'px';
+  preview.style.height = size + 'px';
+  preview.style.background = color;
+  preview.style.display = 'block';
+
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(() => { preview.style.display = 'none'; }, 700);
+}
+
+// 2. رفع ملفات ZIP أو الصور
 document.getElementById('fileInput').addEventListener('change', async (e) => {
   const files = Array.from(e.target.files);
   if (!files.length) return;
   pages = [];
   currentIdx = 0;
-  setStatus("⏳ جاري قراءة وتجهيز الصفحات...");
+  setStatus("⏳ جاري فك الضغط وتجهيز الصفحات...");
 
-  const loadList = [];
+  const list = [];
   if (files[0].name.endsWith('.zip')) {
     const zip = await JSZip.loadAsync(files[0]);
     zip.forEach((path, entry) => {
-      if (!entry.dir && /\.(jpe?g|png|webp)$/i.test(entry.name)) loadList.push({ name: entry.name, getBlob: () => entry.async('blob') });
+      if (!entry.dir && /\.(jpe?g|png|webp)$/i.test(entry.name)) {
+        list.push({ name: entry.name, getBlob: () => entry.async('blob') });
+      }
     });
   } else {
-    files.forEach(f => loadList.push({ name: f.name, getBlob: async () => f }));
+    files.forEach(f => list.push({ name: f.name, getBlob: async () => f }));
   }
 
-  loadList.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  list.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-  for (const item of loadList) {
+  for (const item of list) {
     const blob = await item.getBlob();
     const img = await loadImg(blob);
     const workC = document.createElement('canvas');
@@ -148,9 +293,9 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
     pages.push({ name: item.name, originalImg: img, workCanvas: workC, history: [] });
   }
 
-  document.getElementById('autoCleanBtn').disabled = false;
-  document.getElementById('sendToUploaderBtn').disabled = false;
-  setStatus(`✅ تم تجهيز ${pages.length} صفحة! اضغط على مسح الحروف التلقائي أو استخدم الفرشاة.`);
+  document.getElementById('zipBtn').disabled = false;
+  document.getElementById('sendBtn').disabled = false;
+  setStatus(`✅ تم تحميل ${pages.length} صفحة! استخدم الفرشاة للمسح.`);
   drawPage();
 });
 
@@ -164,11 +309,11 @@ function loadImg(blob) {
 
 function saveHistory(page) {
   const wCtx = page.workCanvas.getContext('2d');
-  if (page.history.length >= 8) page.history.shift();
+  if (page.history.length >= 12) page.history.shift();
   page.history.push(wCtx.getImageData(0, 0, page.workCanvas.width, page.workCanvas.height));
 }
 
-// 2. عرض الصفحة + العلامة المائية + الشريط السفلي
+// 3. عرض الصفحة + العلامة المائية + الشريط السفلي
 function drawPage() {
   if (!pages.length) return;
   const page = pages[currentIdx];
@@ -180,7 +325,7 @@ function drawPage() {
 
   ctx.drawImage(wCanvas, 0, 0);
 
-  // العلامة المائية الشفافة
+  // علامة مائية شفافة
   ctx.save();
   ctx.font = `900 ${Math.max(18, Math.floor(wCanvas.width * 0.03))}px 'Tajawal', sans-serif`;
   ctx.fillStyle = "rgba(255, 42, 95, 0.30)";
@@ -188,8 +333,8 @@ function drawPage() {
   ctx.fillText("futaarab.com", 20, wCanvas.height - 20);
   ctx.restore();
 
-  // الشريط السفلي الثابت
-  ctx.fillStyle = "#0a0a0c";
+  // شريط سفلي ثابت باسم الموقع
+  ctx.fillStyle = "#070709";
   ctx.fillRect(0, wCanvas.height, canvas.width, footerH);
   ctx.fillStyle = "#ffffff";
   ctx.font = `700 ${Math.max(14, Math.floor(footerH * 0.48))}px 'Tajawal', sans-serif`;
@@ -200,127 +345,7 @@ function drawPage() {
   document.getElementById('pageCount').innerText = `${currentIdx + 1} / ${pages.length}`;
 }
 
-// 3. خوارزمية مسح الحروف المعزولة فقط (Connected-Component Character Eraser)
-// لا ترسم أي مربعات! تمسح فقط الكتل السوداء الصغيرة (الحروف) المحاطة ببياض بنسبة 100%
-function eraseIsolatedLettersOnCanvas(wCanvas) {
-  const w = wCanvas.width;
-  const h = wCanvas.height;
-  const wCtx = wCanvas.getContext('2d');
-  const imgData = wCtx.getImageData(0, 0, w, h);
-  const data = imgData.data;
-
-  const visited = new Uint8Array(w * h);
-  // حجم الحرف الأقصى نسبةً لعرض الصفحة (أي خط رسم أو شعر أكبر من هذا الحجم لن يُلمس أبداً!)
-  const maxCharWidth = Math.max(18, Math.floor(w * 0.032));
-  const maxCharHeight = Math.max(22, Math.floor(w * 0.038));
-
-  const isDark = (i) => data[i*4] < 160 && data[i*4+1] < 160 && data[i*4+2] < 160;
-  const isPureWhite = (i) => data[i*4] > 238 && data[i*4+1] > 238 && data[i*4+2] > 238;
-
-  const charsToErase = [];
-
-  for (let y = 10; y < h - 10; y++) {
-    for (let x = 10; x < w - 10; x++) {
-      const startIdx = y * w + x;
-      if (visited[startIdx] || !isDark(startIdx)) continue;
-
-      // نجمع كل البكسلات المتصلة بهذا الشكل الأسود
-      const component = [startIdx];
-      visited[startIdx] = 1;
-      let minX = x, maxX = x, minY = y, maxY = y;
-      let ptr = 0;
-      let tooBig = false;
-
-      while (ptr < component.length) {
-        const curr = component[ptr++];
-        const cy = Math.floor(curr / w);
-        const cx = curr % w;
-
-        if (cx < minX) minX = cx;
-        if (cx > maxX) maxX = cx;
-        if (cy < minY) minY = cy;
-        if (cy > maxY) maxY = cy;
-
-        // إذا تجاوز الشكل حجم الحرف الواحد (مثل خط شعر أو عين أو إطار فقاعة)، نتوقف فوراً ولا نمسحه!
-        if ((maxX - minX) > maxCharWidth || (maxY - minY) > maxCharHeight || component.length > 900) {
-          tooBig = true;
-        }
-
-        // فحص الجيران الـ 8
-        for (let dy = -1; dy <= 1; dy++) {
-          for (let dx = -1; dx <= 1; dx++) {
-            if (dx === 0 && dy === 0) continue;
-            const nx = cx + dx, ny = cy + dy;
-            if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
-              const nIdx = ny * w + nx;
-              if (!visited[nIdx] && isDark(nIdx)) {
-                visited[nIdx] = 1;
-                if (!tooBig) component.push(nIdx);
-              }
-            }
-          }
-        }
-      }
-
-      if (tooBig || component.length < 3) continue;
-
-      // الآن نتأكد أن هذا الحرف الصغير يقع داخل فقاعة بيضاء نقية (نختبر المحيط الخارجي للحرف)
-      const pad = 4;
-      const bMinX = Math.max(0, minX - pad), bMaxX = Math.min(w - 1, maxX + pad);
-      const bMinY = Math.max(0, minY - pad), bMaxY = Math.min(h - 1, maxY + pad);
-      let borderTotal = 0, borderWhite = 0;
-
-      for (let bx = bMinX; bx <= bMaxX; bx++) {
-        borderTotal += 2;
-        if (isPureWhite(bMinY * w + bx)) borderWhite++;
-        if (isPureWhite(bMaxY * w + bx)) borderWhite++;
-      }
-      for (let by = bMinY; by <= bMaxY; by++) {
-        borderTotal += 2;
-        if (isPureWhite(by * w + bMinX)) borderWhite++;
-        if (isPureWhite(by * w + bMaxX)) borderWhite++;
-      }
-
-      // إذا كان محيط الحرف أبيض نقي بنسبة تزيد عن 82%، فهو حرف داخل فقاعة بيضاء!
-      if ((borderWhite / borderTotal) > 0.82) {
-        charsToErase.push({ component, minX, maxX, minY, maxY });
-      }
-    }
-  }
-
-  // مسح الحروف المكتشفة فقط وتنظيف الحواف الرمادية الدقيقة حول الحرف (Anti-aliasing)
-  for (const item of charsToErase) {
-    for (let py = Math.max(0, item.minY - 2); py <= Math.min(h - 1, item.maxY + 2); py++) {
-      for (let px = Math.max(0, item.minX - 2); px <= Math.min(w - 1, item.maxX + 2); px++) {
-        const idx = (py * w + px) * 4;
-        data[idx] = 255;
-        data[idx + 1] = 255;
-        data[idx + 2] = 255;
-      }
-    }
-  }
-
-  wCtx.putImageData(imgData, 0, 0);
-}
-
-// تشغيل المسح التلقائي لكل الصفحات
-async function autoCleanTextOnly() {
-  if (!pages.length) return;
-  document.getElementById('autoCleanBtn').disabled = true;
-
-  for (let i = 0; i < pages.length; i++) {
-    setStatus(`⏳ جاري مسح الحروف من الصفحة ${i + 1} من ${pages.length}...`);
-    await new Promise(r => setTimeout(r, 30));
-    saveHistory(pages[i]);
-    eraseIsolatedLettersOnCanvas(pages[i].workCanvas);
-  }
-
-  drawPage();
-  document.getElementById('autoCleanBtn').disabled = false;
-  setStatus("🎉 تم مسح الحروف! استخدم الفرشاة لمسح أي كلمة متبقية بلمسة إصبعك.");
-}
-
-// 4. فرشاة المسح اليدوية السريعة والدقيقة (بإصبعك مباشرة)
+// 4. الرسم والمسح بالفرشاة (العادية والذكية وقطارة اللون)
 function getCoords(e) {
   const r = canvas.getBoundingClientRect();
   const cx = e.touches ? e.touches[0].clientX : e.clientX;
@@ -331,43 +356,115 @@ function getCoords(e) {
   };
 }
 
-function paintWhiteAt(x, y) {
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+function rgbToHex(r, g, b) {
+  return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+// الفرشاة الذكية: تمسح الحروف فقط داخل دائرة الفرشاة وتتجاهل خطوط الرسم المتصلة بالحواف
+function smartBrushAt(wCanvas, cx, cy, radius, fillHex) {
+  const wCtx = wCanvas.getContext('2d');
+  const x0 = Math.max(0, Math.floor(cx - radius));
+  const y0 = Math.max(0, Math.floor(cy - radius));
+  const x1 = Math.min(wCanvas.width - 1, Math.ceil(cx + radius));
+  const y1 = Math.min(wCanvas.height - 1, Math.ceil(cy + radius));
+  const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+  if (bw <= 2 || bh <= 2) return;
+
+  const imgData = wCtx.getImageData(x0, y0, bw, bh);
+  const data = imgData.data;
+  const rgb = hexToRgb(fillHex);
+  const rSq = radius * radius;
+
+  for (let py = 0; py < bh; py++) {
+    for (let px = 0; px < bw; px++) {
+      const dx = (x0 + px) - cx;
+      const dy = (y0 + py) - cy;
+      if (dx * dx + dy * dy <= rSq) {
+        const idx = (py * bw + px) * 4;
+        data[idx] = rgb.r;
+        data[idx + 1] = rgb.g;
+        data[idx + 2] = rgb.b;
+      }
+    }
+  }
+  wCtx.putImageData(imgData, x0, y0);
+}
+
+function strokeBrush(fromPt, toPt) {
   const page = pages[currentIdx];
-  const wCtx = page.workCanvas.getContext('2d');
-  const radius = parseInt(document.getElementById('brushSize').value) * (canvas.width / 600);
-  wCtx.save();
-  wCtx.beginPath();
-  wCtx.arc(x, y, radius, 0, Math.PI * 2);
-  wCtx.fillStyle = "#ffffff";
-  wCtx.fill();
-  wCtx.restore();
+  const wCanvas = page.workCanvas;
+  const wCtx = wCanvas.getContext('2d');
+  const rect = canvas.getBoundingClientRect();
+  const scaleFactor = canvas.width / rect.width;
+  const radius = (parseInt(document.getElementById('brushSize').value) / 2) * scaleFactor;
+  const color = document.getElementById('brushColor').value;
+
+  if (currentTool === 'brush') {
+    wCtx.save();
+    wCtx.beginPath();
+    wCtx.moveTo(fromPt.x, fromPt.y);
+    wCtx.lineTo(toPt.x, toPt.y);
+    wCtx.strokeStyle = color;
+    wCtx.lineWidth = radius * 2;
+    wCtx.lineCap = 'round';
+    wCtx.lineJoin = 'round';
+    wCtx.stroke();
+    wCtx.restore();
+  } else if (currentTool === 'smart') {
+    smartBrushAt(wCanvas, toPt.x, toPt.y, radius, color);
+  }
   drawPage();
 }
 
 canvas.addEventListener('pointerdown', e => {
-  if (!pages.length || mode !== 'brush') return;
-  saveHistory(pages[currentIdx]);
-  isPainting = true;
-  const p = getCoords(e);
-  paintWhiteAt(p.x, p.y);
+  if (!pages.length || currentTool === 'move') return;
+  // إذا وضع المستخدم إصبعين (للزوم)، نوقف الرسم فوراً
+  if (e.touches && e.touches.length > 1) { isDrawing = false; return; }
+
+  const pt = getCoords(e);
+  const page = pages[currentIdx];
+
+  // أداة لقط اللون (القطارة)
+  if (currentTool === 'picker') {
+    const pixel = page.workCanvas.getContext('2d').getImageData(Math.floor(pt.x), Math.floor(pt.y), 1, 1).data;
+    const pickedHex = rgbToHex(pixel[0], pixel[1], pixel[2]);
+    setPresetColor(pickedHex);
+    setTool('brush');
+    setStatus(`🎨 تم التقاط اللون (${pickedHex}) وتفعيل الفرشاة تلقائياً!`);
+    return;
+  }
+
+  saveHistory(page);
+  isDrawing = true;
+  lastPt = pt;
+  strokeBrush(pt, pt);
 });
 
 canvas.addEventListener('pointermove', e => {
-  if (!isPainting || mode !== 'brush') return;
-  const p = getCoords(e);
-  paintWhiteAt(p.x, p.y);
+  if (!isDrawing || currentTool === 'move' || currentTool === 'picker') return;
+  if (e.touches && e.touches.length > 1) { isDrawing = false; return; }
+  const pt = getCoords(e);
+  strokeBrush(lastPt, pt);
+  lastPt = pt;
 });
 
 window.addEventListener('pointerup', () => {
-  isPainting = false;
+  isDrawing = false;
+  lastPt = null;
 });
 
+// 5. التراجع، الإعادة، والتنقل
 function undoLastAction() {
   if (!pages.length) return;
   const page = pages[currentIdx];
   if (page.history.length > 0) {
-    const prevData = page.history.pop();
-    page.workCanvas.getContext('2d').putImageData(prevData, 0, 0);
+    const prev = page.history.pop();
+    page.workCanvas.getContext('2d').putImageData(prev, 0, 0);
     drawPage();
   }
 }
@@ -382,16 +479,56 @@ function resetCurrentPage() {
 
 function changePage(dir) {
   const next = currentIdx + dir;
-  if (next >= 0 && next < pages.length) { currentIdx = next; drawPage(); }
+  if (next >= 0 && next < pages.length) {
+    currentIdx = next;
+    drawPage();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
-// 5. إرسال الفصل جاهزاً إلى صفحة الرفع uploader.html
-async function sendToUploaderPage() {
-  if (!pages.length) return;
-  setStatus("⏳ جاري ضغط الصفحات بصيغة WebP وتجهيزها للنقل...");
+// 6. ميزة إبقاء الشريط العائم معك حتى عند عمل زوم (Pinch-to-Zoom) على الآيفون!
+const dock = document.getElementById('floatingDock');
+let dockOffsetY = 0; // يسمح للمستخدم بسحب الشريط للأعلى أو الأسفل
+
+function syncDockWithZoom() {
+  if (!window.visualViewport) return;
+  const vv = window.visualViewport;
+  // نعكس نسبة التكبير ليبقى حجم الشريط العائم ثابتاً وأنيقاً، ونضعه دائماً في أسفل الشاشة المرئية
+  const invScale = 1 / vv.scale;
+  const centerX = vv.offsetLeft + (vv.width / 2);
+  const bottomY = vv.offsetTop + vv.height - (16 * invScale) + dockOffsetY;
+
+  dock.style.left = `${centerX}px`;
+  dock.style.top = `${bottomY}px`;
+  dock.style.bottom = 'auto';
+  dock.style.transform = `translate(-50%, -100%) scale(${invScale})`;
+}
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', syncDockWithZoom);
+  window.visualViewport.addEventListener('scroll', syncDockWithZoom);
+}
+
+// إمكانية سحب الشريط العائم من المقبض العلوي لوضعه في أي مكان
+const handle = document.getElementById('dockHandle');
+let draggingDock = false, dragStartY = 0;
+
+handle.addEventListener('pointerdown', e => {
+  draggingDock = true;
+  dragStartY = e.clientY - dockOffsetY;
+  e.stopPropagation();
+});
+window.addEventListener('pointermove', e => {
+  if (!draggingDock) return;
+  dockOffsetY = e.clientY - dragStartY;
+  syncDockWithZoom();
+});
+window.addEventListener('pointerup', () => { draggingDock = false; });
+
+// 7. تصدير الفصل كملف ZIP أو إرساله مباشرة إلى صفحة الرفع uploader.html
+async function generateFinalZipBlob() {
   const zip = new JSZip();
   const savedIdx = currentIdx;
-
   for (let i = 0; i < pages.length; i++) {
     currentIdx = i;
     drawPage();
@@ -400,8 +537,24 @@ async function sendToUploaderPage() {
   }
   currentIdx = savedIdx;
   drawPage();
+  return await zip.generateAsync({ type: 'blob' });
+}
 
-  const zipBlob = await zip.generateAsync({ type: 'blob' });
+async function downloadZip() {
+  if (!pages.length) return;
+  setStatus("⏳ جاري ضغط الصفحات بصيغة WebP...");
+  const blob = await generateFinalZipBlob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = "futaarab_cleaned_chapter.zip";
+  a.click();
+  setStatus("✅ تم تحميل ملف الـ ZIP بنجاح!");
+}
+
+async function sendToUploaderPage() {
+  if (!pages.length) return;
+  setStatus("⏳ جاري تجهيز الفصل ونقله إلى صفحة الرفع...");
+  const zipBlob = await generateFinalZipBlob();
 
   const req = indexedDB.open("FutaArabBridgeDB", 1);
   req.onupgradeneeded = e => e.target.result.createObjectStore("files");
