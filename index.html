@@ -38,7 +38,8 @@
     .status { font-size: 13px; color: #fbbf24; text-align: center; margin: 8px 0; font-weight: 700; }
     
     .canvas-box { background: #000; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; margin-top: 8px; text-align: center; }
-    canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; touch-action: none; }
+    canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+    canvas.no-scroll { touch-action: none; }
   </style>
 </head>
 <body>
@@ -46,15 +47,15 @@
 <div class="container">
   <div class="card">
     <div class="title">
-      <span>1. رفع وتبييض الفقاعات الذكي</span>
+      <span>1. ماسح الحروف الذكي (بدون مربعات)</span>
       <span style="color:var(--text-gray); font-size:12px;">futaarab.com</span>
     </div>
     
     <input type="file" id="fileInput" accept=".zip,image/*" multiple>
     <div class="status" id="statusMsg">اختر ملف ZIP أو صور الفصل للبدء...</div>
 
-    <button class="btn" id="autoCleanBtn" onclick="autoCleanAllBubbles()" disabled>
-      ✨ تبييض الفقاعات تلقائياً (فوري وبدون لمس الرسمة)
+    <button class="btn" id="autoCleanBtn" onclick="autoCleanTextOnly()" disabled>
+      ✨ مسح الحروف تلقائياً (يمسح الحرف فقط ولا يرسم مربعات)
     </button>
   </div>
 
@@ -65,22 +66,27 @@
       <button class="btn btn-dark" style="width:auto; margin:0; padding:8px 16px;" onclick="changePage(1)">التالي ▶</button>
     </div>
 
-    <!-- أزرار اختيار أداة اللمس -->
+    <!-- أزرار التحكم باللمس -->
     <div class="row" style="margin-bottom: 8px;">
-      <button class="btn btn-active" id="wandModeBtn" style="margin:0; font-size:12px;" onclick="setTool('wand')">
-        🪄 لمسة سحرية (المس الفقاعة لتفريغها)
+      <button class="btn btn-active" id="brushBtn" style="margin:0; font-size:12px;" onclick="setMode('brush')">
+        🖌️ فرشاة مسح الكلام (مرر إصبعك فوق الكلام)
       </button>
-      <button class="btn btn-dark" id="rectModeBtn" style="margin:0; font-size:12px;" onclick="setTool('rect')">
-        ⬛ سحب مربع يدوي
+      <button class="btn btn-dark" id="scrollBtn" style="margin:0; font-size:12px;" onclick="setMode('scroll')">
+        🖐️ تمرير الشاشة
       </button>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:12px; color:var(--text-gray);">
+      <span>حجم الفرشاة:</span>
+      <input type="range" id="brushSize" min="15" max="80" value="40" style="flex:1;">
     </div>
     
     <div class="canvas-box">
-      <canvas id="pageCanvas"></canvas>
+      <canvas id="pageCanvas" class="no-scroll"></canvas>
     </div>
 
     <div class="row">
-      <button class="btn btn-dark" onclick="undoLastAction()">↩️ تراجع عن آخر مسحة</button>
+      <button class="btn btn-dark" onclick="undoLastAction()">↩️ تراجع عن آخر خطوة</button>
       <button class="btn btn-dark" onclick="resetCurrentPage()">🔄 استعادة الصفحة الأصلية</button>
     </div>
   </div>
@@ -95,19 +101,21 @@
 <script>
 const canvas = document.getElementById('pageCanvas');
 const ctx = canvas.getContext('2d');
-let pages = []; // [{ name, img, boxes: [{x, y, w, h}] }]
+let pages = []; // [{ name, originalImg, workCanvas, history: [ImageData] }]
 let currentIdx = 0;
-let currentTool = 'wand'; // 'wand' or 'rect'
-let isDrawing = false, startX = 0, startY = 0;
+let mode = 'brush'; // 'brush' or 'scroll'
+let isPainting = false;
 
 function setStatus(text) {
   document.getElementById('statusMsg').innerText = text;
 }
 
-function setTool(tool) {
-  currentTool = tool;
-  document.getElementById('wandModeBtn').className = tool === 'wand' ? 'btn btn-active' : 'btn btn-dark';
-  document.getElementById('rectModeBtn').className = tool === 'rect' ? 'btn btn-active' : 'btn btn-dark';
+function setMode(newMode) {
+  mode = newMode;
+  document.getElementById('brushBtn').className = mode === 'brush' ? 'btn btn-active' : 'btn btn-dark';
+  document.getElementById('scrollBtn').className = mode === 'scroll' ? 'btn btn-active' : 'btn btn-dark';
+  if (mode === 'brush') canvas.classList.add('no-scroll');
+  else canvas.classList.remove('no-scroll');
 }
 
 // 1. رفع ملف ZIP أو الصور
@@ -118,27 +126,31 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
   currentIdx = 0;
   setStatus("⏳ جاري قراءة وتجهيز الصفحات...");
 
+  const loadList = [];
   if (files[0].name.endsWith('.zip')) {
     const zip = await JSZip.loadAsync(files[0]);
-    const entries = [];
     zip.forEach((path, entry) => {
-      if (!entry.dir && /\.(jpe?g|png|webp)$/i.test(entry.name)) entries.push(entry);
+      if (!entry.dir && /\.(jpe?g|png|webp)$/i.test(entry.name)) loadList.push({ name: entry.name, getBlob: () => entry.async('blob') });
     });
-    entries.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-    for (const entry of entries) {
-      const blob = await entry.async('blob');
-      pages.push({ name: entry.name, img: await loadImg(blob), boxes: [] });
-    }
   } else {
-    files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-    for (const file of files) {
-      pages.push({ name: file.name, img: await loadImg(file), boxes: [] });
-    }
+    files.forEach(f => loadList.push({ name: f.name, getBlob: async () => f }));
+  }
+
+  loadList.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+
+  for (const item of loadList) {
+    const blob = await item.getBlob();
+    const img = await loadImg(blob);
+    const workC = document.createElement('canvas');
+    workC.width = img.width;
+    workC.height = img.height;
+    workC.getContext('2d').drawImage(img, 0, 0);
+    pages.push({ name: item.name, originalImg: img, workCanvas: workC, history: [] });
   }
 
   document.getElementById('autoCleanBtn').disabled = false;
   document.getElementById('sendToUploaderBtn').disabled = false;
-  setStatus(`✅ تم تجهيز ${pages.length} صفحة! اضغط على التبييض التلقائي أو المس أي فقاعة.`);
+  setStatus(`✅ تم تجهيز ${pages.length} صفحة! اضغط على مسح الحروف التلقائي أو استخدم الفرشاة.`);
   drawPage();
 });
 
@@ -150,285 +162,221 @@ function loadImg(blob) {
   });
 }
 
-// 2. رسم الصفحة + التبييض + العلامة المائية والشريط السفلي
+function saveHistory(page) {
+  const wCtx = page.workCanvas.getContext('2d');
+  if (page.history.length >= 8) page.history.shift();
+  page.history.push(wCtx.getImageData(0, 0, page.workCanvas.width, page.workCanvas.height));
+}
+
+// 2. عرض الصفحة + العلامة المائية + الشريط السفلي
 function drawPage() {
   if (!pages.length) return;
   const page = pages[currentIdx];
-  const img = page.img;
-  const footerH = Math.max(36, Math.floor(img.height * 0.03));
+  const wCanvas = page.workCanvas;
+  const footerH = Math.max(36, Math.floor(wCanvas.height * 0.03));
 
-  canvas.width = img.width;
-  canvas.height = img.height + footerH;
+  canvas.width = wCanvas.width;
+  canvas.height = wCanvas.height + footerH;
 
-  ctx.drawImage(img, 0, 0);
-
-  // رسم التبييض فوق النص فقط داخل الفقاعات
-  ctx.fillStyle = "#ffffff";
-  page.boxes.forEach(b => {
-    ctx.fillRect(b.x, b.y, b.w, b.h);
-  });
+  ctx.drawImage(wCanvas, 0, 0);
 
   // العلامة المائية الشفافة
   ctx.save();
-  ctx.font = `900 ${Math.max(18, Math.floor(img.width * 0.03))}px 'Tajawal', sans-serif`;
+  ctx.font = `900 ${Math.max(18, Math.floor(wCanvas.width * 0.03))}px 'Tajawal', sans-serif`;
   ctx.fillStyle = "rgba(255, 42, 95, 0.30)";
   ctx.textAlign = "left";
-  ctx.fillText("futaarab.com", 20, img.height - 20);
+  ctx.fillText("futaarab.com", 20, wCanvas.height - 20);
   ctx.restore();
 
   // الشريط السفلي الثابت
   ctx.fillStyle = "#0a0a0c";
-  ctx.fillRect(0, img.height, canvas.width, footerH);
+  ctx.fillRect(0, wCanvas.height, canvas.width, footerH);
   ctx.fillStyle = "#ffffff";
   ctx.font = `700 ${Math.max(14, Math.floor(footerH * 0.48))}px 'Tajawal', sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("تمت ترجمة هذا العمل بواسطة موقع futaarab.com", canvas.width / 2, img.height + footerH / 2);
+  ctx.fillText("تمت ترجمة هذا العمل بواسطة موقع futaarab.com", canvas.width / 2, wCanvas.height + footerH / 2);
 
   document.getElementById('pageCount').innerText = `${currentIdx + 1} / ${pages.length}`;
 }
 
-// 3. خوارزمية كشف فقاعات المانغا المغلقة ومسح النص بداخلها فقط (بدون لمس الرسمة!)
-function detectAndCleanBubblesOnImage(img) {
-  // نصغر الصورة مؤقتاً في الذاكرة لسرعة فائقة (أقل من 0.2 ثانية للصفحة)
-  const scale = 400 / img.width;
-  const w = Math.floor(img.width * scale);
-  const h = Math.floor(img.height * scale);
-
-  const tempC = document.createElement('canvas');
-  tempC.width = w; tempC.height = h;
-  const tCtx = tempC.getContext('2d');
-  tCtx.drawImage(img, 0, 0, w, h);
-  const data = tCtx.getImageData(0, 0, w, h).data;
+// 3. خوارزمية مسح الحروف المعزولة فقط (Connected-Component Character Eraser)
+// لا ترسم أي مربعات! تمسح فقط الكتل السوداء الصغيرة (الحروف) المحاطة ببياض بنسبة 100%
+function eraseIsolatedLettersOnCanvas(wCanvas) {
+  const w = wCanvas.width;
+  const h = wCanvas.height;
+  const wCtx = wCanvas.getContext('2d');
+  const imgData = wCtx.getImageData(0, 0, w, h);
+  const data = imgData.data;
 
   const visited = new Uint8Array(w * h);
-  const detectedBoxes = [];
+  // حجم الحرف الأقصى نسبةً لعرض الصفحة (أي خط رسم أو شعر أكبر من هذا الحجم لن يُلمس أبداً!)
+  const maxCharWidth = Math.max(18, Math.floor(w * 0.032));
+  const maxCharHeight = Math.max(22, Math.floor(w * 0.038));
 
-  const isWhite = (idx) => data[idx*4] > 235 && data[idx*4+1] > 235 && data[idx*4+2] > 235;
-  const isDark = (idx) => data[idx*4] < 100 && data[idx*4+1] < 100 && data[idx*4+2] < 100;
+  const isDark = (i) => data[i*4] < 160 && data[i*4+1] < 160 && data[i*4+2] < 160;
+  const isPureWhite = (i) => data[i*4] > 238 && data[i*4+1] > 238 && data[i*4+2] > 238;
 
-  for (let y = 5; y < h - 5; y += 2) {
-    for (let x = 5; x < w - 5; x += 2) {
+  const charsToErase = [];
+
+  for (let y = 10; y < h - 10; y++) {
+    for (let x = 10; x < w - 10; x++) {
       const startIdx = y * w + x;
-      if (visited[startIdx] || !isWhite(startIdx)) continue;
+      if (visited[startIdx] || !isDark(startIdx)) continue;
 
-      // Flood Fill لإيجاد حدود المنطقة البيضاء (الفقاعة)
-      let queue = [startIdx];
+      // نجمع كل البكسلات المتصلة بهذا الشكل الأسود
+      const component = [startIdx];
       visited[startIdx] = 1;
       let minX = x, maxX = x, minY = y, maxY = y;
-      let count = 0;
-      let touchesEdge = false;
+      let ptr = 0;
+      let tooBig = false;
 
-      while (queue.length > 0) {
-        const curr = queue.pop();
+      while (ptr < component.length) {
+        const curr = component[ptr++];
         const cy = Math.floor(curr / w);
         const cx = curr % w;
-        count++;
 
         if (cx < minX) minX = cx;
         if (cx > maxX) maxX = cx;
         if (cy < minY) minY = cy;
         if (cy > maxY) maxY = cy;
 
-        if (cx <= 2 || cx >= w - 3 || cy <= 2 || cy >= h - 3) touchesEdge = true;
-
-        const neighbors = [curr - 1, curr + 1, curr - w, curr + w];
-        for (const n of neighbors) {
-          if (n >= 0 && n < w * h && !visited[n] && isWhite(n)) {
-            visited[n] = 1;
-            queue.push(n);
-          }
+        // إذا تجاوز الشكل حجم الحرف الواحد (مثل خط شعر أو عين أو إطار فقاعة)، نتوقف فوراً ولا نمسحه!
+        if ((maxX - minX) > maxCharWidth || (maxY - minY) > maxCharHeight || component.length > 900) {
+          tooBig = true;
         }
-      }
 
-      const bw = maxX - minX;
-      const bh = maxY - minY;
-      const area = bw * bh;
-
-      // شروط فقاعة المانغا: لا تلمس حواف الصفحة، وحجمها منطقي، وشكلها شبه بيضاوي/عمودي
-      if (!touchesEdge && count > 180 && area < (w * h * 0.28) && (bw / bh) < 2.2 && (bh / bw) < 4.5) {
-        // نفحص قلب الفقاعة فقط (نترك هامش 18% من الحواف لكي لا نمسح إطار الفقاعة الأسود)
-        const padX = Math.floor(bw * 0.18);
-        const padY = Math.floor(bh * 0.18);
-        const inMinX = minX + padX, inMaxX = maxX - padX;
-        const inMinY = minY + padY, inMaxY = maxY - padY;
-
-        let darkPixels = 0, whitePixels = 0, innerTotal = 0;
-        let textMinX = inMaxX, textMaxX = inMinX, textMinY = inMaxY, textMaxY = inMinY;
-
-        for (let iy = inMinY; iy <= inMaxY; iy++) {
-          for (let ix = inMinX; ix <= inMaxX; ix++) {
-            const idx = iy * w + ix;
-            innerTotal++;
-            if (isWhite(idx)) whitePixels++;
-            if (isDark(idx)) {
-              darkPixels++;
-              if (ix < textMinX) textMinX = ix;
-              if (ix > textMaxX) textMaxX = ix;
-              if (iy < textMinY) textMinY = iy;
-              if (iy > textMaxY) textMaxY = iy;
+        // فحص الجيران الـ 8
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (dx === 0 && dy === 0) continue;
+            const nx = cx + dx, ny = cy + dy;
+            if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+              const nIdx = ny * w + nx;
+              if (!visited[nIdx] && isDark(nIdx)) {
+                visited[nIdx] = 1;
+                if (!tooBig) component.push(nIdx);
+              }
             }
           }
         }
+      }
 
-        const darkRatio = darkPixels / (innerTotal || 1);
-        const whiteRatio = whitePixels / (innerTotal || 1);
+      if (tooBig || component.length < 3) continue;
 
-        // الفقاعة الحقيقية يكون قلبها أبيض (>65%) وفيها نص أسود بنسبة بين 2% و 30%
-        if (whiteRatio > 0.65 && darkRatio > 0.015 && darkRatio < 0.32 && textMaxX > textMinX) {
-          detectedBoxes.push({
-            x: (textMinX - 3) / scale,
-            y: (textMinY - 3) / scale,
-            w: (textMaxX - textMinX + 6) / scale,
-            h: (textMaxY - textMinY + 6) / scale
-          });
-        }
+      // الآن نتأكد أن هذا الحرف الصغير يقع داخل فقاعة بيضاء نقية (نختبر المحيط الخارجي للحرف)
+      const pad = 4;
+      const bMinX = Math.max(0, minX - pad), bMaxX = Math.min(w - 1, maxX + pad);
+      const bMinY = Math.max(0, minY - pad), bMaxY = Math.min(h - 1, maxY + pad);
+      let borderTotal = 0, borderWhite = 0;
+
+      for (let bx = bMinX; bx <= bMaxX; bx++) {
+        borderTotal += 2;
+        if (isPureWhite(bMinY * w + bx)) borderWhite++;
+        if (isPureWhite(bMaxY * w + bx)) borderWhite++;
+      }
+      for (let by = bMinY; by <= bMaxY; by++) {
+        borderTotal += 2;
+        if (isPureWhite(by * w + bMinX)) borderWhite++;
+        if (isPureWhite(by * w + bMaxX)) borderWhite++;
+      }
+
+      // إذا كان محيط الحرف أبيض نقي بنسبة تزيد عن 82%، فهو حرف داخل فقاعة بيضاء!
+      if ((borderWhite / borderTotal) > 0.82) {
+        charsToErase.push({ component, minX, maxX, minY, maxY });
       }
     }
   }
-  return detectedBoxes;
+
+  // مسح الحروف المكتشفة فقط وتنظيف الحواف الرمادية الدقيقة حول الحرف (Anti-aliasing)
+  for (const item of charsToErase) {
+    for (let py = Math.max(0, item.minY - 2); py <= Math.min(h - 1, item.maxY + 2); py++) {
+      for (let px = Math.max(0, item.minX - 2); px <= Math.min(w - 1, item.maxX + 2); px++) {
+        const idx = (py * w + px) * 4;
+        data[idx] = 255;
+        data[idx + 1] = 255;
+        data[idx + 2] = 255;
+      }
+    }
+  }
+
+  wCtx.putImageData(imgData, 0, 0);
 }
 
-// تشغيل التبييض التلقائي لكل الصفحات
-async function autoCleanAllBubbles() {
+// تشغيل المسح التلقائي لكل الصفحات
+async function autoCleanTextOnly() {
   if (!pages.length) return;
   document.getElementById('autoCleanBtn').disabled = true;
 
   for (let i = 0; i < pages.length; i++) {
-    setStatus(`⏳ جاري تنظيف فقاعات الصفحة ${i + 1} من ${pages.length}...`);
-    await new Promise(r => setTimeout(r, 30)); // لتحديث الواجهة
-    const newBoxes = detectAndCleanBubblesOnImage(pages[i].img);
-    pages[i].boxes.push(...newBoxes);
+    setStatus(`⏳ جاري مسح الحروف من الصفحة ${i + 1} من ${pages.length}...`);
+    await new Promise(r => setTimeout(r, 30));
+    saveHistory(pages[i]);
+    eraseIsolatedLettersOnCanvas(pages[i].workCanvas);
   }
 
   drawPage();
   document.getElementById('autoCleanBtn').disabled = false;
-  setStatus("🎉 تم تبييض الفقاعات! إذا بقيت فقاعة المسها بإصبعك لتفريغها فوراً.");
+  setStatus("🎉 تم مسح الحروف! استخدم الفرشاة لمسح أي كلمة متبقية بلمسة إصبعك.");
 }
 
-// 4. أداة اللمسة السحرية (Magic Wand): تلمس أي مكان داخل الفقاعة فيمسح الكلام كله فوراً!
-function magicWandCleanAt(clickX, clickY) {
-  const page = pages[currentIdx];
-  const img = page.img;
-  const scale = 500 / img.width;
-  const w = Math.floor(img.width * scale);
-  const h = Math.floor(img.height * scale);
-
-  const tempC = document.createElement('canvas');
-  tempC.width = w; tempC.height = h;
-  const tCtx = tempC.getContext('2d');
-  tCtx.drawImage(img, 0, 0, w, h);
-  const data = tCtx.getImageData(0, 0, w, h).data;
-
-  const startX = Math.floor(clickX * scale);
-  const startY = Math.floor(clickY * scale);
-  if (startY >= h || startX >= w) return;
-
-  // نبحث عن أقرب نقطة بيضاء حول مكان لمس الإصبع
-  const isWhite = (idx) => data[idx*4] > 210 && data[idx*4+1] > 210 && data[idx*4+2] > 210;
-  const isDark = (idx) => data[idx*4] < 130 && data[idx*4+1] < 130 && data[idx*4+2] < 130;
-
-  let seedIdx = startY * w + startX;
-  if (!isWhite(seedIdx)) {
-    for (let r = 1; r <= 12; r++) {
-      const testIdx = (startY + r) * w + startX;
-      if (testIdx < w * h && isWhite(testIdx)) { seedIdx = testIdx; break; }
-    }
-  }
-
-  const visited = new Uint8Array(w * h);
-  const queue = [seedIdx];
-  visited[seedIdx] = 1;
-  let minX = startX, maxX = startX, minY = startY, maxY = startY;
-  let count = 0;
-
-  while (queue.length > 0 && count < 45000) {
-    const curr = queue.pop();
-    const cy = Math.floor(curr / w);
-    const cx = curr % w;
-    count++;
-
-    if (cx < minX) minX = cx;
-    if (cx > maxX) maxX = cx;
-    if (cy < minY) minY = cy;
-    if (cy > maxY) maxY = cy;
-
-    const neighbors = [curr - 1, curr + 1, curr - w, curr + w];
-    for (const n of neighbors) {
-      if (n >= 0 && n < w * h && !visited[n] && isWhite(n)) {
-        visited[n] = 1;
-        queue.push(n);
-      }
-    }
-  }
-
-  // نجد حدود النص الأسود داخل هذه الفقاعة التي لمستها ونمسحه بالكامل
-  const padX = Math.max(3, Math.floor((maxX - minX) * 0.14));
-  const padY = Math.max(3, Math.floor((maxY - minY) * 0.14));
-  let tMinX = maxX, tMaxX = minX, tMinY = maxY, tMaxY = minY, foundDark = false;
-
-  for (let y = minY + padY; y <= maxY - padY; y++) {
-    for (let x = minX + padX; x <= maxX - padX; x++) {
-      if (isDark(y * w + x)) {
-        foundDark = true;
-        if (x < tMinX) tMinX = x;
-        if (x > tMaxX) tMaxX = x;
-        if (y < tMinY) tMinY = y;
-        if (y > tMaxY) tMaxY = y;
-      }
-    }
-  }
-
-  if (foundDark) {
-    page.boxes.push({
-      x: (tMinX - 4) / scale,
-      y: (tMinY - 4) / scale,
-      w: (tMaxX - tMinX + 8) / scale,
-      h: (tMaxY - tMinY + 8) / scale
-    });
-    drawPage();
-  }
-}
-
-// التفاعل باللمس على الكانفاس
+// 4. فرشاة المسح اليدوية السريعة والدقيقة (بإصبعك مباشرة)
 function getCoords(e) {
   const r = canvas.getBoundingClientRect();
   const cx = e.touches ? e.touches[0].clientX : e.clientX;
   const cy = e.touches ? e.touches[0].clientY : e.clientY;
-  return { x: (cx - r.left) * (canvas.width / r.width), y: (cy - r.top) * (canvas.height / r.height) };
+  return {
+    x: (cx - r.left) * (canvas.width / r.width),
+    y: (cy - r.top) * (canvas.height / r.height)
+  };
+}
+
+function paintWhiteAt(x, y) {
+  const page = pages[currentIdx];
+  const wCtx = page.workCanvas.getContext('2d');
+  const radius = parseInt(document.getElementById('brushSize').value) * (canvas.width / 600);
+  wCtx.save();
+  wCtx.beginPath();
+  wCtx.arc(x, y, radius, 0, Math.PI * 2);
+  wCtx.fillStyle = "#ffffff";
+  wCtx.fill();
+  wCtx.restore();
+  drawPage();
 }
 
 canvas.addEventListener('pointerdown', e => {
-  if (!pages.length) return;
+  if (!pages.length || mode !== 'brush') return;
+  saveHistory(pages[currentIdx]);
+  isPainting = true;
   const p = getCoords(e);
-  if (currentTool === 'wand') {
-    magicWandCleanAt(p.x, p.y);
-  } else {
-    startX = p.x; startY = p.y; isDrawing = true;
-  }
+  paintWhiteAt(p.x, p.y);
 });
 
-canvas.addEventListener('pointerup', e => {
-  if (!isDrawing || currentTool !== 'rect') return;
-  isDrawing = false;
+canvas.addEventListener('pointermove', e => {
+  if (!isPainting || mode !== 'brush') return;
   const p = getCoords(e);
-  const bx = Math.min(startX, p.x), by = Math.min(startY, p.y);
-  const bw = Math.abs(p.x - startX), bh = Math.abs(p.y - startY);
-  if (bw > 8 && bh > 8) {
-    pages[currentIdx].boxes.push({ x: bx, y: by, w: bw, h: bh });
-    drawPage();
-  }
+  paintWhiteAt(p.x, p.y);
+});
+
+window.addEventListener('pointerup', () => {
+  isPainting = false;
 });
 
 function undoLastAction() {
   if (!pages.length) return;
-  pages[currentIdx].boxes.pop();
-  drawPage();
+  const page = pages[currentIdx];
+  if (page.history.length > 0) {
+    const prevData = page.history.pop();
+    page.workCanvas.getContext('2d').putImageData(prevData, 0, 0);
+    drawPage();
+  }
 }
 
 function resetCurrentPage() {
   if (!pages.length) return;
-  pages[currentIdx].boxes = [];
+  const page = pages[currentIdx];
+  saveHistory(page);
+  page.workCanvas.getContext('2d').drawImage(page.originalImg, 0, 0);
   drawPage();
 }
 
