@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>استوديو التبييض والتحرير الاحترافي - Futa Arab</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <!-- خطوط المانغا العربية المطابقة للصورة -->
   <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@700;800&family=Cairo:wght@700;800;900&family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
 
   <style>
@@ -27,14 +26,20 @@
       box-sizing: border-box; margin: 0; padding: 0;
       font-family: 'Tajawal', sans-serif;
       -webkit-tap-highlight-color: transparent;
-      user-select: none; -webkit-user-select: none;
-      touch-action: manipulation; /* يمنع الزوم العشوائي خارج الكانفاس */
     }
 
     html, body {
       background: radial-gradient(circle at top, #141126 0%, var(--bg-main) 50%);
       color: var(--text); min-height: 100vh; overflow-x: hidden;
-      padding-bottom: 220px; overscroll-behavior: none;
+      padding-bottom: 230px; overscroll-behavior-y: none;
+      touch-action: pan-y;
+    }
+
+    /* تفعيل النسخ واللصق المباشر من الهاتف في جميع الحقول */
+    input, textarea, [contenteditable="true"] {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      touch-action: auto !important;
     }
 
     /* الهيدر العلوي */
@@ -45,6 +50,7 @@
       border-bottom: 1px solid var(--glass-border);
       padding: 8px 12px;
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
+      user-select: none; -webkit-user-select: none;
     }
 
     .header-top {
@@ -67,10 +73,11 @@
 
     .header-actions { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
     .btn-action {
-      padding: 7px 11px; border-radius: 10px; border: 1px solid var(--glass-border);
+      padding: 7px 10px; border-radius: 10px; border: 1px solid var(--glass-border);
       background: rgba(255, 255, 255, 0.06); color: var(--text);
       font-size: 11.5px; font-weight: 800; cursor: pointer;
       display: inline-flex; align-items: center; gap: 4px; transition: 0.15s;
+      user-select: none; -webkit-user-select: none;
     }
     .btn-action:active { transform: scale(0.94); }
     .btn-action.primary {
@@ -91,6 +98,7 @@
       max-width: 780px; margin: 8px auto 4px; padding: 5px;
       background: rgba(16, 16, 24, 0.9); border: 1px solid var(--glass-border);
       border-radius: 14px; display: flex; gap: 6px;
+      user-select: none; -webkit-user-select: none;
     }
     .stage-tab {
       flex: 1; padding: 8px 10px; border-radius: 10px; border: none;
@@ -108,6 +116,7 @@
       max-width: 780px; margin: 6px auto; padding: 7px 12px;
       background: rgba(18, 18, 28, 0.8); border: 1px solid var(--glass-border);
       border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      user-select: none; -webkit-user-select: none;
     }
     .status-text { font-size: 11.5px; font-weight: 700; color: #fbbf24; line-height: 1.4; }
     .zoom-pill {
@@ -116,17 +125,18 @@
       border-radius: 20px; cursor: pointer; white-space: nowrap; display: none;
     }
 
-    /* منطقة الصفحة والـ Viewport (الزوم محصور بداخلها فقط) */
+    /* منطقة الصفحة والـ Viewport */
     .workspace {
       width: 100%; max-width: 780px; margin: 6px auto; padding: 0 8px; position: relative;
+      user-select: none; -webkit-user-select: none;
     }
     .viewport-box {
-      position: relative; width: 100%; min-height: 410px;
+      position: relative; width: 100%; min-height: 420px;
       border-radius: 16px; overflow: hidden;
       background: #0b0b10;
       border: 1px solid rgba(255, 255, 255, 0.15);
       box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
-      touch-action: none; /* يتحكم بالزوم والتحريك داخل المانغا فقط */
+      touch-action: none;
       display: flex; align-items: center; justify-content: center;
     }
     .empty-placeholder {
@@ -134,6 +144,7 @@
     }
     .canvas-stage {
       position: relative; width: 100%; transform-origin: 0 0; will-change: transform; display: none;
+      touch-action: none;
     }
     canvas { width: 100%; height: auto; display: block; pointer-events: none; }
 
@@ -145,7 +156,7 @@
       position: absolute;
       transform: translate(-50%, -50%);
       padding: 6px 8px;
-      min-width: 44px;
+      min-width: 48px;
       text-align: center;
       font-family: 'Almarai', 'Cairo', sans-serif;
       font-weight: 800;
@@ -159,41 +170,41 @@
       touch-action: none;
     }
     .manga-textbox.selected {
-      border: 1.5px dashed var(--accent);
-      background: rgba(255, 42, 95, 0.08);
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.5);
+      border: 2px dashed var(--accent);
+      background: rgba(255, 42, 95, 0.09);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
     }
     .manga-textbox.locked {
       border-color: #f59e0b;
       cursor: default;
     }
 
-    /* شريط التحكم العائم فوق مربع النص (القفل + التعديل + الحذف) */
+    /* شريط التحكم العائم فوق مربع النص (القفل + التعديل + النسخ + الحذف) */
     .tbox-controls {
-      position: absolute; top: -34px; left: 50%; transform: translateX(-50%);
-      display: none; align-items: center; gap: 4px;
-      background: rgba(12, 12, 18, 0.95); border: 1px solid rgba(255,255,255,0.2);
-      padding: 3px 6px; border-radius: 20px; white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.8); z-index: 5;
+      position: absolute; top: -38px; left: 50%; transform: translateX(-50%);
+      display: none; align-items: center; gap: 5px;
+      background: rgba(12, 12, 18, 0.96); border: 1px solid rgba(255,255,255,0.22);
+      padding: 4px 8px; border-radius: 20px; white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.85); z-index: 5;
     }
     .manga-textbox.selected .tbox-controls { display: flex; }
 
     .tbox-ctrl-btn {
-      width: 24px; height: 24px; border-radius: 50%; border: none;
-      background: rgba(255,255,255,0.1); color: #fff; font-size: 12px;
+      width: 26px; height: 26px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.12); color: #fff; font-size: 12px;
       display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
     .tbox-ctrl-btn.lock-active { background: #f59e0b; color: #000; }
-    .tbox-ctrl-btn.delete-btn { background: rgba(239, 68, 68, 0.25); color: #fca5a5; }
+    .tbox-ctrl-btn.delete-btn { background: rgba(239, 68, 68, 0.28); color: #fca5a5; }
 
     /* مقبض التكبير والتصغير في زاوية مربع النص */
     .tbox-resize-handle {
-      position: absolute; bottom: -11px; left: -11px;
-      width: 24px; height: 24px; border-radius: 50%;
+      position: absolute; bottom: -12px; left: -12px;
+      width: 26px; height: 26px; border-radius: 50%;
       background: var(--accent); color: #fff; border: 2px solid #fff;
-      font-size: 12px; font-weight: 900;
+      font-size: 13px; font-weight: 900;
       display: none; align-items: center; justify-content: center;
-      cursor: nwse-resize; box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+      cursor: nwse-resize; box-shadow: 0 2px 8px rgba(0,0,0,0.75);
       touch-action: none;
     }
     .manga-textbox.selected:not(.locked) .tbox-resize-handle { display: flex; }
@@ -207,9 +218,10 @@
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     }
     #compareSlider {
-      position: absolute; top: 0; bottom: 0; left: 50%; width: 48px;
+      position: absolute; top: 0; bottom: 0; left: 50%; width: 52px;
       transform: translateX(-50%); pointer-events: auto; cursor: ew-resize;
-      display: flex; align-items: center; justify-content: center; touch-action: none;
+      display: flex; align-items: center; justify-content: center;
+      touch-action: none;
     }
     .compare-line {
       width: 2.5px; height: 100%; background: #ffffff;
@@ -217,7 +229,7 @@
     }
     .compare-knob {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 36px; height: 36px; border-radius: 50%;
+      width: 38px; height: 38px; border-radius: 50%;
       background: #ffffff; color: #09090d; font-weight: 900; font-size: 15px;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 16px rgba(0,0,0,0.75); border: 2.5px solid var(--accent);
@@ -263,6 +275,7 @@
     .pager-bar {
       display: flex; align-items: center; justify-content: center; gap: 10px;
       margin: 10px auto 4px; flex-wrap: wrap;
+      user-select: none; -webkit-user-select: none;
     }
     .pager-pill {
       display: flex; align-items: center; gap: 14px;
@@ -276,13 +289,13 @@
       display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
     .pager-arrow:active { background: var(--accent); }
-    .pager-numbers { font-size: 14px; font-weight: 900; min-width: 68px; text-align: center; direction: ltr; }
+    .pager-numbers { font-size: 14px; font-weight: 900; min-width: 68px; text-align: center; direction: ltr; cursor: pointer; }
     .pager-numbers b { color: var(--accent); }
 
-    /* الشريط السفلي العائم (يتغير حسب المرحلة: تبييض أو كتابة) */
+    /* الشريط السفلي العائم */
     #floatingDock {
       position: fixed; left: 50%; bottom: 10px; transform: translateX(-50%);
-      z-index: 900; width: 96%; max-width: 510px;
+      z-index: 900; width: 96%; max-width: 520px;
       background: var(--glass-bg);
       backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -297,6 +310,7 @@
       gap: 2px; padding: 6px 2px; border-radius: 12px; border: 1px solid transparent;
       background: rgba(255, 255, 255, 0.04); color: var(--muted);
       font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.15s;
+      user-select: none; -webkit-user-select: none;
     }
     .tool-btn span.icon { font-size: 15px; line-height: 1.1; }
     .tool-btn.active {
@@ -325,41 +339,65 @@
       color: #ffffff; font-weight: 900; font-size: 12px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; flex-shrink: 0; box-shadow: 2px 2px 0 var(--accent);
+      user-select: none; -webkit-user-select: none;
     }
 
     /* أدوات مرحلة الكتابة داخل الشريط السفلي */
     .text-input-bar {
-      display: flex; gap: 6px; width: 100%; align-items: center;
+      display: flex; gap: 5px; width: 100%; align-items: center;
     }
     .manga-text-input {
-      flex: 1; background: rgba(255,255,255,0.07); border: 1px solid var(--glass-border);
+      flex: 1; background: rgba(255,255,255,0.09); border: 1px solid var(--glass-border);
       color: #fff; border-radius: 12px; padding: 7px 10px; font-size: 13px;
       font-family: 'Almarai', 'Cairo', sans-serif; font-weight: 700;
       resize: none; height: 38px; outline: none;
-      user-select: text; -webkit-user-select: text;
     }
-    .manga-text-input:focus { border-color: var(--accent); }
+    .manga-text-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.13); }
 
-    /* النوافذ المنبثقة (قائمة الصفحات + تعديل النص + عداد الـ 5 ثوانٍ) */
+    /* النوافذ المنبثقة وإدارة وترتيب الصفحات */
     .modal-backdrop {
-      position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,0.84);
-      backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 16px;
+      position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 14px;
     }
     .modal-backdrop.open { display: flex; }
     .modal-box {
-      width: 100%; max-width: 420px; background: var(--bg-surface);
+      width: 100%; max-width: 460px; background: var(--bg-surface);
       border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px;
       display: flex; flex-direction: column; gap: 12px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.95);
     }
     .pages-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 60vh; overflow-y: auto; padding: 4px;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+      max-height: 62vh; overflow-y: auto; padding: 4px;
     }
     .page-card {
-      background: rgba(255,255,255,0.05); border: 1.5px solid transparent; border-radius: 12px;
-      padding: 10px 6px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 800;
+      background: rgba(255,255,255,0.04); border: 1.5px solid var(--glass-border);
+      border-radius: 14px; padding: 8px; display: flex; flex-direction: column; gap: 6px;
+      position: relative;
     }
-    .page-card.current { border-color: var(--accent); background: var(--accent-soft); color: #fff; }
+    .page-card.current { border-color: var(--accent); background: var(--accent-soft); }
+    .page-thumb-wrap {
+      width: 100%; height: 110px; border-radius: 8px; overflow: hidden;
+      background: #07070a; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border: 1px solid rgba(255,255,255,0.08);
+    }
+    .page-thumb-wrap img {
+      max-width: 100%; max-height: 100%; object-fit: contain;
+    }
+    .page-card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; font-weight: 900;
+    }
+    .page-card-actions {
+      display: flex; gap: 4px; justify-content: space-between;
+    }
+    .page-ctrl-btn {
+      flex: 1; padding: 5px 0; border-radius: 8px; border: 1px solid var(--glass-border);
+      background: rgba(255,255,255,0.07); color: #fff; font-size: 11px; font-weight: 800;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .page-ctrl-btn:disabled { opacity: 0.3; pointer-events: none; }
+    .page-ctrl-btn.del { background: rgba(239, 68, 68, 0.18); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
 
     .cooldown-circle {
       width: 76px; height: 76px; border-radius: 50%; margin: 10px auto;
@@ -379,16 +417,15 @@
         <span class="brand-title">Futa Arab</span>
       </div>
       <div class="header-actions">
-        <!-- أزرار واضحة لرفع الصور أو ملف ZIP لضمان العمل على الآيفون 100% -->
-        <label class="btn-action primary" for="imgInput">🖼️ رفع صور</label>
+        <label class="btn-action primary" for="imgInput">🖼️ + صور</label>
         <input type="file" id="imgInput" accept="image/*" multiple style="display:none;">
 
-        <label class="btn-action" for="zipInput">📁 رفع ZIP</label>
+        <label class="btn-action" for="zipInput">📁 + ZIP</label>
         <input type="file" id="zipInput" accept=".zip,application/zip,image/*" multiple style="display:none;">
 
         <button class="btn-action" id="zipBtn" onclick="startCooldownExport('zip')" disabled>📦 تحميل</button>
         <button class="btn-action success" id="sendBtn" onclick="startCooldownExport('publish')" disabled>🚀 للنشر</button>
-        <button class="btn-action danger" id="clearSessionBtn" onclick="clearSavedSession()" style="display:none;" title="مسح الجلسة">🗑️</button>
+        <button class="btn-action danger" id="clearSessionBtn" onclick="clearSavedSession()" style="display:none;" title="مسح كل الفصول">🗑️</button>
       </div>
     </div>
   </header>
@@ -405,7 +442,7 @@
 
   <!-- شريط الإرشادات وحالة الزوم -->
   <div class="chapter-banner">
-    <div class="status-text" id="statusMsg">ارفع صورة واحدة أو عدة صور أو ملف ZIP للبدء (حفظ تلقائي كامل ضد الريلود)...</div>
+    <div class="status-text" id="statusMsg">ارفع صورة أو ملف ZIP للبدء (رفع أي ملف جديد يُضاف لعملك الحالي ولا يمسحه)...</div>
     <button class="zoom-pill" id="resetZoomBtn" onclick="resetZoom()">🔍 100%</button>
   </div>
 
@@ -413,7 +450,7 @@
   <div class="workspace">
     <div class="viewport-box" id="viewportBox">
       <div class="empty-placeholder" id="emptyPlaceholder">
-        📄 لا توجد صفحات مرفوعة بعد<br>اضغط على <b>"🖼️ رفع صور"</b> أو <b>"📁 رفع ZIP"</b> في الأعلى
+        📄 لا توجد صفحات مرفوعة بعد<br>اضغط على <b>"🖼️ + صور"</b> أو <b>"📁 + ZIP"</b> في الأعلى لإضافة صفحات
       </div>
 
       <div class="canvas-stage" id="canvasStage">
@@ -422,7 +459,7 @@
         <!-- طبقة النصوص التفاعلية -->
         <div id="textLayer"></div>
 
-        <!-- طبقة خط المقارنة المتحرك (تعمل في التبييض وفي الكتابة) -->
+        <!-- طبقة خط المقارنة المتحرك -->
         <div id="compareOverlay">
           <canvas id="beforeCanvas"></canvas>
           <span class="compare-label label-orig">الأصلية</span>
@@ -440,7 +477,7 @@
   <div class="pager-bar">
     <div class="pager-pill">
       <button class="pager-arrow" onclick="changePage(-1)">❮</button>
-      <div class="pager-numbers" id="pageCount">0 / <b>0</b></div>
+      <div class="pager-numbers" id="pageCount" onclick="togglePagesModal()" title="اضغط لترتيب أو مسح الصفحات">0 / <b>0</b></div>
       <button class="pager-arrow" onclick="changePage(1)">❯</button>
     </div>
     <button class="btn-action primary" id="nextStageBtn" onclick="switchStage('text')" style="display:none;">
@@ -453,25 +490,35 @@
   <div id="bucketTarget"></div>
   <div id="brushPreview"></div>
 
-  <!-- نافذة قائمة الصفحات -->
+  <!-- نافذة إدارة وترتيب ومسح الصفحات -->
   <div class="modal-backdrop" id="pagesModal" onclick="if(event.target===this) togglePagesModal()">
     <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong style="color:var(--accent);">📑 صفحات الفصل</strong>
-        <button class="btn-action" onclick="togglePagesModal()">إغلاق ✕</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+        <strong style="color:var(--accent); font-size:14px;">📑 ترتيب وإدارة الصفحات</strong>
+        <div style="display:flex; gap:6px;">
+          <label class="btn-action primary" for="imgInput" onclick="togglePagesModal()">+ إضافة صور</label>
+          <button class="btn-action" onclick="togglePagesModal()">إغلاق ✕</button>
+        </div>
       </div>
+      <div style="font-size:11px; color:var(--muted);">اضغط على الصورة للانتقال إليها، أو استخدم الأسهم لترتيبها، أو 🗑️ لمسحها:</div>
       <div class="pages-grid" id="pagesGrid"></div>
     </div>
   </div>
 
-  <!-- نافذة تعديل النص عند الضغط مرتين -->
+  <!-- نافذة تعديل النص عند الضغط مرتين (مع دعم النسخ واللصق المباشر) -->
   <div class="modal-backdrop" id="editTextModal">
     <div class="modal-box">
-      <strong style="color:var(--accent);">✍️ تعديل محتوى النص</strong>
-      <textarea id="modalTextInput" rows="4" style="width:100%; border-radius:12px; background:#09090f; color:#fff; border:1px solid var(--accent); padding:10px; font-family:'Almarai','Cairo',sans-serif; font-weight:800; font-size:15px; user-select:text; -webkit-user-select:text;"></textarea>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+        <strong style="color:var(--accent);">✍️ تعديل النص</strong>
+        <div style="display:flex; gap:5px;">
+          <button class="btn-action" onclick="copyFromInput('modalTextInput')">📄 نسخ</button>
+          <button class="btn-action primary" onclick="pasteIntoInput('modalTextInput')">📋 لصق من الهاتف</button>
+        </div>
+      </div>
+      <textarea id="modalTextInput" rows="4" placeholder="اكتب أو الصق النص هنا مباشرة من لوحة مفاتيح الهاتف..." style="width:100%; border-radius:12px; background:#09090f; color:#fff; border:1.5px solid var(--accent); padding:10px; font-family:'Almarai','Cairo',sans-serif; font-weight:800; font-size:15px;"></textarea>
       <div style="display:flex; gap:8px; justify-content:flex-end;">
         <button class="btn-action" onclick="closeEditModal()">إلغاء</button>
-        <button class="btn-action primary" onclick="saveEditedText()">حفظ التعديل ✅</button>
+        <button class="btn-action success" onclick="saveEditedText()">حفظ التعديل ✅</button>
       </div>
     </div>
   </div>
@@ -481,7 +528,7 @@
     <div class="modal-box" style="text-align:center;">
       <strong style="color:var(--accent); font-size:16px;" id="cooldownTitle">⏳ جاري تجهيز الفصل والدمج...</strong>
       <div class="cooldown-circle" id="cooldownNumber">5</div>
-      <p style="font-size:12px; color:var(--muted);" id="cooldownDesc">يتم الآن دمج النصوص والعلامة المائية بجودة WebP...</p>
+      <p style="font-size:12px; color:var(--muted);" id="cooldownDesc">يتم الآن دمج النصوص والعلامة المائية بجودة عالية...</p>
     </div>
   </div>
 
@@ -527,7 +574,7 @@
         <input type="range" class="size-slider" id="brushSize" min="4" max="120" value="32" oninput="showBrushPreview()">
         <span id="sizeVal" style="font-size:11px; font-weight:900; min-width:22px; text-align:center;">32</span>
         <button class="btn-action" style="padding:5px 8px;" onclick="resetCurrentPage()" title="استرجاع الصفحة الأصلية">🔄</button>
-        <div class="layers-square-btn" id="layerSquareBtn1" onclick="togglePagesModal()">0</div>
+        <div class="layers-square-btn" id="layerSquareBtn1" onclick="togglePagesModal()" title="ترتيب ومسح الصفحات">0</div>
       </div>
     </div>
 
@@ -535,13 +582,13 @@
     <div id="textDockTools" style="display:none;">
       <div class="dock-row">
         <div class="text-input-bar">
-          <textarea class="manga-text-input" id="quickTextInput" placeholder="اكتب النص هنا ثم اضغط إضافة..."></textarea>
-          <button class="btn-action primary" style="height:38px; padding:0 14px;" onclick="addNewTextBox()">+ إضافة نص</button>
+          <button class="btn-action" style="height:38px; padding:0 9px;" onclick="pasteAndCreateOrFill()" title="لصق مباشر من الهاتف">📋 لصق</button>
+          <textarea class="manga-text-input" id="quickTextInput" placeholder="اكتب أو الصق النص هنا مباشرة..."></textarea>
+          <button class="btn-action primary" style="height:38px; padding:0 12px;" onclick="addNewTextBox()">+ إضافة</button>
         </div>
       </div>
 
       <div class="dock-row">
-        <!-- تغيير لون الكتابة -->
         <div class="color-picker-wrap" title="لون النص">
           <input type="color" id="textColorPicker" value="#000000" onchange="changeSelectedTextColor(this.value)">
         </div>
@@ -551,45 +598,30 @@
           <div class="color-dot" style="background:#ff2a5f;" onclick="changeSelectedTextColor('#ff2a5f')" title="أحمر"></div>
         </div>
 
-        <!-- حجم الخط -->
-        <input type="range" class="size-slider" id="textSizeSlider" min="12" max="72" value="24" oninput="changeSelectedTextSize(this.value)">
+        <input type="range" class="size-slider" id="textSizeSlider" min="10" max="85" value="24" oninput="changeSelectedTextSize(this.value)">
         <span id="textSizeVal" style="font-size:11px; font-weight:900; min-width:24px; text-align:center;">24</span>
 
-        <!-- خط المقارنة يعمل في مرحلة الكتابة أيضاً -->
         <button class="tool-btn" id="btnCompareText" style="flex:0 0 auto; padding:5px 10px;" onclick="toggleCompareMode()">
           <span class="icon">🌗</span><span>مقارنة</span>
         </button>
-        <div class="layers-square-btn" id="layerSquareBtn2" onclick="togglePagesModal()">0</div>
+        <div class="layers-square-btn" id="layerSquareBtn2" onclick="togglePagesModal()" title="ترتيب ومسح الصفحات">0</div>
       </div>
     </div>
   </div>
 
 <script>
-// ====================================================
-// 0. منع الزوم خارج إطار صفحة المانغا نهائياً
-// ====================================================
-document.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
-document.addEventListener('gesturechange', e => e.preventDefault(), { passive: false });
-document.addEventListener('gestureend', e => e.preventDefault(), { passive: false });
-document.addEventListener('touchmove', e => {
-  if (e.touches.length > 1 && !e.target.closest('#viewportBox')) {
-    e.preventDefault();
-  }
+// منع الزوم خارج منطقة المانغا فقط
+document.addEventListener('gesturestart', e => {
+  if (!e.target.closest('#viewportBox')) e.preventDefault();
+}, { passive: false });
+document.addEventListener('gesturechange', e => {
+  if (!e.target.closest('#viewportBox')) e.preventDefault();
 }, { passive: false });
 
-// ====================================================
-// المتغيرات الأساسية ونظام الكانفاس النشط الواحد
-// ====================================================
 const canvas = document.getElementById('pageCanvas');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 const beforeCanvas = document.getElementById('beforeCanvas');
 const beforeCtx = beforeCanvas.getContext('2d');
-
-// كانفاس العمل النشط للصفحة الحالية فقط (يمنع امتلاء ذاكرة الآيفون واختفاء الصور)
-const activeWorkCanvas = document.createElement('canvas');
-const activeWorkCtx = activeWorkCanvas.getContext('2d', { willReadFrequently: true });
-let activeOrigImg = null;
-let activeHistory = [];
 
 const viewportBox = document.getElementById('viewportBox');
 const canvasStage = document.getElementById('canvasStage');
@@ -600,8 +632,8 @@ const pickerLoupe = document.getElementById('pickerLoupe');
 const pickerHexText = document.getElementById('pickerHexText');
 const bucketTarget = document.getElementById('bucketTarget');
 
-// مصفوفة الصفحات تحفظ الـ Blobs ومربعات النصوص لكل صفحة
-// pages[i] = { name, origBlob, workBlob, width, height, texts: [{ id, text, xPct, yPct, fontSize, color, widthPct, locked }] }
+// كل صفحة تحتفظ بـ origCanvas (للرسم الفوري بالممحاة والمقارنة) و workCanvas (للتبييض)
+// pages = [{ name, origCanvas, workCanvas, history: [], texts: [] }]
 let pages = [];
 let currentIdx = 0;
 let currentStage = 'clean'; // 'clean' or 'text'
@@ -617,7 +649,9 @@ let isDrawing = false;
 let isAimingBucket = false;
 let isAimingPicker = false;
 let isSingleFingerPan = false;
+let isCompareOneFingerScroll = false;
 let isTwoFingerGesture = false;
+let isTwoFingerTextGesture = false;
 
 let activePt = null;
 let pickedHexLive = "#ffffff";
@@ -627,6 +661,7 @@ let strokeStartTime = 0;
 let previewTimer = null;
 let saveTimer = null;
 
+// متغيرات الزوم والتحريك للصفحة أو للنص بإصبعين
 let viewScale = 1;
 let viewX = 0;
 let viewY = 0;
@@ -634,6 +669,17 @@ let pinchStartDist = 0;
 let pinchStartScale = 1;
 let panStartMid = { x: 0, y: 0 };
 let panStartOffset = { x: 0, y: 0 };
+let compareScrollStartY = 0;
+let compareStartViewY = 0;
+
+// متغيرات تحريك وتكبير النص بإصبعين
+let textPinchStartDist = 0;
+let textPinchStartFont = 24;
+let textPinchStartWidthPct = 38;
+let textPanStartMid = { x: 0, y: 0 };
+let textStartXPct = 50;
+let textStartYPct = 50;
+
 let lastTapTime = 0;
 let lastTapPos = { x: 0, y: 0 };
 
@@ -642,9 +688,77 @@ function setStatus(msg) {
 }
 
 // ====================================================
+// دوال النسخ واللصق المباشر من الهاتف
+// ====================================================
+async function copyTextToPhone(text) {
+  if (!text) return;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      setStatus("📄 تم نسخ النص إلى حافظة الهاتف!");
+      return;
+    }
+  } catch (e) {}
+  const temp = document.createElement('textarea');
+  temp.value = text;
+  document.body.appendChild(temp);
+  temp.select();
+  document.execCommand('copy');
+  document.body.removeChild(temp);
+  setStatus("📄 تم نسخ النص إلى حافظة الهاتف!");
+}
+
+function copyFromInput(inputId) {
+  const el = document.getElementById(inputId);
+  copyTextToPhone(el.value);
+}
+
+async function pasteIntoInput(inputId) {
+  const inputEl = document.getElementById(inputId);
+  inputEl.focus();
+  try {
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      const clipText = await navigator.clipboard.readText();
+      if (clipText) {
+        const start = inputEl.selectionStart ?? inputEl.value.length;
+        const end = inputEl.selectionEnd ?? inputEl.value.length;
+        inputEl.value = inputEl.value.slice(0, start) + clipText + inputEl.value.slice(end);
+        setStatus("📋 تم لصق النص من الهاتف بنجاح!");
+        return;
+      }
+    }
+  } catch (err) {}
+  setStatus("📋 الحقل مفعل: اضغط لصق من لوحة مفاتيح الهاتف مباشرة");
+}
+
+async function pasteAndCreateOrFill() {
+  const inputEl = document.getElementById('quickTextInput');
+  try {
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      const clipText = await navigator.clipboard.readText();
+      if (clipText && clipText.trim()) {
+        inputEl.value = clipText.trim();
+        addNewTextBox();
+        setStatus("📋 تم لصق النص وإضافته للصفحة مباشرة!");
+        return;
+      }
+    }
+  } catch (err) {}
+  inputEl.focus();
+  setStatus("📋 اضغط 'لصق' من شريط كيبورد الهاتف ثم اضغط (+ إضافة)");
+}
+
+// عندما يقوم المستخدم باللصق مباشرة عبر كيبورد الهاتف في الحقل السريع
+document.getElementById('quickTextInput').addEventListener('paste', () => {
+  setTimeout(() => {
+    setStatus("📋 تم لصق النص! اضغط (+ إضافة) لوضعه على الصفحة");
+  }, 50);
+});
+
+// ====================================================
 // 1. نظام الحفظ التلقائي الشامل في IndexedDB ضد الريلود
 // ====================================================
-const DB_NAME = "FutaStudioProDB_v2";
+const DB_NAME = "FutaStudioProDB_v4";
 const DB_VERSION = 1;
 
 function openSessionDB() {
@@ -661,28 +775,32 @@ function openSessionDB() {
   });
 }
 
+function canvasToBlobSafe(canvasEl, quality = 0.9) {
+  return new Promise(resolve => {
+    canvasEl.toBlob(blob => {
+      if (blob) return resolve(blob);
+      canvasEl.toBlob(fb => resolve(fb), 'image/jpeg', quality);
+    }, 'image/webp', quality);
+  });
+}
+
 function scheduleAutoSave() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(syncActivePageAndSaveDB, 280);
+  saveTimer = setTimeout(saveCurrentStateToDB, 280);
 }
 
-async function syncActivePageToMemory() {
-  if (!pages.length || !activeWorkCanvas.width) return;
-  const blob = await new Promise(res => activeWorkCanvas.toBlob(res, 'image/webp', 0.92));
-  if (blob) {
-    pages[currentIdx].workBlob = blob;
-  }
-}
-
-async function syncActivePageAndSaveDB() {
+async function saveCurrentStateToDB() {
   if (!pages.length) return;
   try {
-    await syncActivePageToMemory();
+    const page = pages[currentIdx];
+    const workBlob = await canvasToBlobSafe(page.workCanvas, 0.9);
+    const meta = pages.map(p => ({ name: p.name, texts: p.texts }));
+
     const db = await openSessionDB();
     const tx = db.transaction("session", "readwrite");
     const store = tx.objectStore("session");
-    store.put(pages[currentIdx].workBlob, `work_${currentIdx}`);
-    store.put(pages.map(p => ({ name: p.name, width: p.width, height: p.height, texts: p.texts })), "pagesMeta");
+    store.put(workBlob, `work_${currentIdx}`);
+    store.put(meta, "pagesMeta");
     store.put(currentIdx, "currentIdx");
     store.put(currentStage, "currentStage");
   } catch (err) {
@@ -690,20 +808,33 @@ async function syncActivePageAndSaveDB() {
   }
 }
 
-async function saveAllPagesToDB() {
-  if (!pages.length) return;
+async function saveFullProjectToDB() {
+  if (!pages.length) {
+    const db = await openSessionDB();
+    const tx = db.transaction("session", "readwrite");
+    tx.objectStore("session").clear();
+    return;
+  }
   try {
+    const meta = pages.map(p => ({ name: p.name, texts: p.texts }));
+    const origBlobs = [];
+    const workBlobs = [];
+
+    for (let i = 0; i < pages.length; i++) {
+      const p = pages[i];
+      origBlobs.push(await canvasToBlobSafe(p.origCanvas, 0.9));
+      workBlobs.push(await canvasToBlobSafe(p.workCanvas, 0.9));
+    }
+
     const db = await openSessionDB();
     const tx = db.transaction("session", "readwrite");
     const store = tx.objectStore("session");
     store.clear();
-    store.put(pages.map(p => ({ name: p.name, width: p.width, height: p.height, texts: p.texts })), "pagesMeta");
+    store.put(meta, "pagesMeta");
     store.put(currentIdx, "currentIdx");
     store.put(currentStage, "currentStage");
-    pages.forEach((p, i) => {
-      store.put(p.origBlob, `orig_${i}`);
-      store.put(p.workBlob, `work_${i}`);
-    });
+    origBlobs.forEach((b, i) => store.put(b, `orig_${i}`));
+    workBlobs.forEach((b, i) => store.put(b, `work_${i}`));
     document.getElementById('clearSessionBtn').style.display = 'inline-flex';
   } catch (err) {
     console.warn("Full DB save error:", err);
@@ -728,12 +859,31 @@ async function restoreSessionOnLoad() {
       const origBlob = await getVal(`orig_${i}`);
       const workBlob = await getVal(`work_${i}`);
       if (!origBlob) continue;
+
+      const origImg = await loadImgFromBlob(origBlob);
+      const w = origImg.naturalWidth || origImg.width;
+      const h = origImg.naturalHeight || origImg.height;
+
+      const origC = document.createElement('canvas');
+      origC.width = w;
+      origC.height = h;
+      origC.getContext('2d').drawImage(origImg, 0, 0, w, h);
+
+      const workC = document.createElement('canvas');
+      workC.width = w;
+      workC.height = h;
+      if (workBlob) {
+        const workImg = await loadImgFromBlob(workBlob);
+        workC.getContext('2d', { willReadFrequently: true }).drawImage(workImg, 0, 0, w, h);
+      } else {
+        workC.getContext('2d', { willReadFrequently: true }).drawImage(origC, 0, 0);
+      }
+
       pages.push({
         name: meta[i].name,
-        width: meta[i].width,
-        height: meta[i].height,
-        origBlob: origBlob,
-        workBlob: workBlob || origBlob,
+        origCanvas: origC,
+        workCanvas: workC,
+        history: [],
         texts: meta[i].texts || []
       });
     }
@@ -744,7 +894,8 @@ async function restoreSessionOnLoad() {
       currentIdx = (typeof savedIdx === 'number' && savedIdx < pages.length) ? savedIdx : 0;
 
       enableProjectUI();
-      await loadPageIntoActiveCanvas(currentIdx);
+      drawPage();
+      renderTextLayer();
       if (savedStage === 'text') {
         switchStage('text', true);
       } else {
@@ -758,7 +909,7 @@ async function restoreSessionOnLoad() {
 }
 
 async function clearSavedSession() {
-  if (!confirm("هل تريد مسح الجلسة المحفوظة والبدء من جديد؟")) return;
+  if (!confirm("هل تريد مسح جميع الصفحات المحفوظة والبدء من الصفر؟")) return;
   const db = await openSessionDB();
   const tx = db.transaction("session", "readwrite");
   tx.objectStore("session").clear();
@@ -775,21 +926,21 @@ async function clearSavedSession() {
   document.getElementById('sendBtn').disabled = true;
   document.getElementById('clearSessionBtn').style.display = 'none';
   document.getElementById('nextStageBtn').style.display = 'none';
-  setStatus("🗑️ تم مسح الجلسة. ارفع صوراً أو ملف ZIP للبدء.");
+  setStatus("🗑️ تم مسح الجلسة بالكامل.");
 }
 
 window.addEventListener('DOMContentLoaded', restoreSessionOnLoad);
 
 // ====================================================
-// 2. رفع الصور وملفات الـ ZIP (مصلح بالكامل للآيفون)
+// 2. رفع وإضافة الصور وملفات الـ ZIP (تُضاف فوق العمل الحالي ولا تمسحه)
 // ====================================================
-function decodeBlobToImage(blob) {
+function loadImgFromBlob(blob) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(blob);
     const img = new Image();
     img.onload = () => {
-      // نحتفظ بالصورة محملة بالكامل ثم نحرر الرابط بعد التأكد من فك تشفيرها
-      resolve({ img, url });
+      URL.revokeObjectURL(url);
+      resolve(img);
     };
     img.onerror = err => {
       URL.revokeObjectURL(url);
@@ -799,34 +950,12 @@ function decodeBlobToImage(blob) {
   });
 }
 
-async function normalizeImageBlob(rawBlob) {
-  const { img, url } = await decodeBlobToImage(rawBlob);
-  // ضبط الحجم الأقصى لمنع انهيار ذاكرة Safari مع الحفاظ على دقة ممتازة
-  const maxDim = 1800;
-  let w = img.naturalWidth || img.width;
-  let h = img.naturalHeight || img.height;
-  if (w > maxDim) {
-    h = Math.round(h * (maxDim / w));
-    w = maxDim;
-  }
-  const tempC = document.createElement('canvas');
-  tempC.width = w;
-  tempC.height = h;
-  tempC.getContext('2d').drawImage(img, 0, 0, w, h);
-  URL.revokeObjectURL(url);
-
-  const cleanBlob = await new Promise(res => tempC.toBlob(res, 'image/webp', 0.92));
-  return { blob: cleanBlob || rawBlob, width: w, height: h };
-}
-
 async function handleFilesUpload(fileList) {
   const files = Array.from(fileList);
   if (!files.length) return;
 
-  setStatus("⏳ جاري قراءة وتجهيز الصور...");
-  pages = [];
-  currentIdx = 0;
-  selectedTextId = null;
+  const wasEmpty = pages.length === 0;
+  setStatus("⏳ جاري قراءة وإضافة الصفحات الجديدة إلى عملك...");
 
   const rawItems = [];
   for (const file of files) {
@@ -857,23 +986,52 @@ async function handleFilesUpload(fileList) {
     rawItems.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
   }
 
+  let addedCount = 0;
   for (let i = 0; i < rawItems.length; i++) {
-    setStatus(`⏳ جاري تجهيز صفحة ${i + 1} من ${rawItems.length}...`);
-    const norm = await normalizeImageBlob(rawItems[i].blob);
+    setStatus(`⏳ جاري إضافة صفحة ${i + 1} من ${rawItems.length}...`);
+    const img = await loadImgFromBlob(rawItems[i].blob);
+    let w = img.naturalWidth || img.width;
+    let h = img.naturalHeight || img.height;
+    const maxDim = 1800;
+    if (w > maxDim) {
+      h = Math.round(h * (maxDim / w));
+      w = maxDim;
+    }
+
+    // حفظ نسخة أصلية مطابقة للأبعاد تماماً لكي تعمل الممحاة والمقارنة بدقة 100%
+    const origC = document.createElement('canvas');
+    origC.width = w;
+    origC.height = h;
+    origC.getContext('2d').drawImage(img, 0, 0, w, h);
+
+    const workC = document.createElement('canvas');
+    workC.width = w;
+    workC.height = h;
+    workC.getContext('2d', { willReadFrequently: true }).drawImage(origC, 0, 0);
+
     pages.push({
       name: rawItems[i].name,
-      width: norm.width,
-      height: norm.height,
-      origBlob: norm.blob,
-      workBlob: norm.blob,
+      origCanvas: origC,
+      workCanvas: workC,
+      history: [],
       texts: []
     });
+    addedCount++;
+  }
+
+  if (wasEmpty) {
+    currentIdx = 0;
+    resetZoom();
   }
 
   enableProjectUI();
-  await loadPageIntoActiveCanvas(0);
-  await saveAllPagesToDB();
-  setStatus(`✅ تم تحميل ${pages.length} صفحة بنجاح! يمكنك البدء بالتبييض.`);
+  drawPage();
+  renderTextLayer();
+  if (document.getElementById('pagesModal').classList.contains('open')) {
+    renderPagesManagerGrid();
+  }
+  setStatus(`✅ تمت إضافة ${addedCount} صفحة جديدة! (الإجمالي الآن: ${pages.length} صفحة)`);
+  await saveFullProjectToDB();
 }
 
 document.getElementById('imgInput').addEventListener('change', e => {
@@ -894,28 +1052,6 @@ function enableProjectUI() {
   document.getElementById('nextStageBtn').style.display = currentStage === 'clean' ? 'inline-flex' : 'none';
 }
 
-async function loadPageIntoActiveCanvas(idx) {
-  if (!pages.length || !pages[idx]) return;
-  currentIdx = idx;
-  selectedTextId = null;
-  activeHistory = [];
-
-  const page = pages[idx];
-  const origDecoded = await decodeBlobToImage(page.origBlob);
-  activeOrigImg = origDecoded.img;
-
-  const workDecoded = await decodeBlobToImage(page.workBlob);
-  activeWorkCanvas.width = page.width;
-  activeWorkCanvas.height = page.height;
-  activeWorkCtx.clearRect(0, 0, page.width, page.height);
-  activeWorkCtx.drawImage(workDecoded.img, 0, 0, page.width, page.height);
-  URL.revokeObjectURL(workDecoded.url);
-
-  resetZoom();
-  drawPage();
-  renderTextLayer();
-}
-
 // ====================================================
 // 3. التبديل بين مرحلة التبييض ومرحلة الكتابة
 // ====================================================
@@ -930,22 +1066,21 @@ function switchStage(stage, skipSave = false) {
   if (stage === 'clean') {
     selectedTextId = null;
     renderTextLayer();
-    setStatus("🖌️ مرحلة التبييض: نظف الفقاعات بالدلو أو الفرشاة، ثم انتقل لمرحلة الكتابة");
+    setStatus("🖌️ مرحلة التبييض: الفرشاة والممحاة والدلو جاهزة، وإصبعين للزوم والتحريك");
   } else {
-    setStatus("✍️ مرحلة الكتابة: أضف نصاً، اسحبه أو كبره من المربع، اضغط مرتين لتعديله، أو اقفله بالقفل 🔒");
+    setStatus("✍️ مرحلة الكتابة: حدد النص وحركه/كبره بإصبعين أو بإصبع واحد، واضغط مرتين لتعديله");
   }
   if (!skipSave) scheduleAutoSave();
 }
 
 // ====================================================
-// 4. عرض الصفحة + العلامة المائية + خط المقارنة
+// 4. عرض الصفحة + العلامة المائية + العبارة المطلوبة
 // ====================================================
 function renderCompositeToContext(targetCtx, sourceDrawable, width, height, pageTexts = null) {
   const footerH = Math.max(36, Math.floor(height * 0.03));
   targetCtx.clearRect(0, 0, width, height + footerH);
   targetCtx.drawImage(sourceDrawable, 0, 0, width, height);
 
-  // إذا كنا نصدر الصورة النهائية، نطبع مربعات النصوص فوق الكانفاس بنفس خط المانغا
   if (pageTexts && pageTexts.length > 0) {
     pageTexts.forEach(tb => {
       targetCtx.save();
@@ -978,14 +1113,14 @@ function renderCompositeToContext(targetCtx, sourceDrawable, width, height, page
   targetCtx.fillText("futaarab.com", 20, height - 20);
   targetCtx.restore();
 
-  // شريط سفلي ثابت باسم الموقع
+  // شريط سفلي ثابت بالعبارة المطلوبة
   targetCtx.fillStyle = "#070709";
   targetCtx.fillRect(0, height, width, footerH);
   targetCtx.fillStyle = "#ffffff";
   targetCtx.font = `700 ${Math.max(14, Math.floor(footerH * 0.48))}px 'Tajawal', sans-serif`;
   targetCtx.textAlign = "center";
   targetCtx.textBaseline = "middle";
-  targetCtx.fillText("تمت ترجمة هذا العمل بواسطة موقع futaarab.com", width / 2, height + footerH / 2);
+  targetCtx.fillText("تمت مترجمة بي مترجم موقع futaarab.com", width / 2, height + footerH / 2);
 }
 
 function wrapArabicText(context, text, maxWidth) {
@@ -1009,9 +1144,11 @@ function wrapArabicText(context, text, maxWidth) {
 }
 
 function drawPage() {
-  if (!pages.length || !activeWorkCanvas.width) return;
-  const w = activeWorkCanvas.width;
-  const h = activeWorkCanvas.height;
+  if (!pages.length) return;
+  const page = pages[currentIdx];
+  const wCanvas = page.workCanvas;
+  const w = wCanvas.width;
+  const h = wCanvas.height;
   const footerH = Math.max(36, Math.floor(h * 0.03));
   const totalH = h + footerH;
 
@@ -1020,36 +1157,37 @@ function drawPage() {
     canvas.height = totalH;
   }
 
-  renderCompositeToContext(ctx, activeWorkCanvas, w, h, null);
+  renderCompositeToContext(ctx, wCanvas, w, h, null);
 
   if (isCompareMode) {
     syncBeforeCanvas();
   }
 
   document.getElementById('pageCount').innerHTML = `${pages.length} / <b>${currentIdx + 1}</b>`;
-  document.getElementById('layerSquareBtn1').innerText = currentIdx + 1;
-  document.getElementById('layerSquareBtn2').innerText = currentIdx + 1;
+  document.getElementById('layerSquareBtn1').innerText = pages.length;
+  document.getElementById('layerSquareBtn2').innerText = pages.length;
 }
 
 // ====================================================
-// 5. مربعات الكتابة التفاعلية + التكبير + القفل + الضغط مرتين
+// 5. مربعات الكتابة التفاعلية + التحكم بإصبعين + النسخ واللصق + القفل
 // ====================================================
 function renderTextLayer() {
   textLayer.innerHTML = '';
   if (!pages.length) return;
   const page = pages[currentIdx];
+  const h = page.workCanvas.height;
   const stageRect = canvas.getBoundingClientRect();
-  const baseWidth = stageRect.width / viewScale || 360;
+  const baseWidth = (stageRect.width / viewScale) || 360;
 
-  // نسبة ارتفاع الصورة بدون الشريط السفلي
-  const footerH = Math.max(36, Math.floor(page.height * 0.03));
-  const imgHeightRatio = page.height / (page.height + footerH);
+  const footerH = Math.max(36, Math.floor(h * 0.03));
+  const imgHeightRatio = h / (h + footerH);
 
   page.texts.forEach(tb => {
     const el = document.createElement('div');
     el.className = 'manga-textbox' +
       (tb.id === selectedTextId ? ' selected' : '') +
       (tb.locked ? ' locked' : '');
+    el.dataset.id = tb.id;
     el.style.left = `${tb.xPct}%`;
     el.style.top = `${tb.yPct * imgHeightRatio}%`;
     el.style.width = `${tb.widthPct || 38}%`;
@@ -1058,15 +1196,13 @@ function renderTextLayer() {
     const scaledFont = Math.max(10, (tb.fontSize / 360) * baseWidth);
     el.style.fontSize = `${scaledFont}px`;
 
-    // شريط الأزرار العلوي (القفل + التعديل + الحذف)
+    // شريط الأزرار العلوي (القفل + التعديل + النسخ + الحذف)
     const ctrlBar = document.createElement('div');
     ctrlBar.className = 'tbox-controls';
 
-    // زر القفل (يمنع تحريك أو تعديل النص حتى يتم فتحه)
     const lockBtn = document.createElement('button');
     lockBtn.className = 'tbox-ctrl-btn' + (tb.locked ? ' lock-active' : '');
     lockBtn.innerText = tb.locked ? '🔒' : '🔓';
-    lockBtn.title = tb.locked ? 'فتح القفل' : 'قفل النص';
     lockBtn.onpointerdown = e => {
       e.stopPropagation();
       tb.locked = !tb.locked;
@@ -1075,6 +1211,16 @@ function renderTextLayer() {
       setStatus(tb.locked ? "🔒 تم قفل النص (لا يمكن تحريكه أو تعديله حتى تفتح القفل)" : "🔓 تم فتح قفل النص");
     };
     ctrlBar.appendChild(lockBtn);
+
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'tbox-ctrl-btn';
+    copyBtn.innerText = '📄';
+    copyBtn.title = 'نسخ هذا النص';
+    copyBtn.onpointerdown = e => {
+      e.stopPropagation();
+      copyTextToPhone(tb.text);
+    };
+    ctrlBar.appendChild(copyBtn);
 
     if (!tb.locked) {
       const editBtn = document.createElement('button');
@@ -1101,27 +1247,24 @@ function renderTextLayer() {
 
     el.appendChild(ctrlBar);
 
-    // محتوى النص
     const span = document.createElement('div');
     span.innerText = tb.text;
     el.appendChild(span);
 
-    // مقبض التكبير والتصغير (⤡)
     const resizeHandle = document.createElement('div');
     resizeHandle.className = 'tbox-resize-handle';
     resizeHandle.innerText = '⤡';
     setupResizeTextEvents(resizeHandle, tb);
     el.appendChild(resizeHandle);
 
-    // أحداث السحب والضغط مرتين للتعديل
     setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio);
-
     textLayer.appendChild(el);
   });
 }
 
 function addNewTextBox() {
   if (!pages.length) return;
+  if (isCompareMode) disableCompareMode();
   if (currentStage !== 'text') switchStage('text');
 
   const input = document.getElementById('quickTextInput');
@@ -1145,7 +1288,7 @@ function addNewTextBox() {
   input.value = '';
   renderTextLayer();
   scheduleAutoSave();
-  setStatus("✅ تمت إضافة النص! اسحبه لوضعه داخل الفقاعة أو كبره من الزاوية ⤡");
+  setStatus("✅ تمت إضافة النص! يمكنك تحريكه وتكبيره بإصبعين أو من المربع المحيط");
 }
 
 function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
@@ -1155,15 +1298,22 @@ function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
   let lastBoxTap = 0;
 
   el.addEventListener('pointerdown', e => {
+    if (isCompareMode) return;
     if (e.target.closest('.tbox-controls') || e.target.closest('.tbox-resize-handle')) return;
-    e.stopPropagation();
 
+    // إذا وضع المستخدم إصبعاً ثانياً، نترك التحكم لنظام الإصبعين في viewportBox
+    if (!e.isPrimary) {
+      dragging = false;
+      return;
+    }
+
+    e.stopPropagation();
     if (currentStage !== 'text') switchStage('text');
 
     const now = Date.now();
-    // فحص الضغط مرتين (Double-Tap) لفتح نافذة تعديل المحتوى
-    if (now - lastBoxTap < 320) {
+    if (now - lastBoxTap < 340) {
       lastBoxTap = 0;
+      dragging = false;
       if (tb.locked) {
         setStatus("🔒 هذا النص مقفول! افتح القفل أولاً لتعديل محتواه");
         return;
@@ -1179,7 +1329,6 @@ function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
       document.getElementById('textSizeSlider').value = tb.fontSize || 24;
       document.getElementById('textSizeVal').innerText = Math.round(tb.fontSize || 24);
       renderTextLayer();
-      return;
     }
 
     if (tb.locked) {
@@ -1196,7 +1345,7 @@ function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
   });
 
   el.addEventListener('pointermove', e => {
-    if (!dragging || tb.locked) return;
+    if (!dragging || tb.locked || isTwoFingerTextGesture) return;
     e.stopPropagation();
     const rect = canvas.getBoundingClientRect();
     const dxPct = ((e.clientX - startX) / rect.width) * 100;
@@ -1209,7 +1358,7 @@ function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
     el.style.top = `${tb.yPct * imgHeightRatio}%`;
   });
 
-  el.addEventListener('pointerup', e => {
+  el.addEventListener('pointerup', () => {
     if (dragging) {
       dragging = false;
       scheduleAutoSave();
@@ -1237,17 +1386,17 @@ function setupResizeTextEvents(handle, tb) {
     if (!resizing || tb.locked) return;
     e.stopPropagation();
     const deltaY = e.clientY - startY;
-    const deltaX = startX - e.clientX; // لأن مقبض الزاوية في اليسار السفلي
+    const deltaX = startX - e.clientX;
 
-    tb.fontSize = Math.max(12, Math.min(72, Math.round(startFont + deltaY * 0.18)));
-    tb.widthPct = Math.max(16, Math.min(85, startWidthPct + deltaX * 0.15));
+    tb.fontSize = Math.max(10, Math.min(85, Math.round(startFont + deltaY * 0.2)));
+    tb.widthPct = Math.max(14, Math.min(90, startWidthPct + deltaX * 0.16));
 
     document.getElementById('textSizeSlider').value = tb.fontSize;
     document.getElementById('textSizeVal').innerText = tb.fontSize;
     renderTextLayer();
   });
 
-  handle.addEventListener('pointerup', e => {
+  handle.addEventListener('pointerup', () => {
     if (resizing) {
       resizing = false;
       scheduleAutoSave();
@@ -1256,6 +1405,7 @@ function setupResizeTextEvents(handle, tb) {
 }
 
 function changeSelectedTextColor(hex) {
+  if (isCompareMode) disableCompareMode();
   document.getElementById('textColorPicker').value = hex;
   if (!pages.length || !selectedTextId) return;
   const tb = pages[currentIdx].texts.find(t => t.id === selectedTextId);
@@ -1267,6 +1417,7 @@ function changeSelectedTextColor(hex) {
 }
 
 function changeSelectedTextSize(val) {
+  if (isCompareMode) disableCompareMode();
   const size = parseInt(val);
   document.getElementById('textSizeVal').innerText = size;
   if (!pages.length || !selectedTextId) return;
@@ -1282,8 +1433,10 @@ function openEditModal(id) {
   const tb = pages[currentIdx].texts.find(t => t.id === id);
   if (!tb || tb.locked) return;
   editingTextId = id;
-  document.getElementById('modalTextInput').value = tb.text;
+  const input = document.getElementById('modalTextInput');
+  input.value = tb.text;
   document.getElementById('editTextModal').classList.add('open');
+  setTimeout(() => input.focus(), 80);
 }
 
 function closeEditModal() {
@@ -1304,35 +1457,62 @@ function saveEditedText() {
 }
 
 // ====================================================
-// 6. خط المقارنة المتحرك (Before / After)
+// 6. خط المقارنة الفريد (يطفئ الأدوات الأخرى، وينطفئ عند اختيار أي أداة، ويدعم التمرير بيد واحدة)
 // ====================================================
+const toolButtons = {
+  brush: 'btnBrush',
+  smart: 'btnSmart',
+  eraser: 'btnEraser',
+  blur: 'btnBlur',
+  bucket: 'btnBucket',
+  picker: 'btnPicker'
+};
+
+function disableCompareMode() {
+  if (!isCompareMode) return;
+  isCompareMode = false;
+  document.getElementById('btnCompareClean').classList.remove('active');
+  document.getElementById('btnCompareText').classList.remove('active');
+  compareOverlay.classList.remove('active');
+}
+
 function toggleCompareMode() {
   if (!pages.length) return;
-  isCompareMode = !isCompareMode;
-  document.getElementById('btnCompareClean').classList.toggle('active', isCompareMode);
-  document.getElementById('btnCompareText').classList.toggle('active', isCompareMode);
+  if (!isCompareMode) {
+    // تشغيل المقارنة -> إطفاء كل الأدوات الأخرى وتحديدات النص
+    isCompareMode = true;
+    currentTool = null;
+    Object.values(toolButtons).forEach(id => document.getElementById(id).classList.remove('active'));
+    selectedTextId = null;
+    renderTextLayer();
 
-  if (isCompareMode) {
+    document.getElementById('btnCompareClean').classList.add('active');
+    document.getElementById('btnCompareText').classList.add('active');
     compareOverlay.classList.add('active');
     syncBeforeCanvas();
     updateCompareClip(compareSplitPercent);
-    setStatus("🌗 خط المقارنة مفعل: اسحب الخط لمقارنة الصفحة الأصلية بعملك");
+    setStatus("🌗 وضع المقارنة مفعل: اسحب الخط للمقارنة، أو اسحب الصفحة بيد واحدة للأعلى والأسفل!");
   } else {
-    compareOverlay.classList.remove('active');
-    setStatus("تم إغلاق خط المقارنة");
+    disableCompareMode();
+    if (currentStage === 'clean') {
+      setTool('brush');
+    } else {
+      setStatus("✍️ تم إغلاق المقارنة والعودة لوضع الكتابة");
+    }
   }
 }
 
 function syncBeforeCanvas() {
-  if (!pages.length || !activeOrigImg) return;
-  const w = activeWorkCanvas.width;
-  const h = activeWorkCanvas.height;
+  if (!pages.length) return;
+  const page = pages[currentIdx];
+  const w = page.workCanvas.width;
+  const h = page.workCanvas.height;
   const footerH = Math.max(36, Math.floor(h * 0.03));
   if (beforeCanvas.width !== w || beforeCanvas.height !== h + footerH) {
     beforeCanvas.width = w;
     beforeCanvas.height = h + footerH;
   }
-  renderCompositeToContext(beforeCtx, activeOrigImg, w, h, null);
+  renderCompositeToContext(beforeCtx, page.origCanvas, w, h, null);
 }
 
 function updateCompareClip(percent) {
@@ -1360,36 +1540,33 @@ compareSlider.addEventListener('pointerup', e => {
 });
 
 // ====================================================
-// 7. أدوات التبييض المحسنة (الدلو الذكي + الفرشاة + القطارة)
+// 7. جميع أدوات التبييض (الفرشاة، الذكية، الممحاة المصلحة 100%، التمويه، الدلو، القطارة)
 // ====================================================
-const toolButtons = {
-  brush: 'btnBrush',
-  smart: 'btnSmart',
-  eraser: 'btnEraser',
-  blur: 'btnBlur',
-  bucket: 'btnBucket',
-  picker: 'btnPicker'
-};
-
 function toggleTool(tool) {
+  // إذا كان زر المقارنة مفعلاً وضغط المستخدم على أي أداة، ينطفئ زر المقارنة فوراً
+  if (isCompareMode) {
+    disableCompareMode();
+  }
+
   if (currentTool === tool) {
     currentTool = null;
     Object.values(toolButtons).forEach(id => document.getElementById(id).classList.remove('active'));
-    setStatus("🖐️ تم إلغاء تحديد الأداة: يمكنك تحريك الصفحة بأمان");
+    setStatus("🖐️ تم إلغاء تحديد الأداة: يمكنك تحريك الصفحة بإصبع واحد أو الزوم بإصبعين");
     return;
   }
   setTool(tool);
 }
 
 function setTool(tool) {
+  if (isCompareMode) disableCompareMode();
   currentTool = tool;
   Object.values(toolButtons).forEach(id => document.getElementById(id).classList.remove('active'));
   const messages = {
-    brush: '🖌️ الفرشاة العادية: امسح بإصبع واحد، وحرك/كبر بإصبعين',
+    brush: '🖌️ الفرشاة العادية: امسح بإصبع واحد، واستخدم إصبعين للزوم والتحريك',
     smart: '✨ الفرشاة الذكية: تمسح الكلام وتحمي الخطوط السوداء العريضة',
-    eraser: '🧽 الممحاة: تسترجع الرسم الأصلي في المكان الذي تمرر عليه',
+    eraser: '🧽 الممحاة: مرر إصبعك لاسترجاع الرسم الأصلي بدقة في مكان المسح!',
     blur: '💧 التمويه (Blur): لتنعيم التدرجات اللونية',
-    bucket: '🪣 دلو تبييض الفقاعات المطور: صوب داخل الفقاعة ثم ارفع إصبعك لمسح كل الكتابة بداخلها!',
+    bucket: '🪣 دلو تبييض الفقاعات: حرك المؤشر داخل الفقاعة وارفع يدك لتبييضها فوراً!',
     picker: '💉 القطارة المتحركة: حرك إصبعك لاختيار اللون، وارفع يدك لاعتماده!'
   };
   if (tool && toolButtons[tool]) {
@@ -1404,8 +1581,9 @@ function setPresetColor(hex) {
 }
 
 function updateBrushColor(hex) {
+  if (isCompareMode) disableCompareMode();
   showBrushPreview();
-  if (currentTool === 'picker' || currentTool === 'eraser' || currentTool === 'blur') {
+  if (currentTool === 'picker' || currentTool === 'eraser' || currentTool === 'blur' || currentTool === null) {
     setTool('brush');
   }
 }
@@ -1418,17 +1596,17 @@ function showBrushPreview() {
   const preview = document.getElementById('brushPreview');
   preview.style.width = size + 'px';
   preview.style.height = size + 'px';
-  preview.style.background = (currentTool === 'eraser' || currentTool === 'blur') ? 'rgba(255,255,255,0.2)' : color;
+  preview.style.background = (currentTool === 'eraser' || currentTool === 'blur') ? 'rgba(255,255,255,0.22)' : color;
   preview.style.display = 'block';
 
   clearTimeout(previewTimer);
   previewTimer = setTimeout(() => { preview.style.display = 'none'; }, 650);
 }
 
-function saveHistory() {
-  if (!activeWorkCanvas.width) return;
-  if (activeHistory.length >= 10) activeHistory.shift();
-  activeHistory.push(activeWorkCtx.getImageData(0, 0, activeWorkCanvas.width, activeWorkCanvas.height));
+function saveHistory(page) {
+  const wCtx = page.workCanvas.getContext('2d');
+  if (page.history.length >= 12) page.history.shift();
+  page.history.push(wCtx.getImageData(0, 0, page.workCanvas.width, page.workCanvas.height));
 }
 
 function hexToRgb(hex) {
@@ -1440,9 +1618,9 @@ function rgbToHex(r, g, b) {
   return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
 }
 
-// دلو تبييض الفقاعات المطور (ينظف الفقاعة بالكامل مع حواف الحروف الرمادية)
+// دلو تبييض الفقاعات الذكي
 function cleanSpeechBubbleAt(wCanvas, rawX, rawY, fillHex) {
-  const wCtx = wCanvas.getContext('2d');
+  const wCtx = wCanvas.getContext('2d', { willReadFrequently: true });
   const w = wCanvas.width, h = wCanvas.height;
   let sx = Math.floor(rawX), sy = Math.floor(rawY);
   if (sx < 0 || sx >= w || sy < 0 || sy >= h) return;
@@ -1456,7 +1634,6 @@ function cleanSpeechBubbleAt(wCanvas, rawX, rawY, fillHex) {
     return (data[p] * 299 + data[p + 1] * 587 + data[p + 2] * 114) / 1000;
   };
 
-  // إذا وضع المستخدم المؤشر فوق حرف داكن، نلتقط لون خلفية الفقاعة المجاورة تلقائياً
   if (getLum(sx, sy) < 165) {
     let found = false;
     for (let r = 1; r <= 32 && !found; r++) {
@@ -1614,8 +1791,9 @@ function cleanSpeechBubbleAt(wCanvas, rawX, rawY, fillHex) {
   wCtx.putImageData(imgData, 0, 0);
 }
 
+// الفرشاة الذكية
 function smartBrushAt(wCanvas, cx, cy, radius, fillHex) {
-  const wCtx = wCanvas.getContext('2d');
+  const wCtx = wCanvas.getContext('2d', { willReadFrequently: true });
   const x0 = Math.max(0, Math.floor(cx - radius));
   const y0 = Math.max(0, Math.floor(cy - radius));
   const x1 = Math.min(wCanvas.width - 1, Math.ceil(cx + radius));
@@ -1684,8 +1862,9 @@ function smartBrushAt(wCanvas, cx, cy, radius, fillHex) {
   wCtx.putImageData(imgData, x0, y0);
 }
 
+// التمويه (Blur)
 function blurBrushAt(wCanvas, cx, cy, radius) {
-  const wCtx = wCanvas.getContext('2d');
+  const wCtx = wCanvas.getContext('2d', { willReadFrequently: true });
   const x0 = Math.max(0, Math.floor(cx - radius));
   const y0 = Math.max(0, Math.floor(cy - radius));
   const x1 = Math.min(wCanvas.width - 1, Math.ceil(cx + radius));
@@ -1722,44 +1901,64 @@ function blurBrushAt(wCanvas, cx, cy, radius) {
   wCtx.putImageData(imgData, x0, y0);
 }
 
+// الرسم بالفرشاة والممحاة المصلحة 100% عبر CanvasPattern
 function strokeBrush(fromPt, toPt) {
+  const page = pages[currentIdx];
+  const wCanvas = page.workCanvas;
+  const wCtx = wCanvas.getContext('2d', { willReadFrequently: true });
   const rect = canvas.getBoundingClientRect();
   const scaleFactor = canvas.width / rect.width;
   const radius = (parseInt(document.getElementById('brushSize').value) / 2) * scaleFactor;
   const color = document.getElementById('brushColor').value;
 
   if (currentTool === 'brush') {
-    activeWorkCtx.save();
-    activeWorkCtx.beginPath();
-    activeWorkCtx.moveTo(fromPt.x, fromPt.y);
-    activeWorkCtx.lineTo(toPt.x, toPt.y);
-    activeWorkCtx.strokeStyle = color;
-    activeWorkCtx.lineWidth = radius * 2;
-    activeWorkCtx.lineCap = 'round';
-    activeWorkCtx.lineJoin = 'round';
-    activeWorkCtx.stroke();
-    activeWorkCtx.restore();
-  } else if (currentTool === 'eraser' && activeOrigImg) {
-    activeWorkCtx.save();
-    activeWorkCtx.beginPath();
-    activeWorkCtx.moveTo(fromPt.x, fromPt.y);
-    activeWorkCtx.lineTo(toPt.x, toPt.y);
-    activeWorkCtx.lineWidth = radius * 2;
-    activeWorkCtx.lineCap = 'round';
-    activeWorkCtx.lineJoin = 'round';
-    activeWorkCtx.clip();
-    activeWorkCtx.drawImage(activeOrigImg, 0, 0, activeWorkCanvas.width, activeWorkCanvas.height);
-    activeWorkCtx.restore();
+    wCtx.save();
+    wCtx.fillStyle = color;
+    wCtx.strokeStyle = color;
+    wCtx.lineWidth = radius * 2;
+    wCtx.lineCap = 'round';
+    wCtx.lineJoin = 'round';
+    if (Math.hypot(toPt.x - fromPt.x, toPt.y - fromPt.y) < 0.5) {
+      wCtx.beginPath();
+      wCtx.arc(toPt.x, toPt.y, radius, 0, Math.PI * 2);
+      wCtx.fill();
+    } else {
+      wCtx.beginPath();
+      wCtx.moveTo(fromPt.x, fromPt.y);
+      wCtx.lineTo(toPt.x, toPt.y);
+      wCtx.stroke();
+    }
+    wCtx.restore();
+  } else if (currentTool === 'eraser') {
+    // الممحاة: تستخدم نقش الصورة الأصلية لإرجاع البكسلات الأصلية على طول مسار الإصبع فوراً!
+    wCtx.save();
+    const origPattern = wCtx.createPattern(page.origCanvas, 'no-repeat');
+    wCtx.fillStyle = origPattern;
+    wCtx.strokeStyle = origPattern;
+    wCtx.lineWidth = radius * 2;
+    wCtx.lineCap = 'round';
+    wCtx.lineJoin = 'round';
+    if (Math.hypot(toPt.x - fromPt.x, toPt.y - fromPt.y) < 0.5) {
+      wCtx.beginPath();
+      wCtx.arc(toPt.x, toPt.y, radius, 0, Math.PI * 2);
+      wCtx.fill();
+    } else {
+      wCtx.beginPath();
+      wCtx.moveTo(fromPt.x, fromPt.y);
+      wCtx.lineTo(toPt.x, toPt.y);
+      wCtx.stroke();
+    }
+    wCtx.restore();
   } else if (currentTool === 'smart') {
-    smartBrushAt(activeWorkCanvas, toPt.x, toPt.y, radius, color);
+    smartBrushAt(wCanvas, toPt.x, toPt.y, radius, color);
   } else if (currentTool === 'blur') {
-    blurBrushAt(activeWorkCanvas, toPt.x, toPt.y, radius);
+    blurBrushAt(wCanvas, toPt.x, toPt.y, radius);
   }
   drawPage();
 }
 
 // ====================================================
-// 8. الزوم والتحريك المحصور داخل صفحة المانغا فقط
+// 8. التحكم باللمس: (المقارنة بيد واحدة، تحريك وتكبير النص بإصبعين، والزوم بإصبعين)
 // ====================================================
 function getCanvasCoords(clientX, clientY) {
   const r = canvas.getBoundingClientRect();
@@ -1776,19 +1975,19 @@ function clampPanOffsets() {
     viewY = 0;
     return;
   }
-  const boxW = viewportBox.clientWidth;
-  const boxH = viewportBox.clientHeight;
-  const minX = boxW - boxW * viewScale;
-  const minY = boxH - boxH * viewScale;
-  viewX = Math.min(0, Math.max(minX, viewX));
-  viewY = Math.min(0, Math.max(minY, viewY));
+  const stageW = canvasStage.offsetWidth || viewportBox.clientWidth;
+  const stageH = canvasStage.offsetHeight || viewportBox.clientHeight;
+  const minX = stageW - stageW * viewScale;
+  const minY = stageH - stageH * viewScale;
+  viewX = Math.min(stageW * 0.25, Math.max(minX - stageW * 0.25, viewX));
+  viewY = Math.min(stageH * 0.25, Math.max(minY - stageH * 0.25, viewY));
 }
 
 function updateStageTransform() {
   clampPanOffsets();
   canvasStage.style.transform = `translate3d(${viewX}px, ${viewY}px, 0) scale(${viewScale})`;
   const zoomBtn = document.getElementById('resetZoomBtn');
-  if (viewScale > 1.02) {
+  if (viewScale > 1.02 || Math.abs(viewX) > 5 || Math.abs(viewY) > 5) {
     zoomBtn.style.display = 'inline-block';
     zoomBtn.innerText = `🔍 ${Math.round(viewScale * 100)}% إعادة`;
   } else {
@@ -1816,15 +2015,16 @@ function toggleDoubleTapZoom(clientX, clientY) {
     viewX = tapX - tapX * targetScale;
     viewY = tapY - tapY * targetScale;
     updateStageTransform();
-    setStatus("🔍 تم التكبير داخل الصفحة (اضغط مرتين للتصغير)");
+    setStatus("🔍 تم التكبير (اضغط مرتين للتصغير أو حرك بإصبعين)");
   }
 }
 
 function updateLivePicker(clientX, clientY) {
   const pt = getCanvasCoords(clientX, clientY);
-  const px = Math.max(0, Math.min(activeWorkCanvas.width - 1, Math.floor(pt.x)));
-  const py = Math.max(0, Math.min(activeWorkCanvas.height - 1, Math.floor(pt.y)));
-  const pixel = activeWorkCtx.getImageData(px, py, 1, 1).data;
+  const page = pages[currentIdx];
+  const px = Math.max(0, Math.min(page.workCanvas.width - 1, Math.floor(pt.x)));
+  const py = Math.max(0, Math.min(page.workCanvas.height - 1, Math.floor(pt.y)));
+  const pixel = page.workCanvas.getContext('2d').getImageData(px, py, 1, 1).data;
   pickedHexLive = rgbToHex(pixel[0], pixel[1], pixel[2]);
 
   pickerLoupe.style.display = 'flex';
@@ -1842,14 +2042,31 @@ function updateLiveBucketTarget(clientX, clientY) {
 }
 
 viewportBox.addEventListener('touchstart', e => {
-  if (!pages.length || isCompareMode) return;
-  if (e.target.closest('#compareSlider') || e.target.closest('.manga-textbox')) return;
+  if (!pages.length) return;
+  if (e.target.closest('#compareSlider')) return;
 
+  const page = pages[currentIdx];
+
+  // 1. إذا كان وضع المقارنة مفعلاً: إصبع واحد يحرك الصفحة للأعلى والأسفل بيد واحدة!
+  if (isCompareMode && e.touches.length === 1) {
+    e.preventDefault();
+    isCompareOneFingerScroll = true;
+    compareScrollStartY = e.touches[0].clientY;
+    compareStartViewY = viewY;
+    panStartMid = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    panStartOffset = { x: viewX, y: viewY };
+    return;
+  }
+
+  // 2. عند وضع إصبعين:
   if (e.touches.length >= 2) {
     e.preventDefault();
-    if (isDrawing && strokeSnapshot && (Date.now() - strokeStartTime < 200)) {
-      activeWorkCtx.putImageData(strokeSnapshot, 0, 0);
-      activeHistory.pop();
+    isCompareOneFingerScroll = false;
+
+    // إلغاء أي نقطة رسم غير مقصودة
+    if (isDrawing && strokeSnapshot && (Date.now() - strokeStartTime < 220)) {
+      page.workCanvas.getContext('2d').putImageData(strokeSnapshot, 0, 0);
+      page.history.pop();
       drawPage();
     }
     isDrawing = false;
@@ -1858,23 +2075,53 @@ viewportBox.addEventListener('touchstart', e => {
     isSingleFingerPan = false;
     pickerLoupe.style.display = 'none';
     bucketTarget.style.display = 'none';
-    isTwoFingerGesture = true;
 
     const t1 = e.touches[0], t2 = e.touches[1];
-    pinchStartDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    const mid = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
+
+    // فحص ما إذا كان المستخدم يضغط بإصبعين على كتابة (أو محدد لنص في مرحلة الكتابة) لتحريكها وتكبيرها وتصغيرها
+    const touchedBoxEl = e.touches[0].target.closest?.('.manga-textbox') || e.touches[1].target.closest?.('.manga-textbox');
+    if (touchedBoxEl && touchedBoxEl.dataset.id) {
+      selectedTextId = touchedBoxEl.dataset.id;
+      if (currentStage !== 'text') switchStage('text');
+    }
+
+    if (currentStage === 'text' && selectedTextId && !isCompareMode) {
+      const tb = page.texts.find(t => t.id === selectedTextId);
+      if (tb && !tb.locked) {
+        isTwoFingerTextGesture = true;
+        isTwoFingerGesture = false;
+        textPinchStartDist = Math.max(20, dist);
+        textPinchStartFont = tb.fontSize || 24;
+        textPinchStartWidthPct = tb.widthPct || 38;
+        textPanStartMid = mid;
+        textStartXPct = tb.xPct;
+        textStartYPct = tb.yPct;
+        renderTextLayer();
+        setStatus("✌️ تحكم بإصبعين في النص: حرك إصبعيك لنقله، وافتحهما/أغلقهما لتكبيره وتصغيره!");
+        return;
+      }
+    }
+
+    // وإلا: زوم وتحريك للصفحة بإصبعين
+    isTwoFingerGesture = true;
+    isTwoFingerTextGesture = false;
+    pinchStartDist = Math.max(20, dist);
     pinchStartScale = viewScale;
-    panStartMid = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
+    panStartMid = mid;
     panStartOffset = { x: viewX, y: viewY };
     return;
   }
 
-  if (e.touches.length === 1 && !isTwoFingerGesture) {
+  // 3. إصبع واحد في الوضع العادي
+  if (e.touches.length === 1 && !isTwoFingerGesture && !isTwoFingerTextGesture && !isCompareMode) {
+    if (e.target.closest('.manga-textbox')) return;
     e.preventDefault();
     const touch = e.touches[0];
     const now = Date.now();
     const tapDist = Math.hypot(touch.clientX - lastTapPos.x, touch.clientY - lastTapPos.y);
 
-    // إلغاء تحديد النص عند الضغط في مكان فارغ في مرحلة الكتابة
     if (currentStage === 'text') {
       if (selectedTextId) {
         selectedTextId = null;
@@ -1895,9 +2142,9 @@ viewportBox.addEventListener('touchstart', e => {
 
     // فحص الضغط مرتين للزوم في مرحلة التبييض
     if (now - lastTapTime < 280 && tapDist < 32) {
-      if (strokeSnapshot && activeHistory.length > 0) {
-        activeWorkCtx.putImageData(strokeSnapshot, 0, 0);
-        activeHistory.pop();
+      if (strokeSnapshot && page.history.length > 0) {
+        page.workCanvas.getContext('2d').putImageData(strokeSnapshot, 0, 0);
+        page.history.pop();
         drawPage();
       }
       isDrawing = false;
@@ -1920,7 +2167,7 @@ viewportBox.addEventListener('touchstart', e => {
     }
 
     const pt = getCanvasCoords(touch.clientX, touch.clientY);
-    if (pt.y > activeWorkCanvas.height) return;
+    if (pt.y > page.workCanvas.height) return;
 
     if (currentTool === 'picker') {
       isAimingPicker = true;
@@ -1934,8 +2181,8 @@ viewportBox.addEventListener('touchstart', e => {
       return;
     }
 
-    saveHistory();
-    strokeSnapshot = activeHistory[activeHistory.length - 1];
+    saveHistory(page);
+    strokeSnapshot = page.history[page.history.length - 1];
     strokeStartTime = now;
     isDrawing = true;
     lastPt = pt;
@@ -1944,8 +2191,58 @@ viewportBox.addEventListener('touchstart', e => {
 }, { passive: false });
 
 viewportBox.addEventListener('touchmove', e => {
-  if (!pages.length || isCompareMode) return;
+  if (!pages.length) return;
+  const page = pages[currentIdx];
 
+  // تحريك الصفحة للأعلى والأسفل بيد واحدة أثناء تفعيل زر المقارنة
+  if (isCompareMode && isCompareOneFingerScroll && e.touches.length === 1) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const dy = touch.clientY - compareScrollStartY;
+    compareScrollStartY = touch.clientY;
+
+    if (viewScale > 1.02) {
+      viewX = panStartOffset.x + (touch.clientX - panStartMid.x);
+      viewY += dy;
+      updateStageTransform();
+    } else {
+      window.scrollBy(0, -dy);
+    }
+    return;
+  }
+
+  // تحريك وتكبير وتصغير الكتابة بإصبعين
+  if (isTwoFingerTextGesture && e.touches.length >= 2 && selectedTextId) {
+    e.preventDefault();
+    const tb = page.texts.find(t => t.id === selectedTextId);
+    if (!tb || tb.locked) return;
+
+    const t1 = e.touches[0], t2 = e.touches[1];
+    const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    const mid = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
+
+    const scaleRatio = dist / textPinchStartDist;
+    tb.fontSize = Math.max(10, Math.min(85, Math.round(textPinchStartFont * scaleRatio)));
+    tb.widthPct = Math.max(14, Math.min(92, textPinchStartWidthPct * Math.sqrt(scaleRatio)));
+
+    const rect = canvas.getBoundingClientRect();
+    const h = page.workCanvas.height;
+    const footerH = Math.max(36, Math.floor(h * 0.03));
+    const imgHeightRatio = h / (h + footerH);
+
+    const dxPct = ((mid.x - textPanStartMid.x) / rect.width) * 100;
+    const dyPct = ((mid.y - textPanStartMid.y) / (rect.height * imgHeightRatio)) * 100;
+
+    tb.xPct = Math.max(5, Math.min(95, textStartXPct + dxPct));
+    tb.yPct = Math.max(3, Math.min(97, textStartYPct + dyPct));
+
+    document.getElementById('textSizeSlider').value = tb.fontSize;
+    document.getElementById('textSizeVal').innerText = tb.fontSize;
+    renderTextLayer();
+    return;
+  }
+
+  // الزوم والتحريك للصفحة بإصبعين
   if (isTwoFingerGesture && e.touches.length >= 2) {
     e.preventDefault();
     const t1 = e.touches[0], t2 = e.touches[1];
@@ -1964,14 +2261,21 @@ viewportBox.addEventListener('touchmove', e => {
     return;
   }
 
-  if (e.touches.length === 1 && !isTwoFingerGesture) {
+  // الرسم أو التصويب بإصبع واحد
+  if (e.touches.length === 1 && !isTwoFingerGesture && !isTwoFingerTextGesture && !isCompareMode) {
     const touch = e.touches[0];
 
     if (isSingleFingerPan) {
       e.preventDefault();
-      viewX = panStartOffset.x + (touch.clientX - panStartMid.x);
-      viewY = panStartOffset.y + (touch.clientY - panStartMid.y);
-      updateStageTransform();
+      if (viewScale > 1.02) {
+        viewX = panStartOffset.x + (touch.clientX - panStartMid.x);
+        viewY = panStartOffset.y + (touch.clientY - panStartMid.y);
+        updateStageTransform();
+      } else {
+        const dy = touch.clientY - panStartMid.y;
+        panStartMid.y = touch.clientY;
+        window.scrollBy(0, -dy);
+      }
       return;
     }
 
@@ -2007,8 +2311,9 @@ viewportBox.addEventListener('touchend', e => {
   if (isAimingBucket && activePt) {
     isAimingBucket = false;
     bucketTarget.style.display = 'none';
-    saveHistory();
-    cleanSpeechBubbleAt(activeWorkCanvas, activePt.x, activePt.y, document.getElementById('brushColor').value);
+    const page = pages[currentIdx];
+    saveHistory(page);
+    cleanSpeechBubbleAt(page.workCanvas, activePt.x, activePt.y, document.getElementById('brushColor').value);
     drawPage();
     scheduleAutoSave();
     setStatus("🪣 تم تبييض الفقاعة ومسح الكتابة بداخلها بنجاح!");
@@ -2021,29 +2326,132 @@ viewportBox.addEventListener('touchend', e => {
     scheduleAutoSave();
   }
 
+  if (isTwoFingerTextGesture && e.touches.length < 2) {
+    isTwoFingerTextGesture = false;
+    scheduleAutoSave();
+  }
+
   if (e.touches.length === 0) {
     isTwoFingerGesture = false;
+    isTwoFingerTextGesture = false;
     isSingleFingerPan = false;
+    isCompareOneFingerScroll = false;
   }
 });
 
+// دعم الماوس أيضاً (للتجربة على الكمبيوتر)
+viewportBox.addEventListener('mousedown', e => {
+  if (!pages.length || e.button !== 0) return;
+  if (e.target.closest('#compareSlider') || e.target.closest('.manga-textbox')) return;
+
+  if (isCompareMode || currentStage === 'text' || currentTool === null) {
+    if (selectedTextId) {
+      selectedTextId = null;
+      renderTextLayer();
+    }
+    isSingleFingerPan = true;
+    panStartMid = { x: e.clientX, y: e.clientY };
+    panStartOffset = { x: viewX, y: viewY };
+    return;
+  }
+
+  const page = pages[currentIdx];
+  const pt = getCanvasCoords(e.clientX, e.clientY);
+  if (pt.y > page.workCanvas.height) return;
+
+  if (currentTool === 'picker') {
+    isAimingPicker = true;
+    updateLivePicker(e.clientX, e.clientY);
+    return;
+  }
+  if (currentTool === 'bucket') {
+    isAimingBucket = true;
+    updateLiveBucketTarget(e.clientX, e.clientY);
+    return;
+  }
+
+  saveHistory(page);
+  isDrawing = true;
+  lastPt = pt;
+  strokeBrush(pt, pt);
+});
+
+window.addEventListener('mousemove', e => {
+  if (!pages.length) return;
+  if (isSingleFingerPan) {
+    if (viewScale > 1.02) {
+      viewX = panStartOffset.x + (e.clientX - panStartMid.x);
+      viewY = panStartOffset.y + (e.clientY - panStartMid.y);
+      updateStageTransform();
+    } else {
+      const dy = e.clientY - panStartMid.y;
+      panStartMid.y = e.clientY;
+      window.scrollBy(0, -dy);
+    }
+    return;
+  }
+  if (isAimingPicker) {
+    updateLivePicker(e.clientX, e.clientY);
+    return;
+  }
+  if (isAimingBucket) {
+    updateLiveBucketTarget(e.clientX, e.clientY);
+    return;
+  }
+  if (isDrawing) {
+    const pt = getCanvasCoords(e.clientX, e.clientY);
+    strokeBrush(lastPt, pt);
+    lastPt = pt;
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  if (isAimingPicker) {
+    isAimingPicker = false;
+    pickerLoupe.style.display = 'none';
+    setPresetColor(pickedHexLive);
+    setStatus(`💉 تم التقاط اللون (${pickedHexLive.toUpperCase()}) بنجاح!`);
+  }
+  if (isAimingBucket && activePt) {
+    isAimingBucket = false;
+    bucketTarget.style.display = 'none';
+    const page = pages[currentIdx];
+    saveHistory(page);
+    cleanSpeechBubbleAt(page.workCanvas, activePt.x, activePt.y, document.getElementById('brushColor').value);
+    drawPage();
+    scheduleAutoSave();
+    setStatus("🪣 تم تبييض الفقاعة ومسح الكتابة بداخلها بنجاح!");
+    activePt = null;
+  }
+  if (isDrawing) {
+    isDrawing = false;
+    lastPt = null;
+    scheduleAutoSave();
+  }
+  isSingleFingerPan = false;
+});
+
 // ====================================================
-// 9. التراجع، الإعادة، والتنقل بين الصفحات
+// 9. التراجع، الإعادة، وترتيب ومسح الصفحات
 // ====================================================
 function undoLastAction() {
-  if (!pages.length || !activeHistory.length) return;
-  const prev = activeHistory.pop();
-  activeWorkCtx.putImageData(prev, 0, 0);
-  drawPage();
-  scheduleAutoSave();
-  setStatus("↩️ تم التراجع عن الخطوة الأخيرة");
+  if (!pages.length) return;
+  const page = pages[currentIdx];
+  if (page.history.length > 0) {
+    const prev = page.history.pop();
+    page.workCanvas.getContext('2d').putImageData(prev, 0, 0);
+    drawPage();
+    scheduleAutoSave();
+    setStatus("↩️ تم التراجع عن الخطوة الأخيرة");
+  }
 }
 
 function resetCurrentPage() {
-  if (!pages.length || !activeOrigImg) return;
+  if (!pages.length) return;
   if (!confirm("هل تريد استرجاع هذه الصفحة لحالتها الأصلية؟")) return;
-  saveHistory();
-  activeWorkCtx.drawImage(activeOrigImg, 0, 0, activeWorkCanvas.width, activeWorkCanvas.height);
+  const page = pages[currentIdx];
+  saveHistory(page);
+  page.workCanvas.getContext('2d').drawImage(page.origCanvas, 0, 0);
   drawPage();
   scheduleAutoSave();
   setStatus("🔄 تمت إعادة الصفحة لحالتها الأصلية");
@@ -2052,8 +2460,12 @@ function resetCurrentPage() {
 async function changePage(dir) {
   const next = currentIdx + dir;
   if (next >= 0 && next < pages.length) {
-    await syncActivePageAndSaveDB();
-    await loadPageIntoActiveCanvas(next);
+    await saveCurrentStateToDB();
+    currentIdx = next;
+    selectedTextId = null;
+    resetZoom();
+    drawPage();
+    renderTextLayer();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
@@ -2061,46 +2473,160 @@ async function changePage(dir) {
 function togglePagesModal() {
   if (!pages.length) return;
   const modal = document.getElementById('pagesModal');
-  const grid = document.getElementById('pagesGrid');
   if (!modal.classList.contains('open')) {
-    grid.innerHTML = '';
-    pages.forEach((p, idx) => {
-      const div = document.createElement('div');
-      div.className = 'page-card' + (idx === currentIdx ? ' current' : '');
-      div.innerText = `صفحة ${idx + 1}`;
-      div.onclick = async () => {
-        modal.classList.remove('open');
-        await syncActivePageAndSaveDB();
-        await loadPageIntoActiveCanvas(idx);
-      };
-      grid.appendChild(div);
-    });
+    renderPagesManagerGrid();
     modal.classList.add('open');
   } else {
     modal.classList.remove('open');
   }
 }
 
+function renderPagesManagerGrid() {
+  const grid = document.getElementById('pagesGrid');
+  grid.innerHTML = '';
+
+  pages.forEach((p, idx) => {
+    const card = document.createElement('div');
+    card.className = 'page-card' + (idx === currentIdx ? ' current' : '');
+
+    const header = document.createElement('div');
+    header.className = 'page-card-header';
+    header.innerHTML = `<span>صفحة ${idx + 1}</span><span style="font-size:10px; color:var(--muted); max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.name}</span>`;
+    card.appendChild(header);
+
+    const thumbWrap = document.createElement('div');
+    thumbWrap.className = 'page-thumb-wrap';
+    const thumbImg = document.createElement('img');
+    thumbImg.src = p.workCanvas.toDataURL('image/webp', 0.5);
+    thumbWrap.appendChild(thumbImg);
+    thumbWrap.onclick = async () => {
+      document.getElementById('pagesModal').classList.remove('open');
+      await saveCurrentStateToDB();
+      currentIdx = idx;
+      selectedTextId = null;
+      resetZoom();
+      drawPage();
+      renderTextLayer();
+    };
+    card.appendChild(thumbWrap);
+
+    const actions = document.createElement('div');
+    actions.className = 'page-card-actions';
+
+    // زر تقديم الترتيب
+    const moveUpBtn = document.createElement('button');
+    moveUpBtn.className = 'page-ctrl-btn';
+    moveUpBtn.innerText = '🔼 تقديم';
+    moveUpBtn.disabled = idx === 0;
+    moveUpBtn.onclick = e => {
+      e.stopPropagation();
+      movePageOrder(idx, idx - 1);
+    };
+    actions.appendChild(moveUpBtn);
+
+    // زر تأخير الترتيب
+    const moveDownBtn = document.createElement('button');
+    moveDownBtn.className = 'page-ctrl-btn';
+    moveDownBtn.innerText = '🔽 تأخير';
+    moveDownBtn.disabled = idx === pages.length - 1;
+    moveDownBtn.onclick = e => {
+      e.stopPropagation();
+      movePageOrder(idx, idx + 1);
+    };
+    actions.appendChild(moveDownBtn);
+
+    // زر مسح الصفحة
+    const delBtn = document.createElement('button');
+    delBtn.className = 'page-ctrl-btn del';
+    delBtn.innerText = '🗑️ مسح';
+    delBtn.onclick = e => {
+      e.stopPropagation();
+      deleteSinglePage(idx);
+    };
+    actions.appendChild(delBtn);
+
+    card.appendChild(actions);
+    grid.appendChild(card);
+  });
+}
+
+async function movePageOrder(fromIdx, toIdx) {
+  if (toIdx < 0 || toIdx >= pages.length) return;
+  const currentPageObj = pages[currentIdx];
+  const item = pages.splice(fromIdx, 1)[0];
+  pages.splice(toIdx, 0, item);
+  currentIdx = pages.indexOf(currentPageObj);
+
+  drawPage();
+  renderTextLayer();
+  renderPagesManagerGrid();
+  setStatus(`📑 تم نقل الصفحة إلى الترتيب ${toIdx + 1}`);
+  await saveFullProjectToDB();
+}
+
+async function deleteSinglePage(idx) {
+  if (!confirm(`هل تريد مسح الصفحة رقم ${idx + 1}؟`)) return;
+  pages.splice(idx, 1);
+
+  if (pages.length === 0) {
+    document.getElementById('pagesModal').classList.remove('open');
+    await clearSavedSessionSilent();
+    return;
+  }
+
+  if (currentIdx >= pages.length) {
+    currentIdx = pages.length - 1;
+  } else if (idx < currentIdx) {
+    currentIdx--;
+  }
+
+  selectedTextId = null;
+  drawPage();
+  renderTextLayer();
+  renderPagesManagerGrid();
+  setStatus(`🗑️ تم مسح الصفحة. المتبقي: ${pages.length} صفحة`);
+  await saveFullProjectToDB();
+}
+
+async function clearSavedSessionSilent() {
+  const db = await openSessionDB();
+  const tx = db.transaction("session", "readwrite");
+  tx.objectStore("session").clear();
+  pages = [];
+  currentIdx = 0;
+  selectedTextId = null;
+  textLayer.innerHTML = '';
+  canvasStage.style.display = 'none';
+  document.getElementById('emptyPlaceholder').style.display = 'block';
+  document.getElementById('pageCount').innerHTML = "0 / <b>0</b>";
+  document.getElementById('layerSquareBtn1').innerText = "0";
+  document.getElementById('layerSquareBtn2').innerText = "0";
+  document.getElementById('zipBtn').disabled = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('clearSessionBtn').style.display = 'none';
+  document.getElementById('nextStageBtn').style.display = 'none';
+  setStatus("📄 تم مسح جميع الصفحات.");
+}
+
 // ====================================================
 // 10. كول داون 5 ثوانٍ + التصدير بالعلامة المائية والنصوص إلى upload.html
 // ====================================================
 async function generateFinalZipBlob() {
-  await syncActivePageToMemory();
   const zip = new JSZip();
   const exportCanvas = document.createElement('canvas');
   const exportCtx = exportCanvas.getContext('2d');
 
   for (let i = 0; i < pages.length; i++) {
     const p = pages[i];
-    const decoded = await decodeBlobToImage(p.workBlob);
-    const footerH = Math.max(36, Math.floor(p.height * 0.03));
-    exportCanvas.width = p.width;
-    exportCanvas.height = p.height + footerH;
+    const w = p.workCanvas.width;
+    const h = p.workCanvas.height;
+    const footerH = Math.max(36, Math.floor(h * 0.03));
+    exportCanvas.width = w;
+    exportCanvas.height = h + footerH;
 
-    renderCompositeToContext(exportCtx, decoded.img, p.width, p.height, p.texts);
-    URL.revokeObjectURL(decoded.url);
+    renderCompositeToContext(exportCtx, p.workCanvas, w, h, p.texts);
 
-    const webpBlob = await new Promise(res => exportCanvas.toBlob(res, 'image/webp', 0.88));
+    const webpBlob = await canvasToBlobSafe(exportCanvas, 0.88);
     zip.file(`page_${String(i + 1).padStart(3, '0')}.webp`, webpBlob);
   }
 
@@ -2121,7 +2647,6 @@ function startCooldownExport(mode) {
   numEl.innerText = secondsLeft;
   modal.classList.add('open');
 
-  // نبدأ تجهيز ملف الـ ZIP في الخلفية بالتوازي مع عداد الـ 5 ثوانٍ
   const zipPromise = generateFinalZipBlob();
 
   const timer = setInterval(async () => {
