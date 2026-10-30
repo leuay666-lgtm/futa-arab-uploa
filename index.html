@@ -3,158 +3,241 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>استوديو التبييض الاحترافي - FutaArab</title>
+  <title>استوديو التبييض الاحترافي - Futa Arab</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-dark: #070709;
-      --card-bg: #121218;
-      --glass-bg: rgba(18, 18, 24, 0.92);
-      --glass-border: rgba(255, 255, 255, 0.12);
+      --bg-main: #060609;
+      --bg-surface: #101017;
+      --glass-bg: rgba(16, 16, 24, 0.92);
+      --glass-border: rgba(255, 255, 255, 0.11);
       --accent: #ff2a5f;
-      --accent-glow: rgba(255, 42, 95, 0.35);
-      --text: #ffffff;
-      --muted: #9ca3af;
+      --accent-soft: rgba(255, 42, 95, 0.18);
+      --accent-glow: rgba(255, 42, 95, 0.4);
+      --purple: #8b5cf6;
+      --text: #f8fafc;
+      --muted: #94a3b8;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
-    body { background: var(--bg-dark); color: var(--text); min-height: 100vh; overflow-x: hidden; padding-bottom: 185px; }
 
-    /* الهيدر العلوي بتصميم Futa Arab */
-    .top-header {
-      position: sticky; top: 0; z-index: 500;
+    * {
+      box-sizing: border-box; margin: 0; padding: 0;
+      font-family: 'Tajawal', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none; -webkit-user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #131122 0%, var(--bg-main) 45%);
+      color: var(--text); min-height: 100vh; overflow-x: hidden;
+      padding-bottom: 200px; overscroll-behavior: none;
+    }
+
+    /* هيدر Futa Arab الاحترافي */
+    .futa-header {
+      position: sticky; top: 0; z-index: 600;
       background: var(--glass-bg);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
       border-bottom: 1px solid var(--glass-border);
-      padding: 8px 12px;
+      padding: 10px 14px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
     }
-    .header-main {
-      display: flex; justify-content: space-between; align-items: center; gap: 8px;
-    }
-    .brand {
-      display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 16px; color: var(--accent);
-    }
-    .brand-badge {
-      background: rgba(255, 255, 255, 0.08); color: #cbd5e1;
-      border: 1px solid var(--glass-border); font-size: 11px; font-weight: 700;
-      padding: 2px 8px; border-radius: 20px;
-    }
-    .top-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .btn-sm {
-      padding: 7px 11px; border-radius: 10px; border: 1px solid var(--glass-border);
-      background: rgba(255,255,255,0.06); color: var(--text); font-size: 12px; font-weight: 700;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.15s;
-    }
-    .btn-sm:active { transform: scale(0.95); }
-    .btn-primary { background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 12px var(--accent-glow); }
-    .btn-success { background: #10b981; border-color: #10b981; }
-    .btn-danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
-    .btn-sm:disabled { opacity: 0.4; pointer-events: none; }
 
-    /* شريط معلومات الفصل والصفحة */
-    .sub-bar {
+    .header-top {
       display: flex; justify-content: space-between; align-items: center;
-      max-width: 750px; margin: 8px auto 4px; padding: 6px 12px;
-      background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px;
-    }
-    .status-badge { font-size: 12px; color: #fbbf24; font-weight: 700; }
-    .zoom-badge {
-      font-size: 11px; font-weight: 700; color: #fff; background: rgba(255,42,95,0.25);
-      border: 1px solid var(--accent); padding: 3px 8px; border-radius: 8px; cursor: pointer; display: none;
+      max-width: 780px; margin: 0 auto;
     }
 
-    /* منطقة العمل والكانفاس */
+    .brand-wrap {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .brand-logo {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--purple), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+    }
+    .brand-title {
+      font-weight: 900; font-size: 18px; letter-spacing: 0.3px;
+      background: linear-gradient(90deg, #ff2a5f, #ff6b8b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .free-pill {
+      background: rgba(255, 255, 255, 0.07); border: 1px solid var(--glass-border);
+      color: #cbd5e1; font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    .header-actions {
+      display: flex; gap: 6px; align-items: center;
+    }
+    .btn-action {
+      padding: 7px 12px; border-radius: 10px; border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.06); color: var(--text);
+      font-size: 12px; font-weight: 800; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px; transition: 0.18s;
+    }
+    .btn-action:active { transform: scale(0.94); }
+    .btn-action.primary {
+      background: linear-gradient(135deg, var(--accent), #e11d48);
+      border-color: transparent; box-shadow: 0 4px 14px var(--accent-glow);
+    }
+    .btn-action.success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-color: transparent; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+    .btn-action.danger {
+      background: rgba(239, 68, 68, 0.14); border-color: rgba(239, 68, 68, 0.35); color: #fca5a5;
+    }
+    .btn-action:disabled { opacity: 0.35; pointer-events: none; }
+
+    /* شريط حالة العمل تحت الهيدر */
+    .chapter-banner {
+      max-width: 780px; margin: 10px auto 6px; padding: 8px 12px;
+      background: rgba(18, 18, 28, 0.8); border: 1px solid var(--glass-border);
+      border-radius: 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .status-text {
+      font-size: 12px; font-weight: 700; color: #fbbf24; line-height: 1.4;
+    }
+    .zoom-pill {
+      background: var(--accent-soft); border: 1px solid var(--accent);
+      color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px;
+      border-radius: 20px; cursor: pointer; white-space: nowrap; display: none;
+    }
+
+    /* منطقة الصفحة والـ Canvas */
     .workspace {
-      width: 100%; max-width: 750px; margin: 6px auto;
-      position: relative; padding: 0 6px;
+      width: 100%; max-width: 780px; margin: 6px auto; padding: 0 8px; position: relative;
     }
     .viewport-box {
-      position: relative; width: 100%; min-height: 360px;
-      border-radius: 12px; overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.85); border: 1px solid var(--glass-border);
-      background: #0d0d11; touch-action: none;
+      position: relative; width: 100%; min-height: 390px;
+      border-radius: 16px; overflow: hidden;
+      background: #0b0b10;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
+      touch-action: none;
       display: flex; align-items: center; justify-content: center;
     }
     .canvas-stage {
-      position: relative; width: 100%; transform-origin: 0 0;
-      will-change: transform;
+      position: relative; width: 100%; transform-origin: 0 0; will-change: transform;
     }
     canvas { width: 100%; height: auto; display: block; pointer-events: none; }
 
     /* خط المقارنة (Before / After) */
     #compareOverlay {
-      position: absolute; inset: 0; pointer-events: none; display: none; z-index: 30;
+      position: absolute; inset: 0; pointer-events: none; display: none; z-index: 35;
     }
     #compareOverlay.active { display: block; }
     #beforeCanvas {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     }
     #compareSlider {
-      position: absolute; top: 0; bottom: 0; left: 50%; width: 44px;
+      position: absolute; top: 0; bottom: 0; left: 50%; width: 48px;
       transform: translateX(-50%); pointer-events: auto; cursor: ew-resize;
       display: flex; align-items: center; justify-content: center; touch-action: none;
     }
     .compare-line {
       width: 2.5px; height: 100%; background: #ffffff;
-      box-shadow: 0 0 10px rgba(0,0,0,0.9);
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.95);
     }
     .compare-knob {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 34px; height: 34px; border-radius: 50%; background: #ffffff; color: #070709;
-      font-weight: 900; font-size: 14px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.6); border: 2px solid var(--accent);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #ffffff; color: #09090d; font-weight: 900; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.75); border: 2.5px solid var(--accent);
     }
-    .compare-tag {
+    .compare-label {
       position: absolute; top: 12px; padding: 4px 10px; border-radius: 8px;
-      background: rgba(0,0,0,0.75); color: #fff; font-size: 11px; font-weight: 700;
-      border: 1px solid rgba(255,255,255,0.2); pointer-events: none;
+      background: rgba(0, 0, 0, 0.78); color: #fff; font-size: 11px; font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.18); pointer-events: none;
     }
-    .tag-before { left: 12px; }
-    .tag-after { right: 12px; color: var(--accent); }
+    .label-orig { left: 12px; }
+    .label-edit { right: 12px; color: #ff6b8b; }
 
-    /* شريط التنقل السفلي العائم بين الصفحات (كما في الصورة) */
-    .floating-pager {
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      margin: 10px auto; width: fit-content;
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      padding: 6px 14px; border-radius: 30px; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    /* عدسة القطارة المتحركة (Eyedropper Loupe) */
+    #pickerLoupe {
+      position: fixed; width: 78px; height: 78px; border-radius: 50%;
+      border: 3px solid #ffffff; box-shadow: 0 8px 25px rgba(0,0,0,0.85), 0 0 0 2px var(--accent);
+      pointer-events: none; z-index: 9999; display: none;
+      transform: translate(-50%, -125%);
+      align-items: flex-end; justify-content: center; padding-bottom: 6px;
     }
-    .pager-btn {
-      background: none; border: none; color: var(--text); font-size: 15px; font-weight: 900;
-      padding: 4px 8px; cursor: pointer;
+    #pickerLoupe span {
+      background: rgba(0,0,0,0.82); color: #fff; font-size: 10px; font-weight: 900;
+      padding: 2px 6px; border-radius: 6px; direction: ltr;
     }
-    .pager-count { font-size: 13px; font-weight: 900; color: var(--accent); min-width: 65px; text-align: center; }
+    #pickerLoupe::after {
+      content: ''; position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%);
+      border-width: 8px 6px 0; border-style: solid; border-color: #ffffff transparent;
+    }
+
+    /* مؤشر تصويب الدلو المتحرك (Bucket Target) */
+    #bucketTarget {
+      position: fixed; width: 44px; height: 44px; border-radius: 50%;
+      border: 2.5px dashed var(--accent); background: rgba(255, 42, 95, 0.18);
+      box-shadow: 0 0 18px var(--accent-glow);
+      pointer-events: none; z-index: 9999; display: none;
+      transform: translate(-50%, -50%);
+      align-items: center; justify-content: center; font-size: 18px;
+    }
+    #bucketTarget::before {
+      content: '+'; color: #fff; font-weight: 900; font-size: 20px; text-shadow: 0 0 4px #000;
+    }
 
     /* دائرة معاينة حجم الفرشاة */
     #brushPreview {
       position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%);
       border-radius: 50%; border: 2px solid var(--accent); pointer-events: none;
-      z-index: 9999; display: none; box-shadow: 0 0 15px rgba(0,0,0,0.7);
+      z-index: 9999; display: none; box-shadow: 0 0 18px rgba(0,0,0,0.75);
     }
 
-    /* الشريط العائم لأدوات التبييض (IbisPaint Style) */
+    /* كبسولة التنقل بين الصفحات أسفل الصفحة (Futa Arab Pill) */
+    .pager-pill {
+      display: flex; align-items: center; justify-content: center; gap: 14px;
+      margin: 12px auto 4px; width: fit-content;
+      background: rgba(16, 16, 24, 0.95); border: 1px solid var(--glass-border);
+      padding: 7px 18px; border-radius: 999px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7);
+    }
+    .pager-arrow {
+      background: rgba(255,255,255,0.06); border: none; color: var(--text);
+      width: 28px; height: 28px; border-radius: 50%; font-size: 13px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .pager-arrow:active { background: var(--accent); }
+    .pager-numbers {
+      font-size: 14px; font-weight: 900; color: var(--text); min-width: 72px; text-align: center;
+      direction: ltr;
+    }
+    .pager-numbers b { color: var(--accent); }
+
+    /* الشريط العائم السفلي لأدوات IbisPaint */
     #floatingDock {
       position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%);
-      z-index: 900; width: 96%; max-width: 480px;
+      z-index: 900; width: 96%; max-width: 500px;
       background: var(--glass-bg);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 22px; padding: 10px 12px;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 42, 95, 0.2);
+      backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px; padding: 10px 12px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.92), 0 0 0 1px rgba(255, 42, 95, 0.18);
     }
     .dock-row { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
     .dock-row + .dock-row { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); }
 
     .tool-btn {
       flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 2px; padding: 7px 2px; border-radius: 12px; border: 1px solid transparent;
-      background: rgba(255,255,255,0.05); color: var(--muted); font-size: 10px; font-weight: 700; cursor: pointer;
+      gap: 3px; padding: 7px 2px; border-radius: 13px; border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.04); color: var(--muted);
+      font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.15s;
     }
     .tool-btn span.icon { font-size: 16px; line-height: 1.1; }
     .tool-btn.active {
-      background: rgba(255, 42, 95, 0.2); color: #fff;
-      border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow);
+      background: var(--accent-soft); color: #ffffff;
+      border-color: var(--accent); box-shadow: 0 0 14px var(--accent-glow);
+      transform: translateY(-1px);
     }
 
     .color-picker-wrap {
@@ -165,77 +248,81 @@
       position: absolute; top: -10px; left: -10px; width: 52px; height: 52px;
       border: none; cursor: pointer; background: none;
     }
-    .preset-colors { display: flex; gap: 4px; align-items: center; }
+    .preset-colors { display: flex; gap: 5px; align-items: center; }
     .color-dot {
-      width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.45); cursor: pointer;
+      width: 21px; height: 21px; border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.5); cursor: pointer;
     }
     .size-slider { flex: 1; accent-color: var(--accent); height: 6px; border-radius: 4px; }
 
-    /* زر الطبقات / الصفحات المربع على طراز IbisPaint */
+    /* زر المربع الرقمي للطبقات/الصفحات بأسلوب IbisPaint */
     .layers-square-btn {
-      position: relative; width: 34px; height: 34px; border-radius: 8px;
-      background: rgba(255,255,255,0.08); border: 1.5px solid #fff;
-      color: #fff; font-weight: 900; font-size: 12px;
-      display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
-      box-shadow: 3px 3px 0 rgba(255, 42, 95, 0.7);
+      width: 34px; height: 34px; border-radius: 8px;
+      background: rgba(255,255,255,0.08); border: 1.5px solid #ffffff;
+      color: #ffffff; font-weight: 900; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      box-shadow: 3px 3px 0 var(--accent);
     }
 
-    /* نافذة مصغرات الصفحات السريعة */
+    /* نافذة اختيار الصفحات السريعة */
     #pagesModal {
-      position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.8);
+      position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.82);
       backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 16px;
     }
     #pagesModal.open { display: flex; }
     .modal-box {
-      width: 100%; max-width: 440px; max-height: 80vh; background: var(--card-bg);
-      border: 1px solid var(--glass-border); border-radius: 18px; padding: 14px;
-      display: flex; flex-direction: column; gap: 10px;
+      width: 100%; max-width: 440px; max-height: 80vh; background: var(--bg-surface);
+      border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
     }
     .pages-grid {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow-y: auto; padding: 4px;
     }
     .page-card {
-      background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 10px;
-      padding: 8px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 700;
+      background: rgba(255,255,255,0.05); border: 1.5px solid transparent; border-radius: 12px;
+      padding: 10px 6px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 800;
     }
-    .page-card.current { border-color: var(--accent); background: rgba(255,42,95,0.15); }
+    .page-card.current { border-color: var(--accent); background: var(--accent-soft); color: #fff; }
   </style>
 </head>
 <body>
 
-  <!-- الشريط العلوي -->
-  <div class="top-header">
-    <div class="header-main">
-      <div class="brand">
-        Futa Arab <span class="brand-badge">استوديو التبييض</span>
+  <!-- الهيدر العلوي بتصميم Futa Arab -->
+  <header class="futa-header">
+    <div class="header-top">
+      <div class="brand-wrap">
+        <div class="brand-logo">🎲</div>
+        <span class="brand-title">Futa Arab</span>
+        <span class="free-pill">استوديو التبييض</span>
       </div>
-      <div class="top-actions">
-        <label class="btn-sm btn-primary" for="fileInput">📁 رفع فصل</label>
+      <div class="header-actions">
+        <label class="btn-action primary" for="fileInput">📁 رفع فصل</label>
         <input type="file" id="fileInput" accept=".zip,image/*" multiple style="display:none;">
-        <button class="btn-sm" id="zipBtn" onclick="downloadZip()" disabled>📦 ZIP</button>
-        <button class="btn-sm btn-success" id="sendBtn" onclick="sendToUploaderPage()" disabled>🚀 للنشر</button>
-        <button class="btn-sm btn-danger" id="clearSessionBtn" onclick="clearSavedSession()" style="display:none;" title="حذف الجلسة المحفوظة">🗑️</button>
+        <button class="btn-action" id="zipBtn" onclick="downloadZip()" disabled>📦 ZIP</button>
+        <button class="btn-action success" id="sendBtn" onclick="sendToUploaderPage()" disabled>🚀 للنشر</button>
+        <button class="btn-action danger" id="clearSessionBtn" onclick="clearSavedSession()" style="display:none;" title="حذف الجلسة المحفوظة">🗑️</button>
       </div>
     </div>
+  </header>
+
+  <!-- شريط الإرشادات وحالة الزوم -->
+  <div class="chapter-banner">
+    <div class="status-text" id="statusMsg">ارفع ملف ZIP أو صور المانغا للبدء (اضغط مرتين للزوم، واضغط على الأداة مجدداً لإلغاء تحديدها)...</div>
+    <button class="zoom-pill" id="resetZoomBtn" onclick="resetZoom()">🔍 100%</button>
   </div>
 
-  <!-- شريط الحالة وإعادة ضبط الزوم -->
-  <div class="sub-bar">
-    <div class="status-badge" id="statusMsg">ارفع ملف ZIP أو صور المانغا للبدء (حفظ تلقائي ضد الريلود)...</div>
-    <button class="zoom-badge" id="resetZoomBtn" onclick="resetZoom()">🔍 100% إعادة ضبط</button>
-  </div>
-
-  <!-- منطقة الرسم والـ Viewport -->
+  <!-- مساحة العمل والكانفاس -->
   <div class="workspace">
     <div class="viewport-box" id="viewportBox">
       <div class="canvas-stage" id="canvasStage">
         <canvas id="pageCanvas"></canvas>
 
-        <!-- طبقة خط المقارنة (Before / After) -->
+        <!-- طبقة المقارنة (Before / After) -->
         <div id="compareOverlay">
           <canvas id="beforeCanvas"></canvas>
-          <span class="compare-tag tag-before">الأصلية</span>
-          <span class="compare-tag tag-after">المعدلة</span>
+          <span class="compare-label label-orig">الأصلية</span>
+          <span class="compare-label label-edit">المعدلة</span>
           <div id="compareSlider">
             <div class="compare-line"></div>
             <div class="compare-knob">↔</div>
@@ -245,47 +332,48 @@
     </div>
   </div>
 
-  <!-- شريط التنقل المدمج بين الصفحات -->
-  <div class="floating-pager">
-    <button class="pager-btn" onclick="changePage(-1)">❮</button>
-    <span class="pager-count" id="pageCount">0 / 0</span>
-    <button class="pager-btn" onclick="changePage(1)">❯</button>
+  <!-- كبسولة التنقل بين الصفحات (كما في صورة Futa Arab) -->
+  <div class="pager-pill">
+    <button class="pager-arrow" onclick="changePage(-1)" title="السابقة">❮</button>
+    <div class="pager-numbers" id="pageCount">0 / <b>0</b></div>
+    <button class="pager-arrow" onclick="changePage(1)" title="التالية">❯</button>
   </div>
 
-  <!-- دائرة معاينة حجم الفرشاة -->
+  <!-- عدسة القطارة المتحركة + مؤشر الدلو + معاينة الفرشاة -->
+  <div id="pickerLoupe"><span id="pickerHexText">#FFFFFF</span></div>
+  <div id="bucketTarget"></div>
   <div id="brushPreview"></div>
 
-  <!-- نافذة التنقل السريع بين الصفحات -->
+  <!-- نافذة قائمة الصفحات -->
   <div id="pagesModal" onclick="if(event.target===this) togglePagesModal()">
     <div class="modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong style="color:var(--accent);">📑 قائمة صفحات الفصل</strong>
-        <button class="btn-sm" onclick="togglePagesModal()">إغلاق ✕</button>
+        <strong style="color:var(--accent);">📑 الانتقال السريع بين الصفحات</strong>
+        <button class="btn-action" onclick="togglePagesModal()">إغلاق ✕</button>
       </div>
       <div class="pages-grid" id="pagesGrid"></div>
     </div>
   </div>
 
-  <!-- الشريط العائم الذكي لأدوات IbisPaint -->
+  <!-- الشريط العائم لأدوات IbisPaint -->
   <div id="floatingDock">
-    <!-- الصف الأول: الأدوات الستة + المقارنة + التراجع -->
     <div class="dock-row">
-      <button class="tool-btn active" id="btnBrush" onclick="setTool('brush')">
+      <button class="tool-btn active" id="btnBrush" onclick="toggleTool('brush')">
         <span class="icon">🖌️</span><span>فرشاة</span>
       </button>
-      <button class="tool-btn" id="btnSmart" onclick="setTool('smart')">
+      <button class="tool-btn" id="btnSmart" onclick="toggleTool('smart')">
         <span class="icon">✨</span><span>ذكية</span>
       </button>
-      <button class="tool-btn" id="btnEraser" onclick="setTool('eraser')">
+      <button class="tool-btn" id="btnEraser" onclick="toggleTool('eraser')">
         <span class="icon">🧽</span><span>ممحاة</span>
       </button>
-      <button class="tool-btn" id="btnBlur" onclick="setTool('blur')">
+      <button class="tool-btn" id="btnBlur" onclick="toggleTool('blur')">
         <span class="icon">💧</span><span>تمويه</span>
       </button>
-      <button class="tool-btn" id="btnBucket" onclick="setTool('bucket')">
+      <button class="tool-btn" id="btnBucket" onclick="toggleTool('bucket')">
         <span class="icon">🪣</span><span>دلو</span>
       </button>
-      <button class="tool-btn" id="btnPicker" onclick="setTool('picker')">
+      <button class="tool-btn" id="btnPicker" onclick="toggleTool('picker')">
         <span class="icon">💉</span><span>قطارة</span>
       </button>
       <button class="tool-btn" id="btnCompare" onclick="toggleCompareMode()">
@@ -296,9 +384,8 @@
       </button>
     </div>
 
-    <!-- الصف الثاني: الألوان + الحجم + إعادة الصفحة + مربع الصفحات -->
     <div class="dock-row">
-      <div class="color-picker-wrap" title="لون الفرشاة">
+      <div class="color-picker-wrap" title="لون الفرشاة والدلو">
         <input type="color" id="brushColor" value="#ffffff" onchange="updateBrushColor(this.value)">
       </div>
       <div class="preset-colors">
@@ -309,36 +396,46 @@
       <input type="range" class="size-slider" id="brushSize" min="4" max="120" value="32" oninput="showBrushPreview()">
       <span id="sizeVal" style="font-size:11px; font-weight:900; min-width:24px; text-align:center;">32</span>
 
-      <button class="btn-sm" style="padding:6px 8px;" onclick="resetCurrentPage()" title="استرجاع الصفحة الأصلية بالكامل">🔄</button>
-      <div class="layers-square-btn" id="layerSquareBtn" onclick="togglePagesModal()" title="قائمة الصفحات">1</div>
+      <button class="btn-action" style="padding:6px 8px;" onclick="resetCurrentPage()" title="استرجاع الصفحة الأصلية">🔄</button>
+      <div class="layers-square-btn" id="layerSquareBtn" onclick="togglePagesModal()" title="كل الصفحات">1</div>
     </div>
   </div>
 
 <script>
 const canvas = document.getElementById('pageCanvas');
-const ctx = canvas.getContext('2d', { willReadFrequently: true });
+const ctx = canvas.getElementById('pageCanvas').getContext('2d', { willReadFrequently: true });
 const beforeCanvas = document.getElementById('beforeCanvas');
 const beforeCtx = beforeCanvas.getContext('2d');
 const viewportBox = document.getElementById('viewportBox');
 const canvasStage = document.getElementById('canvasStage');
 const compareOverlay = document.getElementById('compareOverlay');
 const compareSlider = document.getElementById('compareSlider');
+const pickerLoupe = document.getElementById('pickerLoupe');
+const pickerHexText = document.getElementById('pickerHexText');
+const bucketTarget = document.getElementById('bucketTarget');
 
 let pages = []; // [{ name, originalImg, workCanvas, history: [] }]
 let currentIdx = 0;
-let currentTool = 'brush'; // 'brush', 'smart', 'eraser', 'blur', 'bucket', 'picker'
+let currentTool = 'brush'; // 'brush', 'smart', 'eraser', 'blur', 'bucket', 'picker', or null (عند إلغاء التحديد)
 let isCompareMode = false;
 let compareSplitPercent = 50;
 
-// متغيرات الرسم واللمس بإصبعين (Pan & Pinch Zoom)
+// متغيرات الرسم، القطارة، الدلو، والتحريك
 let isDrawing = false;
+let isAimingBucket = false;
+let isAimingPicker = false;
+let isSingleFingerPan = false;
 let isTwoFingerGesture = false;
-let strokeStartTime = 0;
-let strokeSnapshot = null;
+
+let activePt = null;
+let pickedHexLive = "#ffffff";
 let lastPt = null;
+let strokeSnapshot = null;
+let strokeStartTime = 0;
 let previewTimer = null;
 let saveTimer = null;
 
+// متغيرات الزوم والتحريك والضغط المزدوج (Double-Tap)
 let viewScale = 1;
 let viewX = 0;
 let viewY = 0;
@@ -346,14 +443,16 @@ let pinchStartDist = 0;
 let pinchStartScale = 1;
 let panStartMid = { x: 0, y: 0 };
 let panStartOffset = { x: 0, y: 0 };
+let lastTapTime = 0;
+let lastTapPos = { x: 0, y: 0 };
 
 function setStatus(msg) {
   document.getElementById('statusMsg').innerText = msg;
 }
 
-// ==========================================
-// 1. نظام الحفظ التلقائي ضد الريلود (IndexedDB)
-// ==========================================
+// ====================================================
+// 1. نظام الحفظ التلقائي الفوري في IndexedDB ضد الريلود
+// ====================================================
 const DB_NAME = "FutaStudioAutoSaveDB";
 const DB_VERSION = 1;
 
@@ -373,7 +472,7 @@ function openSessionDB() {
 
 function scheduleAutoSave() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveCurrentPageToDB, 350);
+  saveTimer = setTimeout(saveCurrentPageToDB, 300);
 }
 
 async function saveCurrentPageToDB() {
@@ -471,7 +570,7 @@ async function clearSavedSession() {
   pages = [];
   currentIdx = 0;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  document.getElementById('pageCount').innerText = "0 / 0";
+  document.getElementById('pageCount').innerHTML = "0 / <b>0</b>";
   document.getElementById('layerSquareBtn').innerText = "0";
   document.getElementById('zipBtn').disabled = true;
   document.getElementById('sendBtn').disabled = true;
@@ -481,25 +580,43 @@ async function clearSavedSession() {
 
 window.addEventListener('DOMContentLoaded', restoreSessionOnLoad);
 
-// ==========================================
-// 2. تبديل الأدوات والألوان
-// ==========================================
+// ====================================================
+// 2. التبديل الذكي للأدوات (الضغط مجدداً يلغي التحديد)
+// ====================================================
+const toolButtons = {
+  brush: 'btnBrush',
+  smart: 'btnSmart',
+  eraser: 'btnEraser',
+  blur: 'btnBlur',
+  bucket: 'btnBucket',
+  picker: 'btnPicker'
+};
+
+function toggleTool(tool) {
+  // إذا ضغط المستخدم على نفس الأداة المفعلة حالياً -> نلغي تحديد كل الأدوات
+  if (currentTool === tool) {
+    currentTool = null;
+    Object.values(toolButtons).forEach(id => document.getElementById(id).classList.remove('active'));
+    setStatus("🖐️ تم إلغاء تحديد الأداة: يمكنك الآن تحريك الصفحة بإصبع واحد أو الضغط مرتين للزوم");
+    return;
+  }
+  setTool(tool);
+}
+
 function setTool(tool) {
   currentTool = tool;
-  ['btnBrush', 'btnSmart', 'btnEraser', 'btnBlur', 'btnBucket', 'btnPicker'].forEach(id => {
-    document.getElementById(id).classList.remove('active');
-  });
-  const map = {
-    brush: ['btnBrush', '🖌️ الفرشاة العادية: امسح بإصبع واحد، وحرك/كبر بإصبعين'],
-    smart: ['btnSmart', '✨ الفرشاة الذكية: تمسح الكلام والرمادي وتحمي خطوط الرسم السوداء'],
-    eraser: ['btnEraser', '🧽 الممحاة: تسترجع الرسم الأصلي في المكان الذي تمرر عليه'],
-    blur: ['btnBlur', '💧 أداة التمويه (Blur): لتنعيم ودمج التدرجات اللونية بسلاسة'],
-    bucket: ['btnBucket', '🪣 دلو التعبئة: المس داخل أي فقاعة لتلوينها بالكامل فوراً'],
-    picker: ['btnPicker', '💉 القطارة: المس أي نقطة في الصفحة لالتقاط لونها فوراً']
+  Object.values(toolButtons).forEach(id => document.getElementById(id).classList.remove('active'));
+  const messages = {
+    brush: '🖌️ الفرشاة العادية: امسح بإصبع واحد، أو اضغط مرتين للتكبير/التصغير',
+    smart: '✨ الفرشاة الذكية: تمسح النصوص وتحمي الخطوط السوداء العريضة',
+    eraser: '🧽 الممحاة: تسترجع الرسم الأصلي في المكان الذي تمرر عليه',
+    blur: '💧 التمويه (Blur): لتنعيم ودمج التدرجات اللونية بسلاسة',
+    bucket: '🪣 دلو الفقاعات الذكي: حرك إصبعك داخل الفقاعة ثم ارفع يدك لتبييضها من الكتابة فوراً!',
+    picker: '💉 القطارة المتحركة: اسحب إصبعك لاختيار اللون، وارفع يدك لاعتماده!'
   };
-  if (map[tool]) {
-    document.getElementById(map[tool][0]).classList.add('active');
-    setStatus(map[tool][1]);
+  if (tool && toolButtons[tool]) {
+    document.getElementById(toolButtons[tool]).classList.add('active');
+    setStatus(messages[tool]);
   }
 }
 
@@ -530,9 +647,9 @@ function showBrushPreview() {
   previewTimer = setTimeout(() => { preview.style.display = 'none'; }, 650);
 }
 
-// ==========================================
+// ====================================================
 // 3. رفع ملفات ZIP أو الصور
-// ==========================================
+// ====================================================
 document.getElementById('fileInput').addEventListener('change', async (e) => {
   const files = Array.from(e.target.files);
   if (!files.length) return;
@@ -585,13 +702,13 @@ function loadImg(blob) {
 
 function saveHistory(page) {
   const wCtx = page.workCanvas.getContext('2d');
-  if (page.history.length >= 10) page.history.shift();
+  if (page.history.length >= 12) page.history.shift();
   page.history.push(wCtx.getImageData(0, 0, page.workCanvas.width, page.workCanvas.height));
 }
 
-// ==========================================
-// 4. رسم الصفحة + العلامة المائية + المقارنة
-// ==========================================
+// ====================================================
+// 4. عرض الصفحة + العلامة المائية + المقارنة
+// ====================================================
 function renderCompositeToContext(targetCtx, sourceDrawable, width, height) {
   const footerH = Math.max(36, Math.floor(height * 0.03));
   targetCtx.clearRect(0, 0, width, height + footerH);
@@ -633,13 +750,13 @@ function drawPage() {
     syncBeforeCanvas();
   }
 
-  document.getElementById('pageCount').innerText = `${currentIdx + 1} / ${pages.length}`;
+  document.getElementById('pageCount').innerHTML = `${pages.length} / <b>${currentIdx + 1}</b>`;
   document.getElementById('layerSquareBtn').innerText = currentIdx + 1;
 }
 
-// ==========================================
+// ====================================================
 // 5. خط المقارنة المتحرك (Before / After)
-// ==========================================
+// ====================================================
 function toggleCompareMode() {
   if (!pages.length) return;
   isCompareMode = !isCompareMode;
@@ -649,7 +766,7 @@ function toggleCompareMode() {
     compareOverlay.classList.add('active');
     syncBeforeCanvas();
     updateCompareClip(compareSplitPercent);
-    setStatus("🌗 وضع المقارنة: اسحب الخط الأبيض لمقارنة الصفحة الأصلية بالمعدلة");
+    setStatus("🌗 وضع المقارنة: اسحب الخط الأبيض لرؤية الفرق بين الأصلية والمعدلة");
   } else {
     btn.classList.remove('active');
     compareOverlay.classList.remove('active');
@@ -694,9 +811,9 @@ compareSlider.addEventListener('pointerup', e => {
   e.stopPropagation();
 });
 
-// ==========================================
-// 6. الخوارزميات: الفرشاة الذكية، الممحاة، التمويه، والدلو الآمن
-// ==========================================
+// ====================================================
+// 6. الخوارزميات: دلو تبييض الفقاعات الذكي + الفرشاة الذكية + التمويه
+// ====================================================
 function hexToRgb(hex) {
   const n = parseInt(hex.slice(1), 16);
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
@@ -706,7 +823,187 @@ function rgbToHex(r, g, b) {
   return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
 }
 
-// أداة الفرشاة الذكية (تحمي الخطوط العريضة المتصلة بالحواف وتمسح النصوص)
+// دلو تبييض الفقاعات الذكي: يتعرف على حدود الفقاعة ويمسح كل الكتابة بداخلها عند رفع الإصبع!
+function cleanSpeechBubbleAt(wCanvas, rawX, rawY, fillHex) {
+  const wCtx = wCanvas.getContext('2d');
+  const w = wCanvas.width, h = wCanvas.height;
+  let sx = Math.floor(rawX), sy = Math.floor(rawY);
+  if (sx < 0 || sx >= w || sy < 0 || sy >= h) return;
+
+  const imgData = wCtx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+  const fillRgb = hexToRgb(fillHex);
+
+  // 1. إذا رفع المستخدم إصبعه فوق حرف أسود داخل الفقاعة، نبحث تلقائياً عن أقرب بكسل خلفية فاتح بجواره
+  const getLum = (x, y) => {
+    const p = (y * w + x) * 4;
+    return (data[p] * 299 + data[p + 1] * 587 + data[p + 2] * 114) / 1000;
+  };
+
+  if (getLum(sx, sy) < 150) {
+    let foundBg = false;
+    for (let r = 1; r <= 28 && !foundBg; r++) {
+      for (let dy = -r; dy <= r && !foundBg; dy++) {
+        for (let dx = -r; dx <= r && !foundBg; dx++) {
+          const nx = sx + dx, ny = sy + dy;
+          if (nx >= 0 && nx < w && ny >= 0 && ny < h && getLum(nx, ny) > 195) {
+            sx = nx; sy = ny;
+            foundBg = true;
+          }
+        }
+      }
+    }
+  }
+
+  const seedPos = (sy * w + sx) * 4;
+  const sr = data[seedPos], sg = data[seedPos + 1], sb = data[seedPos + 2];
+  const tol = 52; // حساسية التقاط خلفية الفقاعة
+
+  // 2. إيجاد مساحة الفقاعة المحيطة بالنص
+  const maxBubblePixels = Math.floor(w * h * 0.28); // حماية من تسرب اللون إذا كانت الفقاعة مفتوحة
+  const visitedBubble = new Uint8Array(w * h);
+  const queue = new Int32Array(w * h);
+  let head = 0, tail = 0;
+
+  const startIdx = sy * w + sx;
+  visitedBubble[startIdx] = 1;
+  queue[tail++] = startIdx;
+
+  let minX = sx, maxX = sx, minY = sy, maxY = sy;
+  let leakedOut = false;
+
+  while (head < tail) {
+    if (tail > maxBubblePixels) {
+      leakedOut = true;
+      break;
+    }
+    const curr = queue[head++];
+    const cx = curr % w;
+    const cy = (curr / w) | 0;
+
+    if (cx < minX) minX = cx;
+    if (cx > maxX) maxX = cx;
+    if (cy < minY) minY = cy;
+    if (cy > maxY) maxY = cy;
+
+    // الجيران الأربعة
+    const neighbors = [
+      cx > 0 ? curr - 1 : -1,
+      cx < w - 1 ? curr + 1 : -1,
+      cy > 0 ? curr - w : -1,
+      cy < h - 1 ? curr + w : -1
+    ];
+
+    for (let n = 0; n < 4; n++) {
+      const ni = neighbors[n];
+      if (ni !== -1 && !visitedBubble[ni]) {
+        const np = ni * 4;
+        if (
+          Math.abs(data[np] - sr) <= tol &&
+          Math.abs(data[np + 1] - sg) <= tol &&
+          Math.abs(data[np + 2] - sb) <= tol
+        ) {
+          visitedBubble[ni] = 1;
+          queue[tail++] = ni;
+        }
+      }
+    }
+  }
+
+  // إذا كانت الفقاعة مفتوحة جداً أو نصاً بدون فقاعة، ننظف دائرة ذكية حول مكان الإصبع
+  if (leakedOut || tail < 40) {
+    const fallbackRadius = Math.max(45, parseInt(document.getElementById('brushSize').value) * 1.4);
+    smartBrushAt(wCanvas, rawX, rawY, fallbackRadius, fillHex);
+    return;
+  }
+
+  // 3. مسح جميع الحروف والكتابة المحصورة داخل الفقاعة مع الحفاظ التام على حدود الفقاعة الخارجية!
+  const padMinX = Math.max(0, minX - 2);
+  const padMaxX = Math.min(w - 1, maxX + 2);
+  const padMinY = Math.max(0, minY - 2);
+  const padMaxY = Math.min(h - 1, maxY + 2);
+  const bw = padMaxX - padMinX + 1;
+  const bh = padMaxY - padMinY + 1;
+
+  // نحدد كل البكسلات الواقعة خارج الفقاعة بدءاً من حواف المربع المحيط
+  const outsideBubble = new Uint8Array(bw * bh);
+  const extQueue = new Int32Array(bw * bh);
+  let eHead = 0, eTail = 0;
+
+  for (let bx = 0; bx < bw; bx++) {
+    const topGlobal = padMinY * w + (padMinX + bx);
+    if (!visitedBubble[topGlobal]) {
+      outsideBubble[bx] = 1;
+      extQueue[eTail++] = bx;
+    }
+    const botLocal = (bh - 1) * bw + bx;
+    const botGlobal = padMaxY * w + (padMinX + bx);
+    if (!visitedBubble[botGlobal] && !outsideBubble[botLocal]) {
+      outsideBubble[botLocal] = 1;
+      extQueue[eTail++] = botLocal;
+    }
+  }
+
+  for (let by = 1; by < bh - 1; by++) {
+    const leftLocal = by * bw;
+    const leftGlobal = (padMinY + by) * w + padMinX;
+    if (!visitedBubble[leftGlobal] && !outsideBubble[leftLocal]) {
+      outsideBubble[leftLocal] = 1;
+      extQueue[eTail++] = leftLocal;
+    }
+    const rightLocal = by * bw + (bw - 1);
+    const rightGlobal = (padMinY + by) * w + padMaxX;
+    if (!visitedBubble[rightGlobal] && !outsideBubble[rightLocal]) {
+      outsideBubble[rightLocal] = 1;
+      extQueue[eTail++] = rightLocal;
+    }
+  }
+
+  while (eHead < eTail) {
+    const currLocal = extQueue[eHead++];
+    const lx = currLocal % bw;
+    const ly = (currLocal / bw) | 0;
+
+    const lNeighbors = [
+      lx > 0 ? currLocal - 1 : -1,
+      lx < bw - 1 ? currLocal + 1 : -1,
+      ly > 0 ? currLocal - bw : -1,
+      ly < bh - 1 ? currLocal + bw : -1
+    ];
+
+    for (let n = 0; n < 4; n++) {
+      const nl = lNeighbors[n];
+      if (nl !== -1 && !outsideBubble[nl]) {
+        const gx = padMinX + (nl % bw);
+        const gy = padMinY + ((nl / bw) | 0);
+        if (!visitedBubble[gy * w + gx]) {
+          outsideBubble[nl] = 1;
+          extQueue[eTail++] = nl;
+        }
+      }
+    }
+  }
+
+  // تلوين الفقاعة بالكامل + مسح كل الحروف المحصورة بداخلها!
+  for (let by = 0; by < bh; by++) {
+    const gy = padMinY + by;
+    for (let bx = 0; bx < bw; bx++) {
+      const localIdx = by * bw + bx;
+      if (!outsideBubble[localIdx]) {
+        const gx = padMinX + bx;
+        const p = (gy * w + gx) * 4;
+        data[p] = fillRgb.r;
+        data[p + 1] = fillRgb.g;
+        data[p + 2] = fillRgb.b;
+        data[p + 3] = 255;
+      }
+    }
+  }
+
+  wCtx.putImageData(imgData, 0, 0);
+}
+
+// الفرشاة الذكية: تمسح الحروف فقط داخل دائرة الفرشاة وتحمي خطوط الرسم المتصلة بالحواف
 function smartBrushAt(wCanvas, cx, cy, radius, fillHex) {
   const wCtx = wCanvas.getContext('2d');
   const x0 = Math.max(0, Math.floor(cx - radius));
@@ -721,7 +1018,6 @@ function smartBrushAt(wCanvas, cx, cy, radius, fillHex) {
   const rgb = hexToRgb(fillHex);
   const rSq = radius * radius;
 
-  // تحديد البكسلات الداكنة المتصلة بحواف دائرة الفرشاة لحمايتها
   const isDark = new Uint8Array(bw * bh);
   const protectedDark = new Uint8Array(bw * bh);
   const queue = new Int32Array(bw * bh);
@@ -778,7 +1074,7 @@ function smartBrushAt(wCanvas, cx, cy, radius, fillHex) {
   wCtx.putImageData(imgData, x0, y0);
 }
 
-// أداة التمويه (Blur) لتنعيم التدرجات اللونية
+// أداة التمويه (Blur)
 function blurBrushAt(wCanvas, cx, cy, radius) {
   const wCtx = wCanvas.getContext('2d');
   const x0 = Math.max(0, Math.floor(cx - radius));
@@ -817,82 +1113,6 @@ function blurBrushAt(wCanvas, cx, cy, radius) {
   wCtx.putImageData(imgData, x0, y0);
 }
 
-// أداة الدلو (Flood Fill) السريعة والمحمية 100% من الحلقات اللانهائية
-function safeFloodFill(wCanvas, startX, startY, fillHex) {
-  const wCtx = wCanvas.getContext('2d');
-  const w = wCanvas.width, h = wCanvas.height;
-  const sx = Math.floor(startX), sy = Math.floor(startY);
-  if (sx < 0 || sx >= w || sy < 0 || sy >= h) return;
-
-  const imgData = wCtx.getImageData(0, 0, w, h);
-  const data = imgData.data;
-  const startPos = (sy * w + sx) * 4;
-  const tr = data[startPos], tg = data[startPos + 1], tb = data[startPos + 2];
-  const fillRgb = hexToRgb(fillHex);
-
-  if (Math.abs(tr - fillRgb.r) < 3 && Math.abs(tg - fillRgb.g) < 3 && Math.abs(tb - fillRgb.b) < 3) return;
-
-  const tolerance = 32;
-  const visited = new Uint8Array(w * h);
-  const queue = new Int32Array(w * h);
-  let head = 0, tail = 0;
-
-  const startIdx = sy * w + sx;
-  visited[startIdx] = 1;
-  queue[tail++] = startIdx;
-
-  while (head < tail) {
-    const curr = queue[head++];
-    const p = curr * 4;
-    data[p] = fillRgb.r;
-    data[p + 1] = fillRgb.g;
-    data[p + 2] = fillRgb.b;
-    data[p + 3] = 255;
-
-    const cx = curr % w;
-    const cy = (curr / w) | 0;
-
-    // فحص الجيران الأربعة
-    if (cx > 0) {
-      const ni = curr - 1;
-      if (!visited[ni]) {
-        const np = ni * 4;
-        if (Math.abs(data[np] - tr) <= tolerance && Math.abs(data[np + 1] - tg) <= tolerance && Math.abs(data[np + 2] - tb) <= tolerance) {
-          visited[ni] = 1; queue[tail++] = ni;
-        }
-      }
-    }
-    if (cx < w - 1) {
-      const ni = curr + 1;
-      if (!visited[ni]) {
-        const np = ni * 4;
-        if (Math.abs(data[np] - tr) <= tolerance && Math.abs(data[np + 1] - tg) <= tolerance && Math.abs(data[np + 2] - tb) <= tolerance) {
-          visited[ni] = 1; queue[tail++] = ni;
-        }
-      }
-    }
-    if (cy > 0) {
-      const ni = curr - w;
-      if (!visited[ni]) {
-        const np = ni * 4;
-        if (Math.abs(data[np] - tr) <= tolerance && Math.abs(data[np + 1] - tg) <= tolerance && Math.abs(data[np + 2] - tb) <= tolerance) {
-          visited[ni] = 1; queue[tail++] = ni;
-        }
-      }
-    }
-    if (cy < h - 1) {
-      const ni = curr + w;
-      if (!visited[ni]) {
-        const np = ni * 4;
-        if (Math.abs(data[np] - tr) <= tolerance && Math.abs(data[np + 1] - tg) <= tolerance && Math.abs(data[np + 2] - tb) <= tolerance) {
-          visited[ni] = 1; queue[tail++] = ni;
-        }
-      }
-    }
-  }
-  wCtx.putImageData(imgData, 0, 0);
-}
-
 function strokeBrush(fromPt, toPt) {
   const page = pages[currentIdx];
   const wCanvas = page.workCanvas;
@@ -914,7 +1134,6 @@ function strokeBrush(fromPt, toPt) {
     wCtx.stroke();
     wCtx.restore();
   } else if (currentTool === 'eraser') {
-    // الممحاة: تسترجع الرسم الأصلي تحت مسار الممحاة
     wCtx.save();
     wCtx.beginPath();
     wCtx.moveTo(fromPt.x, fromPt.y);
@@ -933,9 +1152,34 @@ function strokeBrush(fromPt, toPt) {
   drawPage();
 }
 
-// ==========================================
-// 7. التحكم السلس بإصبعين (Pan & Zoom) والرسم بإصبع واحد
-// ==========================================
+// ====================================================
+// 7. تحديث القطارة المتحركة ومؤشر الدلو أثناء تحريك اليد
+// ====================================================
+function updateLivePicker(clientX, clientY) {
+  const pt = getCanvasCoords(clientX, clientY);
+  const page = pages[currentIdx];
+  const px = Math.max(0, Math.min(page.workCanvas.width - 1, Math.floor(pt.x)));
+  const py = Math.max(0, Math.min(page.workCanvas.height - 1, Math.floor(pt.y)));
+  const pixel = page.workCanvas.getContext('2d').getImageData(px, py, 1, 1).data;
+  pickedHexLive = rgbToHex(pixel[0], pixel[1], pixel[2]);
+
+  pickerLoupe.style.display = 'flex';
+  pickerLoupe.style.left = clientX + 'px';
+  pickerLoupe.style.top = clientY + 'px';
+  pickerLoupe.style.background = pickedHexLive;
+  pickerHexText.innerText = pickedHexLive.toUpperCase();
+}
+
+function updateLiveBucketTarget(clientX, clientY) {
+  activePt = getCanvasCoords(clientX, clientY);
+  bucketTarget.style.display = 'flex';
+  bucketTarget.style.left = clientX + 'px';
+  bucketTarget.style.top = clientY + 'px';
+}
+
+// ====================================================
+// 8. الزوم بالضغط المزدوج (Double-Tap) والتحكم بإصبعين
+// ====================================================
 function getCanvasCoords(clientX, clientY) {
   const r = canvas.getBoundingClientRect();
   return {
@@ -949,7 +1193,7 @@ function updateStageTransform() {
   const zoomBtn = document.getElementById('resetZoomBtn');
   if (Math.abs(viewScale - 1) > 0.05 || Math.abs(viewX) > 5 || Math.abs(viewY) > 5) {
     zoomBtn.style.display = 'inline-block';
-    zoomBtn.innerText = `🔍 ${Math.round(viewScale * 100)}% إعادة ضبط`;
+    zoomBtn.innerText = `🔍 ${Math.round(viewScale * 100)}% إعادة`;
   } else {
     zoomBtn.style.display = 'none';
   }
@@ -962,19 +1206,41 @@ function resetZoom() {
   updateStageTransform();
 }
 
+function toggleDoubleTapZoom(clientX, clientY) {
+  if (viewScale > 1.15) {
+    resetZoom();
+    setStatus("🔍 تم إرجاع حجم الصفحة إلى 100%");
+  } else {
+    const targetScale = 2.4;
+    const boxRect = viewportBox.getBoundingClientRect();
+    const tapX = clientX - boxRect.left;
+    const tapY = clientY - boxRect.top;
+    viewX = tapX - tapX * targetScale;
+    viewY = tapY - tapY * targetScale;
+    viewScale = targetScale;
+    updateStageTransform();
+    setStatus("🔍 تم تكبير الصفحة (اضغط مرتين مجدداً للتصغير)");
+  }
+}
+
 viewportBox.addEventListener('touchstart', e => {
   if (!pages.length || isCompareMode) return;
   if (e.target.closest('#compareSlider')) return;
 
-  // عند وضع إصبعين: تفعيل التحريك والزوم فوراً وإلغاء أي نقطة رسم غير مقصودة
+  // عند وضع إصبعين: تفعيل التحريك والزوم فوراً
   if (e.touches.length >= 2) {
     e.preventDefault();
-    if (isDrawing && strokeSnapshot && (Date.now() - strokeStartTime < 180)) {
+    if (isDrawing && strokeSnapshot && (Date.now() - strokeStartTime < 200)) {
       pages[currentIdx].workCanvas.getContext('2d').putImageData(strokeSnapshot, 0, 0);
       pages[currentIdx].history.pop();
       drawPage();
     }
     isDrawing = false;
+    isAimingBucket = false;
+    isAimingPicker = false;
+    isSingleFingerPan = false;
+    pickerLoupe.style.display = 'none';
+    bucketTarget.style.display = 'none';
     isTwoFingerGesture = true;
 
     const t1 = e.touches[0], t2 = e.touches[1];
@@ -985,34 +1251,61 @@ viewportBox.addEventListener('touchstart', e => {
     return;
   }
 
-  // إصبع واحد للرسم أو القطارة أو الدلو
   if (e.touches.length === 1 && !isTwoFingerGesture) {
     e.preventDefault();
     const touch = e.touches[0];
+    const now = Date.now();
+    const tapDist = Math.hypot(touch.clientX - lastTapPos.x, touch.clientY - lastTapPos.y);
+
+    // فحص الضغط المزدوج (Double-Tap) للزوم
+    if (now - lastTapTime < 280 && tapDist < 32) {
+      if (strokeSnapshot && pages[currentIdx].history.length > 0) {
+        pages[currentIdx].workCanvas.getContext('2d').putImageData(strokeSnapshot, 0, 0);
+        pages[currentIdx].history.pop();
+        drawPage();
+      }
+      isDrawing = false;
+      isAimingBucket = false;
+      isAimingPicker = false;
+      pickerLoupe.style.display = 'none';
+      bucketTarget.style.display = 'none';
+      lastTapTime = 0;
+      toggleDoubleTapZoom(touch.clientX, touch.clientY);
+      return;
+    }
+    lastTapTime = now;
+    lastTapPos = { x: touch.clientX, y: touch.clientY };
+
+    // إذا لم تكن هناك أداة محددة (بعد إلغاء التحديد)، نحرك الصفحة بإصبع واحد
+    if (currentTool === null) {
+      isSingleFingerPan = true;
+      panStartMid = { x: touch.clientX, y: touch.clientY };
+      panStartOffset = { x: viewX, y: viewY };
+      return;
+    }
+
     const pt = getCanvasCoords(touch.clientX, touch.clientY);
     const page = pages[currentIdx];
     if (pt.y > page.workCanvas.height) return;
 
+    // القطارة المتحركة: تبدأ المعاينة وتتحرك مع الإصبع حتى يرفع يده
     if (currentTool === 'picker') {
-      const pixel = page.workCanvas.getContext('2d').getImageData(Math.floor(pt.x), Math.floor(pt.y), 1, 1).data;
-      const pickedHex = rgbToHex(pixel[0], pixel[1], pixel[2]);
-      setPresetColor(pickedHex);
-      setTool('brush');
-      setStatus(`💉 تم التقاط اللون (${pickedHex}) وتفعيل الفرشاة`);
+      isAimingPicker = true;
+      updateLivePicker(touch.clientX, touch.clientY);
       return;
     }
 
+    // دلو تبييض الفقاعات: يظهر مؤشر التصويب ويتحرك مع الإصبع حتى يرفع يده
+    if (currentTool === 'bucket') {
+      isAimingBucket = true;
+      updateLiveBucketTarget(touch.clientX, touch.clientY);
+      return;
+    }
+
+    // أدوات الرسم المباشر (فرشاة، ذكية، ممحاة، تمويه)
     saveHistory(page);
     strokeSnapshot = page.history[page.history.length - 1];
-    strokeStartTime = Date.now();
-
-    if (currentTool === 'bucket') {
-      safeFloodFill(page.workCanvas, pt.x, pt.y, document.getElementById('brushColor').value);
-      drawPage();
-      scheduleAutoSave();
-      return;
-    }
-
+    strokeStartTime = now;
     isDrawing = true;
     lastPt = pt;
     strokeBrush(pt, pt);
@@ -1028,7 +1321,7 @@ viewportBox.addEventListener('touchmove', e => {
     const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
     const mid = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
 
-    const newScale = Math.max(0.8, Math.min(4.5, pinchStartScale * (dist / pinchStartDist)));
+    const newScale = Math.max(0.85, Math.min(4.5, pinchStartScale * (dist / pinchStartDist)));
     const boxRect = viewportBox.getBoundingClientRect();
     const originX = panStartMid.x - boxRect.left;
     const originY = panStartMid.y - boxRect.top;
@@ -1040,71 +1333,159 @@ viewportBox.addEventListener('touchmove', e => {
     return;
   }
 
-  if (isDrawing && e.touches.length === 1 && !isTwoFingerGesture) {
+  if (e.touches.length === 1 && !isTwoFingerGesture) {
     e.preventDefault();
     const touch = e.touches[0];
-    const pt = getCanvasCoords(touch.clientX, touch.clientY);
-    strokeBrush(lastPt, pt);
-    lastPt = pt;
+
+    if (isSingleFingerPan) {
+      viewX = panStartOffset.x + (touch.clientX - panStartMid.x);
+      viewY = panStartOffset.y + (touch.clientY - panStartMid.y);
+      updateStageTransform();
+      return;
+    }
+
+    if (isAimingPicker) {
+      updateLivePicker(touch.clientX, touch.clientY);
+      return;
+    }
+
+    if (isAimingBucket) {
+      updateLiveBucketTarget(touch.clientX, touch.clientY);
+      return;
+    }
+
+    if (isDrawing) {
+      const pt = getCanvasCoords(touch.clientX, touch.clientY);
+      strokeBrush(lastPt, pt);
+      lastPt = pt;
+    }
   }
 }, { passive: false });
 
 viewportBox.addEventListener('touchend', e => {
+  // عند رفع اليد في وضع القطارة -> اعتماد اللون فوراً
+  if (isAimingPicker) {
+    isAimingPicker = false;
+    pickerLoupe.style.display = 'none';
+    setPresetColor(pickedHexLive);
+    setStatus(`💉 تم التقاط اللون (${pickedHexLive.toUpperCase()}) بنجاح!`);
+  }
+
+  // عند رفع اليد في وضع الدلو -> تبييض الفقاعة ومسح الكتابة بداخلها فوراً!
+  if (isAimingBucket && activePt) {
+    isAimingBucket = false;
+    bucketTarget.style.display = 'none';
+    const page = pages[currentIdx];
+    saveHistory(page);
+    cleanSpeechBubbleAt(page.workCanvas, activePt.x, activePt.y, document.getElementById('brushColor').value);
+    drawPage();
+    scheduleAutoSave();
+    setStatus("🪣 تم تبييض الفقاعة ومسح الكتابة بداخلها!");
+    activePt = null;
+  }
+
   if (isDrawing) {
     isDrawing = false;
     lastPt = null;
     scheduleAutoSave();
   }
+
   if (e.touches.length === 0) {
     isTwoFingerGesture = false;
+    isSingleFingerPan = false;
   }
 });
 
-// دعم الماوس أيضاً في حال التجربة من متصفح سطح المكتب
+// دعم الماوس أيضاً (للتجربة على الكمبيوتر)
+viewportBox.addEventListener('dblclick', e => {
+  if (!pages.length || isCompareMode) return;
+  toggleDoubleTapZoom(e.clientX, e.clientY);
+});
+
 viewportBox.addEventListener('mousedown', e => {
   if (!pages.length || isCompareMode || e.button !== 0) return;
   if (e.target.closest('#compareSlider')) return;
+
+  if (currentTool === null) {
+    isSingleFingerPan = true;
+    panStartMid = { x: e.clientX, y: e.clientY };
+    panStartOffset = { x: viewX, y: viewY };
+    return;
+  }
+
   const pt = getCanvasCoords(e.clientX, e.clientY);
   const page = pages[currentIdx];
   if (pt.y > page.workCanvas.height) return;
 
   if (currentTool === 'picker') {
-    const pixel = page.workCanvas.getContext('2d').getImageData(Math.floor(pt.x), Math.floor(pt.y), 1, 1).data;
-    setPresetColor(rgbToHex(pixel[0], pixel[1], pixel[2]));
-    setTool('brush');
+    isAimingPicker = true;
+    updateLivePicker(e.clientX, e.clientY);
+    return;
+  }
+  if (currentTool === 'bucket') {
+    isAimingBucket = true;
+    updateLiveBucketTarget(e.clientX, e.clientY);
     return;
   }
 
   saveHistory(page);
-  if (currentTool === 'bucket') {
-    safeFloodFill(page.workCanvas, pt.x, pt.y, document.getElementById('brushColor').value);
-    drawPage();
-    scheduleAutoSave();
-    return;
-  }
   isDrawing = true;
   lastPt = pt;
   strokeBrush(pt, pt);
 });
 
 window.addEventListener('mousemove', e => {
-  if (!isDrawing || isCompareMode) return;
-  const pt = getCanvasCoords(e.clientX, e.clientY);
-  strokeBrush(lastPt, pt);
-  lastPt = pt;
+  if (!pages.length || isCompareMode) return;
+  if (isSingleFingerPan) {
+    viewX = panStartOffset.x + (e.clientX - panStartMid.x);
+    viewY = panStartOffset.y + (e.clientY - panStartMid.y);
+    updateStageTransform();
+    return;
+  }
+  if (isAimingPicker) {
+    updateLivePicker(e.clientX, e.clientY);
+    return;
+  }
+  if (isAimingBucket) {
+    updateLiveBucketTarget(e.clientX, e.clientY);
+    return;
+  }
+  if (isDrawing) {
+    const pt = getCanvasCoords(e.clientX, e.clientY);
+    strokeBrush(lastPt, pt);
+    lastPt = pt;
+  }
 });
 
 window.addEventListener('mouseup', () => {
+  if (isAimingPicker) {
+    isAimingPicker = false;
+    pickerLoupe.style.display = 'none';
+    setPresetColor(pickedHexLive);
+    setStatus(`💉 تم التقاط اللون (${pickedHexLive.toUpperCase()}) بنجاح!`);
+  }
+  if (isAimingBucket && activePt) {
+    isAimingBucket = false;
+    bucketTarget.style.display = 'none';
+    const page = pages[currentIdx];
+    saveHistory(page);
+    cleanSpeechBubbleAt(page.workCanvas, activePt.x, activePt.y, document.getElementById('brushColor').value);
+    drawPage();
+    scheduleAutoSave();
+    setStatus("🪣 تم تبييض الفقاعة ومسح الكتابة بداخلها!");
+    activePt = null;
+  }
   if (isDrawing) {
     isDrawing = false;
     lastPt = null;
     scheduleAutoSave();
   }
+  isSingleFingerPan = false;
 });
 
-// ==========================================
-// 8. التراجع، الإعادة، والتنقل السريع بين الصفحات
-// ==========================================
+// ====================================================
+// 9. التراجع، الإعادة، والتنقل بين الصفحات
+// ====================================================
 function undoLastAction() {
   if (!pages.length) return;
   const page = pages[currentIdx];
@@ -1164,9 +1545,9 @@ function togglePagesModal() {
   }
 }
 
-// ==========================================
-// 9. تصدير الفصل بصيغة WebP ZIP أو إرساله للنشر
-// ==========================================
+// ====================================================
+// 10. تصدير الفصل بصيغة WebP ZIP أو إرساله للنشر
+// ====================================================
 async function generateFinalZipBlob() {
   const zip = new JSZip();
   const savedIdx = currentIdx;
