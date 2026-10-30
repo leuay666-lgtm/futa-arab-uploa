@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>استوديو التبييض الاحترافي - FutaArab</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
@@ -10,159 +10,265 @@
   <style>
     :root {
       --bg-dark: #070709;
-      --glass-bg: rgba(20, 20, 26, 0.85);
+      --card-bg: #121218;
+      --glass-bg: rgba(18, 18, 24, 0.92);
       --glass-border: rgba(255, 255, 255, 0.12);
       --accent: #ff2a5f;
       --accent-glow: rgba(255, 42, 95, 0.35);
       --text: #ffffff;
       --muted: #9ca3af;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg-dark); color: var(--text); min-height: 100vh; overflow-x: hidden; padding-bottom: 150px; overscroll-behavior: none; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+    body { background: var(--bg-dark); color: var(--text); min-height: 100vh; overflow-x: hidden; padding-bottom: 185px; }
 
-    /* الشريط العلوي */
-    .top-bar {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 14px; background: var(--glass-bg);
-      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    /* الهيدر العلوي بتصميم Futa Arab */
+    .top-header {
+      position: sticky; top: 0; z-index: 500;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--glass-border);
+      padding: 8px 12px;
     }
-    .brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 15px; color: var(--accent); }
-    .brand span { color: var(--text); font-size: 12px; font-weight: 500; opacity: 0.7; }
-
-    .top-actions { display: flex; gap: 6px; align-items: center; }
+    .header-main {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 16px; color: var(--accent);
+    }
+    .brand-badge {
+      background: rgba(255, 255, 255, 0.08); color: #cbd5e1;
+      border: 1px solid var(--glass-border); font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px;
+    }
+    .top-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .btn-sm {
-      padding: 7px 12px; border-radius: 8px; border: 1px solid var(--glass-border);
-      background: rgba(255,255,255,0.06); color: var(--text); font-size: 12px; font-weight: 700; cursor: pointer;
+      padding: 7px 11px; border-radius: 10px; border: 1px solid var(--glass-border);
+      background: rgba(255,255,255,0.06); color: var(--text); font-size: 12px; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.15s;
     }
+    .btn-sm:active { transform: scale(0.95); }
     .btn-primary { background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 12px var(--accent-glow); }
     .btn-success { background: #10b981; border-color: #10b981; }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
     .btn-sm:disabled { opacity: 0.4; pointer-events: none; }
 
-    /* شريط التنقل */
-    .page-nav {
+    /* شريط معلومات الفصل والصفحة */
+    .sub-bar {
       display: flex; justify-content: space-between; align-items: center;
-      max-width: 650px; margin: 10px auto; padding: 8px 12px;
-      background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px;
+      max-width: 750px; margin: 8px auto 4px; padding: 6px 12px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px;
     }
-    .status-badge { font-size: 12px; color: #fbbf24; text-align: center; margin: 6px 0; font-weight: 700; }
+    .status-badge { font-size: 12px; color: #fbbf24; font-weight: 700; }
+    .zoom-badge {
+      font-size: 11px; font-weight: 700; color: #fff; background: rgba(255,42,95,0.25);
+      border: 1px solid var(--accent); padding: 3px 8px; border-radius: 8px; cursor: pointer; display: none;
+    }
 
-    /* مساحة العمل (الكانفاس) */
+    /* منطقة العمل والكانفاس */
     .workspace {
-      width: 100%; max-width: 750px; margin: 0 auto; text-align: center;
-      position: relative; padding: 0 6px; touch-action: none; overflow: hidden;
+      width: 100%; max-width: 750px; margin: 6px auto;
+      position: relative; padding: 0 6px;
     }
-    .canvas-wrapper {
-      display: inline-block; position: relative; width: 100%;
-      border-radius: 10px; overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid var(--glass-border);
-      background: #111; transform-origin: top left;
-    }
-    canvas { width: 100%; height: auto; display: block; }
-    canvas.brush-active { touch-action: none; }
-
-    /* شريط المقارنة (Before / After) */
-    #compareContainer {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      display: none; pointer-events: none; z-index: 50;
-    }
-    #originalCanvasOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-    #compareSliderWrap {
-      position: absolute; top: 0; left: 50%; width: 40px; height: 100%; 
-      transform: translateX(-50%); pointer-events: auto; cursor: ew-resize;
-    }
-    #compareLine {
-      position: absolute; top: 0; left: 50%; width: 2px; height: 100%;
-      background: #fff; transform: translateX(-50%); box-shadow: 0 0 10px rgba(0,0,0,0.8);
-    }
-    #compareHandle {
-      position: absolute; top: 50%; left: 50%; width: 30px; height: 30px;
-      background: #fff; border-radius: 50%; transform: translate(-50%, -50%);
+    .viewport-box {
+      position: relative; width: 100%; min-height: 360px;
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.85); border: 1px solid var(--glass-border);
+      background: #0d0d11; touch-action: none;
       display: flex; align-items: center; justify-content: center;
-      color: #000; font-size: 14px; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
+    .canvas-stage {
+      position: relative; width: 100%; transform-origin: 0 0;
+      will-change: transform;
+    }
+    canvas { width: 100%; height: auto; display: block; pointer-events: none; }
 
+    /* خط المقارنة (Before / After) */
+    #compareOverlay {
+      position: absolute; inset: 0; pointer-events: none; display: none; z-index: 30;
+    }
+    #compareOverlay.active { display: block; }
+    #beforeCanvas {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    }
+    #compareSlider {
+      position: absolute; top: 0; bottom: 0; left: 50%; width: 44px;
+      transform: translateX(-50%); pointer-events: auto; cursor: ew-resize;
+      display: flex; align-items: center; justify-content: center; touch-action: none;
+    }
+    .compare-line {
+      width: 2.5px; height: 100%; background: #ffffff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.9);
+    }
+    .compare-knob {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 34px; height: 34px; border-radius: 50%; background: #ffffff; color: #070709;
+      font-weight: 900; font-size: 14px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.6); border: 2px solid var(--accent);
+    }
+    .compare-tag {
+      position: absolute; top: 12px; padding: 4px 10px; border-radius: 8px;
+      background: rgba(0,0,0,0.75); color: #fff; font-size: 11px; font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.2); pointer-events: none;
+    }
+    .tag-before { left: 12px; }
+    .tag-after { right: 12px; color: var(--accent); }
+
+    /* شريط التنقل السفلي العائم بين الصفحات (كما في الصورة) */
+    .floating-pager {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin: 10px auto; width: fit-content;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      padding: 6px 14px; border-radius: 30px; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    }
+    .pager-btn {
+      background: none; border: none; color: var(--text); font-size: 15px; font-weight: 900;
+      padding: 4px 8px; cursor: pointer;
+    }
+    .pager-count { font-size: 13px; font-weight: 900; color: var(--accent); min-width: 65px; text-align: center; }
+
+    /* دائرة معاينة حجم الفرشاة */
     #brushPreview {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%);
       border-radius: 50%; border: 2px solid var(--accent); pointer-events: none;
-      z-index: 9999; display: none; box-shadow: 0 0 15px rgba(0,0,0,0.6);
+      z-index: 9999; display: none; box-shadow: 0 0 15px rgba(0,0,0,0.7);
     }
 
-    /* الشريط العائم */
+    /* الشريط العائم لأدوات التبييض (IbisPaint Style) */
     #floatingDock {
-      position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
-      z-index: 9000; width: 96%; max-width: 480px;
-      background: rgba(18, 18, 24, 0.90); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 22px; padding: 10px 12px;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 42, 95, 0.2);
+      position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%);
+      z-index: 900; width: 96%; max-width: 480px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 22px; padding: 10px 12px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 42, 95, 0.2);
     }
-    .dock-handle { width: 42px; height: 5px; background: rgba(255,255,255,0.25); border-radius: 10px; margin: 0 auto 8px auto; cursor: grab; }
-    .dock-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: wrap;}
+    .dock-row { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
     .dock-row + .dock-row { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); }
 
     .tool-btn {
       flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 2px; padding: 6px 2px; border-radius: 10px; border: 1px solid transparent;
+      gap: 2px; padding: 7px 2px; border-radius: 12px; border: 1px solid transparent;
       background: rgba(255,255,255,0.05); color: var(--muted); font-size: 10px; font-weight: 700; cursor: pointer;
     }
-    .tool-btn span.icon { font-size: 15px; }
+    .tool-btn span.icon { font-size: 16px; line-height: 1.1; }
     .tool-btn.active {
-      background: rgba(255, 42, 95, 0.18); color: #fff;
+      background: rgba(255, 42, 95, 0.2); color: #fff;
       border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow);
     }
 
     .color-picker-wrap {
-      position: relative; width: 30px; height: 30px; border-radius: 50%;
-      border: 2px solid #fff; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 8px rgba(0,0,0,0.5);
+      position: relative; width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid #fff; overflow: hidden; flex-shrink: 0;
     }
-    .color-picker-wrap input[type="color"] { position: absolute; top: -10px; left: -10px; width: 50px; height: 50px; cursor: pointer; }
+    .color-picker-wrap input[type="color"] {
+      position: absolute; top: -10px; left: -10px; width: 52px; height: 52px;
+      border: none; cursor: pointer; background: none;
+    }
     .preset-colors { display: flex; gap: 4px; align-items: center; }
-    .color-dot { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.4); cursor: pointer; }
-    .size-slider { flex: 1; accent-color: var(--accent); height: 6px; }
+    .color-dot {
+      width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.45); cursor: pointer;
+    }
+    .size-slider { flex: 1; accent-color: var(--accent); height: 6px; border-radius: 4px; }
+
+    /* زر الطبقات / الصفحات المربع على طراز IbisPaint */
+    .layers-square-btn {
+      position: relative; width: 34px; height: 34px; border-radius: 8px;
+      background: rgba(255,255,255,0.08); border: 1.5px solid #fff;
+      color: #fff; font-weight: 900; font-size: 12px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+      box-shadow: 3px 3px 0 rgba(255, 42, 95, 0.7);
+    }
+
+    /* نافذة مصغرات الصفحات السريعة */
+    #pagesModal {
+      position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    #pagesModal.open { display: flex; }
+    .modal-box {
+      width: 100%; max-width: 440px; max-height: 80vh; background: var(--card-bg);
+      border: 1px solid var(--glass-border); border-radius: 18px; padding: 14px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .pages-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow-y: auto; padding: 4px;
+    }
+    .page-card {
+      background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 10px;
+      padding: 8px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 700;
+    }
+    .page-card.current { border-color: var(--accent); background: rgba(255,42,95,0.15); }
   </style>
 </head>
 <body>
 
-  <div class="top-bar">
-    <div class="brand">FutaArab <span>استوديو التبييض</span></div>
-    <div class="top-actions">
-      <label class="btn-sm btn-primary" for="fileInput">📁 رفع فصل</label>
-      <input type="file" id="fileInput" accept=".zip,image/*" multiple style="display:none;">
-      <button class="btn-sm" id="zipBtn" onclick="downloadZip()" disabled>📦 ZIP</button>
+  <!-- الشريط العلوي -->
+  <div class="top-header">
+    <div class="header-main">
+      <div class="brand">
+        Futa Arab <span class="brand-badge">استوديو التبييض</span>
+      </div>
+      <div class="top-actions">
+        <label class="btn-sm btn-primary" for="fileInput">📁 رفع فصل</label>
+        <input type="file" id="fileInput" accept=".zip,image/*" multiple style="display:none;">
+        <button class="btn-sm" id="zipBtn" onclick="downloadZip()" disabled>📦 ZIP</button>
+        <button class="btn-sm btn-success" id="sendBtn" onclick="sendToUploaderPage()" disabled>🚀 للنشر</button>
+        <button class="btn-sm btn-danger" id="clearSessionBtn" onclick="clearSavedSession()" style="display:none;" title="حذف الجلسة المحفوظة">🗑️</button>
+      </div>
     </div>
   </div>
 
-  <div class="status-badge" id="statusMsg">ارفع صور لتبدأ التبييض... (التعديلات تُحفظ تلقائياً)</div>
-
-  <div class="page-nav">
-    <button class="btn-sm" onclick="changePage(-1)">◀ السابق</button>
-    <span id="pageCount" style="font-weight:900; font-size:14px; color:var(--accent);">0 / 0</span>
-    <button class="btn-sm" onclick="changePage(1)">التالي ▶</button>
+  <!-- شريط الحالة وإعادة ضبط الزوم -->
+  <div class="sub-bar">
+    <div class="status-badge" id="statusMsg">ارفع ملف ZIP أو صور المانغا للبدء (حفظ تلقائي ضد الريلود)...</div>
+    <button class="zoom-badge" id="resetZoomBtn" onclick="resetZoom()">🔍 100% إعادة ضبط</button>
   </div>
 
-  <!-- مساحة العمل -->
-  <div class="workspace" id="workspace">
-    <div class="canvas-wrapper" id="canvasWrapper">
-      <canvas id="pageCanvas" class="brush-active"></canvas>
-      
-      <!-- شريط المقارنة (Before / After) -->
-      <div id="compareContainer">
-        <canvas id="originalCanvasOverlay"></canvas>
-        <div id="compareSliderWrap">
-          <div id="compareLine"></div>
-          <div id="compareHandle">↔</div>
+  <!-- منطقة الرسم والـ Viewport -->
+  <div class="workspace">
+    <div class="viewport-box" id="viewportBox">
+      <div class="canvas-stage" id="canvasStage">
+        <canvas id="pageCanvas"></canvas>
+
+        <!-- طبقة خط المقارنة (Before / After) -->
+        <div id="compareOverlay">
+          <canvas id="beforeCanvas"></canvas>
+          <span class="compare-tag tag-before">الأصلية</span>
+          <span class="compare-tag tag-after">المعدلة</span>
+          <div id="compareSlider">
+            <div class="compare-line"></div>
+            <div class="compare-knob">↔</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- شريط التنقل المدمج بين الصفحات -->
+  <div class="floating-pager">
+    <button class="pager-btn" onclick="changePage(-1)">❮</button>
+    <span class="pager-count" id="pageCount">0 / 0</span>
+    <button class="pager-btn" onclick="changePage(1)">❯</button>
+  </div>
+
+  <!-- دائرة معاينة حجم الفرشاة -->
   <div id="brushPreview"></div>
 
-  <!-- الشريط العائم والأدوات الجديدة -->
+  <!-- نافذة التنقل السريع بين الصفحات -->
+  <div id="pagesModal" onclick="if(event.target===this) togglePagesModal()">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong style="color:var(--accent);">📑 قائمة صفحات الفصل</strong>
+        <button class="btn-sm" onclick="togglePagesModal()">إغلاق ✕</button>
+      </div>
+      <div class="pages-grid" id="pagesGrid"></div>
+    </div>
+  </div>
+
+  <!-- الشريط العائم الذكي لأدوات IbisPaint -->
   <div id="floatingDock">
-    <div class="dock-handle" id="dockHandle"></div>
-    
+    <!-- الصف الأول: الأدوات الستة + المقارنة + التراجع -->
     <div class="dock-row">
       <button class="tool-btn active" id="btnBrush" onclick="setTool('brush')">
         <span class="icon">🖌️</span><span>فرشاة</span>
@@ -173,101 +279,274 @@
       <button class="tool-btn" id="btnEraser" onclick="setTool('eraser')">
         <span class="icon">🧽</span><span>ممحاة</span>
       </button>
+      <button class="tool-btn" id="btnBlur" onclick="setTool('blur')">
+        <span class="icon">💧</span><span>تمويه</span>
+      </button>
       <button class="tool-btn" id="btnBucket" onclick="setTool('bucket')">
-        <span class="icon">🪣</span><span>تعبئة</span>
+        <span class="icon">🪣</span><span>دلو</span>
       </button>
       <button class="tool-btn" id="btnPicker" onclick="setTool('picker')">
-        <span class="icon">💧</span><span>لون</span>
+        <span class="icon">💉</span><span>قطارة</span>
       </button>
-      <button class="tool-btn" onclick="toggleCompare()" id="btnCompare">
+      <button class="tool-btn" id="btnCompare" onclick="toggleCompareMode()">
         <span class="icon">🌗</span><span>مقارنة</span>
+      </button>
+      <button class="tool-btn" onclick="undoLastAction()">
+        <span class="icon">↩️</span><span>تراجع</span>
       </button>
     </div>
 
+    <!-- الصف الثاني: الألوان + الحجم + إعادة الصفحة + مربع الصفحات -->
     <div class="dock-row">
-      <div class="color-picker-wrap">
+      <div class="color-picker-wrap" title="لون الفرشاة">
         <input type="color" id="brushColor" value="#ffffff" onchange="updateBrushColor(this.value)">
       </div>
       <div class="preset-colors">
-        <div class="color-dot" style="background:#ffffff;" onclick="setPresetColor('#ffffff')"></div>
-        <div class="color-dot" style="background:#000000;" onclick="setPresetColor('#000000')"></div>
+        <div class="color-dot" style="background:#ffffff;" onclick="setPresetColor('#ffffff')" title="أبيض"></div>
+        <div class="color-dot" style="background:#000000;" onclick="setPresetColor('#000000')" title="أسود"></div>
       </div>
-      <input type="range" class="size-slider" id="brushSize" min="2" max="150" value="32" oninput="showBrushPreview()">
-      <span id="sizeVal" style="font-size:11px; font-weight:bold; min-width:24px;">32</span>
-      
-      <button class="btn-sm" style="padding:5px 8px; font-size:11px;" onclick="undoLastAction()">↩️</button>
+
+      <input type="range" class="size-slider" id="brushSize" min="4" max="120" value="32" oninput="showBrushPreview()">
+      <span id="sizeVal" style="font-size:11px; font-weight:900; min-width:24px; text-align:center;">32</span>
+
+      <button class="btn-sm" style="padding:6px 8px;" onclick="resetCurrentPage()" title="استرجاع الصفحة الأصلية بالكامل">🔄</button>
+      <div class="layers-square-btn" id="layerSquareBtn" onclick="togglePagesModal()" title="قائمة الصفحات">1</div>
     </div>
   </div>
 
 <script>
 const canvas = document.getElementById('pageCanvas');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
-const wrapper = document.getElementById('canvasWrapper');
-let pages = []; 
+const beforeCanvas = document.getElementById('beforeCanvas');
+const beforeCtx = beforeCanvas.getContext('2d');
+const viewportBox = document.getElementById('viewportBox');
+const canvasStage = document.getElementById('canvasStage');
+const compareOverlay = document.getElementById('compareOverlay');
+const compareSlider = document.getElementById('compareSlider');
+
+let pages = []; // [{ name, originalImg, workCanvas, history: [] }]
 let currentIdx = 0;
-let currentTool = 'brush'; 
+let currentTool = 'brush'; // 'brush', 'smart', 'eraser', 'blur', 'bucket', 'picker'
+let isCompareMode = false;
+let compareSplitPercent = 50;
+
+// متغيرات الرسم واللمس بإصبعين (Pan & Pinch Zoom)
 let isDrawing = false;
+let isTwoFingerGesture = false;
+let strokeStartTime = 0;
+let strokeSnapshot = null;
 let lastPt = null;
 let previewTimer = null;
+let saveTimer = null;
 
-// التحريك والزوم
-let scale = 1, posX = 0, posY = 0;
-let isPanning = false, startTouches = [];
+let viewScale = 1;
+let viewX = 0;
+let viewY = 0;
+let pinchStartDist = 0;
+let pinchStartScale = 1;
+let panStartMid = { x: 0, y: 0 };
+let panStartOffset = { x: 0, y: 0 };
 
-// المقارنة
-let isCompareMode = false;
-let compareSliderWrap = document.getElementById('compareSliderWrap');
-let compareOverlay = document.getElementById('originalCanvasOverlay');
-let compareContainer = document.getElementById('compareContainer');
-let comparePercent = 50;
-let isDraggingCompare = false;
-
-function setStatus(msg) { document.getElementById('statusMsg').innerText = msg; }
-
-function setTool(tool) {
-  currentTool = tool;
-  ['btnBrush', 'btnSmart', 'btnEraser', 'btnBucket', 'btnPicker'].forEach(id => document.getElementById(id).classList.remove('active'));
-  
-  if (tool === 'brush') document.getElementById('btnBrush').classList.add('active');
-  if (tool === 'smart') document.getElementById('btnSmart').classList.add('active');
-  if (tool === 'eraser') document.getElementById('btnEraser').classList.add('active');
-  if (tool === 'bucket') document.getElementById('btnBucket').classList.add('active');
-  if (tool === 'picker') document.getElementById('btnPicker').classList.add('active');
-
-  let msg = "";
-  if (tool === 'eraser') msg = "🧽 الممحاة: تسترجع الصورة الأصلية في مكان المسح.";
-  else if (tool === 'bucket') msg = "🪣 التعبئة: المس أي مساحة لتلوينها بالكامل.";
-  else if (tool === 'smart') msg = "✨ الفرشاة الذكية: تمسح النصوص وتحمي الخطوط السوداء.";
-  else msg = "🖌️ استخدم إصبعاً واحداً للرسم، وإصبعين للزوم والتحريك.";
-  setStatus(msg);
+function setStatus(msg) {
+  document.getElementById('statusMsg').innerText = msg;
 }
 
-function setPresetColor(hex) { document.getElementById('brushColor').value = hex; updateBrushColor(hex); }
-function updateBrushColor(hex) { showBrushPreview(); if (currentTool === 'picker') setTool('brush'); }
+// ==========================================
+// 1. نظام الحفظ التلقائي ضد الريلود (IndexedDB)
+// ==========================================
+const DB_NAME = "FutaStudioAutoSaveDB";
+const DB_VERSION = 1;
+
+function openSessionDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains("session")) {
+        db.createObjectStore("session");
+      }
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+function scheduleAutoSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveCurrentPageToDB, 350);
+}
+
+async function saveCurrentPageToDB() {
+  if (!pages.length) return;
+  try {
+    const page = pages[currentIdx];
+    const workBlob = await new Promise(res => page.workCanvas.toBlob(res, 'image/webp', 0.92));
+    const db = await openSessionDB();
+    const tx = db.transaction("session", "readwrite");
+    const store = tx.objectStore("session");
+    store.put(workBlob, `work_${currentIdx}`);
+    store.put(currentIdx, "currentIdx");
+  } catch (err) {
+    console.warn("AutoSave skipped:", err);
+  }
+}
+
+async function saveFullProjectToDB() {
+  if (!pages.length) return;
+  try {
+    const meta = pages.map(p => p.name);
+    const origBlobs = await Promise.all(pages.map(p => new Promise(res => {
+      const c = document.createElement('canvas');
+      c.width = p.originalImg.width;
+      c.height = p.originalImg.height;
+      c.getContext('2d').drawImage(p.originalImg, 0, 0);
+      c.toBlob(res, 'image/webp', 0.92);
+    })));
+    const workBlobs = await Promise.all(pages.map(p => new Promise(res => p.workCanvas.toBlob(res, 'image/webp', 0.92))));
+
+    const db = await openSessionDB();
+    const tx = db.transaction("session", "readwrite");
+    const store = tx.objectStore("session");
+    store.clear();
+    store.put(meta, "pagesMeta");
+    store.put(currentIdx, "currentIdx");
+    origBlobs.forEach((b, i) => store.put(b, `orig_${i}`));
+    workBlobs.forEach((b, i) => store.put(b, `work_${i}`));
+    document.getElementById('clearSessionBtn').style.display = 'inline-flex';
+  } catch (err) {
+    console.warn("Full session save error:", err);
+  }
+}
+
+async function restoreSessionOnLoad() {
+  try {
+    const db = await openSessionDB();
+    const getVal = key => new Promise(res => {
+      const req = db.transaction("session", "readonly").objectStore("session").get(key);
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => res(null);
+    });
+
+    const meta = await getVal("pagesMeta");
+    if (!meta || !meta.length) return;
+
+    setStatus("⏳ جاري استرجاع آخر جلسة عمل تلقائياً...");
+    pages = [];
+    for (let i = 0; i < meta.length; i++) {
+      const origBlob = await getVal(`orig_${i}`);
+      const workBlob = await getVal(`work_${i}`);
+      if (!origBlob) continue;
+      const origImg = await loadImg(origBlob);
+      const workC = document.createElement('canvas');
+      workC.width = origImg.width;
+      workC.height = origImg.height;
+      if (workBlob) {
+        const workImg = await loadImg(workBlob);
+        workC.getContext('2d').drawImage(workImg, 0, 0);
+      } else {
+        workC.getContext('2d').drawImage(origImg, 0, 0);
+      }
+      pages.push({ name: meta[i], originalImg: origImg, workCanvas: workC, history: [] });
+    }
+
+    if (pages.length > 0) {
+      const savedIdx = await getVal("currentIdx");
+      currentIdx = (typeof savedIdx === 'number' && savedIdx < pages.length) ? savedIdx : 0;
+      document.getElementById('zipBtn').disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+      document.getElementById('clearSessionBtn').style.display = 'inline-flex';
+      drawPage();
+      setStatus(`✅ تم استرجاع عملك السابق تلقائياً (صفحة ${currentIdx + 1} من ${pages.length})`);
+    }
+  } catch (err) {
+    console.warn("Restore session error:", err);
+  }
+}
+
+async function clearSavedSession() {
+  if (!confirm("هل تريد مسح الجلسة المحفوظة والبدء بفصل جديد؟")) return;
+  const db = await openSessionDB();
+  const tx = db.transaction("session", "readwrite");
+  tx.objectStore("session").clear();
+  pages = [];
+  currentIdx = 0;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  document.getElementById('pageCount').innerText = "0 / 0";
+  document.getElementById('layerSquareBtn').innerText = "0";
+  document.getElementById('zipBtn').disabled = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('clearSessionBtn').style.display = 'none';
+  setStatus("🗑️ تم مسح الجلسة المحفوظة. ارفع فصلاً جديداً للبدء.");
+}
+
+window.addEventListener('DOMContentLoaded', restoreSessionOnLoad);
+
+// ==========================================
+// 2. تبديل الأدوات والألوان
+// ==========================================
+function setTool(tool) {
+  currentTool = tool;
+  ['btnBrush', 'btnSmart', 'btnEraser', 'btnBlur', 'btnBucket', 'btnPicker'].forEach(id => {
+    document.getElementById(id).classList.remove('active');
+  });
+  const map = {
+    brush: ['btnBrush', '🖌️ الفرشاة العادية: امسح بإصبع واحد، وحرك/كبر بإصبعين'],
+    smart: ['btnSmart', '✨ الفرشاة الذكية: تمسح الكلام والرمادي وتحمي خطوط الرسم السوداء'],
+    eraser: ['btnEraser', '🧽 الممحاة: تسترجع الرسم الأصلي في المكان الذي تمرر عليه'],
+    blur: ['btnBlur', '💧 أداة التمويه (Blur): لتنعيم ودمج التدرجات اللونية بسلاسة'],
+    bucket: ['btnBucket', '🪣 دلو التعبئة: المس داخل أي فقاعة لتلوينها بالكامل فوراً'],
+    picker: ['btnPicker', '💉 القطارة: المس أي نقطة في الصفحة لالتقاط لونها فوراً']
+  };
+  if (map[tool]) {
+    document.getElementById(map[tool][0]).classList.add('active');
+    setStatus(map[tool][1]);
+  }
+}
+
+function setPresetColor(hex) {
+  document.getElementById('brushColor').value = hex;
+  updateBrushColor(hex);
+}
+
+function updateBrushColor(hex) {
+  showBrushPreview();
+  if (currentTool === 'picker' || currentTool === 'eraser' || currentTool === 'blur') {
+    setTool('brush');
+  }
+}
+
 function showBrushPreview() {
   const size = parseInt(document.getElementById('brushSize').value);
   const color = document.getElementById('brushColor').value;
   document.getElementById('sizeVal').innerText = size;
+
   const preview = document.getElementById('brushPreview');
-  preview.style.width = size + 'px'; preview.style.height = size + 'px';
-  preview.style.background = currentTool === 'eraser' ? 'transparent' : color;
+  preview.style.width = size + 'px';
+  preview.style.height = size + 'px';
+  preview.style.background = (currentTool === 'eraser' || currentTool === 'blur') ? 'rgba(255,255,255,0.2)' : color;
   preview.style.display = 'block';
+
   clearTimeout(previewTimer);
-  previewTimer = setTimeout(() => { preview.style.display = 'none'; }, 700);
+  previewTimer = setTimeout(() => { preview.style.display = 'none'; }, 650);
 }
 
-// 1. رفع الملفات والحفظ التلقائي
+// ==========================================
+// 3. رفع ملفات ZIP أو الصور
+// ==========================================
 document.getElementById('fileInput').addEventListener('change', async (e) => {
   const files = Array.from(e.target.files);
   if (!files.length) return;
-  pages = []; currentIdx = 0;
-  setStatus("⏳ جاري التجهيز واسترجاع التعديلات السابقة...");
+  pages = [];
+  currentIdx = 0;
+  setStatus("⏳ جاري فك الضغط وتجهيز الصفحات...");
 
   const list = [];
-  if (files[0].name.endsWith('.zip')) {
+  if (files[0].name.toLowerCase().endsWith('.zip')) {
     const zip = await JSZip.loadAsync(files[0]);
     zip.forEach((path, entry) => {
-      if (!entry.dir && /\.(jpe?g|png|webp)$/i.test(entry.name)) list.push({ name: entry.name, getBlob: () => entry.async('blob') });
+      if (!entry.dir && /\.(jpe?g|png|webp)$/i.test(entry.name)) {
+        list.push({ name: entry.name, getBlob: () => entry.async('blob') });
+      }
     });
   } else {
     files.forEach(f => list.push({ name: f.name, getBlob: async () => f }));
@@ -279,177 +558,458 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
     const blob = await item.getBlob();
     const img = await loadImg(blob);
     const workC = document.createElement('canvas');
-    workC.width = img.width; workC.height = img.height;
-    const wCtx = workC.getContext('2d');
-    
-    // محاولة استرجاع الحفظ التلقائي من localStorage
-    const savedData = localStorage.getItem('futa_save_' + item.name);
-    if (savedData) {
-      const savedImg = await loadImgFromBase64(savedData);
-      wCtx.drawImage(savedImg, 0, 0);
-    } else {
-      wCtx.drawImage(img, 0, 0);
-    }
-    
+    workC.width = img.width;
+    workC.height = img.height;
+    workC.getContext('2d').drawImage(img, 0, 0);
     pages.push({ name: item.name, originalImg: img, workCanvas: workC, history: [] });
   }
 
   document.getElementById('zipBtn').disabled = false;
-  resetTransform();
+  document.getElementById('sendBtn').disabled = false;
+  resetZoom();
   drawPage();
-  setStatus(`✅ تم تحميل ${pages.length} صفحة!`);
+  setStatus(`✅ تم تحميل ${pages.length} صفحة وحفظها تلقائياً!`);
+  await saveFullProjectToDB();
 });
 
-function loadImg(blob) { return new Promise(res => { const img = new Image(); img.onload = () => res(img); img.src = URL.createObjectURL(blob); }); }
-function loadImgFromBase64(b64) { return new Promise(res => { const img = new Image(); img.onload = () => res(img); img.src = b64; }); }
+function loadImg(blob) {
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(img.src);
+      res(img);
+    };
+    img.src = URL.createObjectURL(blob);
+  });
+}
 
-// حفظ الحالة وتطبيق الحفظ التلقائي
 function saveHistory(page) {
   const wCtx = page.workCanvas.getContext('2d');
   if (page.history.length >= 10) page.history.shift();
   page.history.push(wCtx.getImageData(0, 0, page.workCanvas.width, page.workCanvas.height));
 }
-function autoSaveCurrentPage() {
-  const page = pages[currentIdx];
-  localStorage.setItem('futa_save_' + page.name, page.workCanvas.toDataURL('image/webp', 0.8));
+
+// ==========================================
+// 4. رسم الصفحة + العلامة المائية + المقارنة
+// ==========================================
+function renderCompositeToContext(targetCtx, sourceDrawable, width, height) {
+  const footerH = Math.max(36, Math.floor(height * 0.03));
+  targetCtx.clearRect(0, 0, width, height + footerH);
+  targetCtx.drawImage(sourceDrawable, 0, 0);
+
+  // علامة مائية شفافة
+  targetCtx.save();
+  targetCtx.font = `900 ${Math.max(18, Math.floor(width * 0.03))}px 'Tajawal', sans-serif`;
+  targetCtx.fillStyle = "rgba(255, 42, 95, 0.30)";
+  targetCtx.textAlign = "left";
+  targetCtx.fillText("futaarab.com", 20, height - 20);
+  targetCtx.restore();
+
+  // شريط سفلي ثابت باسم الموقع
+  targetCtx.fillStyle = "#070709";
+  targetCtx.fillRect(0, height, width, footerH);
+  targetCtx.fillStyle = "#ffffff";
+  targetCtx.font = `700 ${Math.max(14, Math.floor(footerH * 0.48))}px 'Tajawal', sans-serif`;
+  targetCtx.textAlign = "center";
+  targetCtx.textBaseline = "middle";
+  targetCtx.fillText("تمت ترجمة هذا العمل بواسطة موقع futaarab.com", width / 2, height + footerH / 2);
 }
 
-// 2. عرض الصفحة
 function drawPage() {
   if (!pages.length) return;
   const page = pages[currentIdx];
   const wCanvas = page.workCanvas;
-  
-  canvas.width = wCanvas.width; canvas.height = wCanvas.height;
-  ctx.clearRect(0,0,canvas.width, canvas.height);
-  ctx.drawImage(wCanvas, 0, 0);
+  const footerH = Math.max(36, Math.floor(wCanvas.height * 0.03));
+  const totalH = wCanvas.height + footerH;
+
+  if (canvas.width !== wCanvas.width || canvas.height !== totalH) {
+    canvas.width = wCanvas.width;
+    canvas.height = totalH;
+  }
+
+  renderCompositeToContext(ctx, wCanvas, wCanvas.width, wCanvas.height);
+
+  if (isCompareMode) {
+    syncBeforeCanvas();
+  }
 
   document.getElementById('pageCount').innerText = `${currentIdx + 1} / ${pages.length}`;
-  updateCompareOverlay();
+  document.getElementById('layerSquareBtn').innerText = currentIdx + 1;
 }
 
-function getCoords(e) {
-  const r = canvas.getBoundingClientRect();
-  const cx = e.touches ? e.touches[0].clientX : e.clientX;
-  const cy = e.touches ? e.touches[0].clientY : e.clientY;
-  // أخذ الزوم بعين الاعتبار
-  return {
-    x: (cx - r.left) * (canvas.width / r.width),
-    y: (cy - r.top) * (canvas.height / r.height)
-  };
+// ==========================================
+// 5. خط المقارنة المتحرك (Before / After)
+// ==========================================
+function toggleCompareMode() {
+  if (!pages.length) return;
+  isCompareMode = !isCompareMode;
+  const btn = document.getElementById('btnCompare');
+  if (isCompareMode) {
+    btn.classList.add('active');
+    compareOverlay.classList.add('active');
+    syncBeforeCanvas();
+    updateCompareClip(compareSplitPercent);
+    setStatus("🌗 وضع المقارنة: اسحب الخط الأبيض لمقارنة الصفحة الأصلية بالمعدلة");
+  } else {
+    btn.classList.remove('active');
+    compareOverlay.classList.remove('active');
+    setStatus("🖌️ تم إغلاق المقارنة والعودة للرسم");
+  }
 }
 
-// 3. أدوات الرسم والممحاة والتعبئة
-function strokeBrush(fromPt, toPt) {
+function syncBeforeCanvas() {
+  if (!pages.length) return;
   const page = pages[currentIdx];
-  const wCanvas = page.workCanvas;
-  const wCtx = wCanvas.getContext('2d', { willReadFrequently: true });
-  const radius = parseInt(document.getElementById('brushSize').value) / 2;
-  const color = document.getElementById('brushColor').value;
-
-  if (currentTool === 'brush') {
-    wCtx.beginPath(); wCtx.moveTo(fromPt.x, fromPt.y); wCtx.lineTo(toPt.x, toPt.y);
-    wCtx.strokeStyle = color; wCtx.lineWidth = radius * 2;
-    wCtx.lineCap = 'round'; wCtx.lineJoin = 'round'; wCtx.stroke();
-  } 
-  else if (currentTool === 'eraser') {
-    // الممحاة: ترسم خطاً ماسكاً لاسترجاع بكسلات الصورة الأصلية
-    wCtx.save();
-    wCtx.beginPath(); wCtx.moveTo(fromPt.x, fromPt.y); wCtx.lineTo(toPt.x, toPt.y);
-    wCtx.lineWidth = radius * 2; wCtx.lineCap = 'round'; wCtx.lineJoin = 'round';
-    wCtx.clip();
-    wCtx.drawImage(page.originalImg, 0, 0);
-    wCtx.restore();
+  const w = page.workCanvas.width;
+  const h = page.workCanvas.height;
+  const footerH = Math.max(36, Math.floor(h * 0.03));
+  if (beforeCanvas.width !== w || beforeCanvas.height !== h + footerH) {
+    beforeCanvas.width = w;
+    beforeCanvas.height = h + footerH;
   }
-  else if (currentTool === 'smart') {
-    // فرشاة ذكية بسيطة
-    wCtx.beginPath(); wCtx.moveTo(fromPt.x, fromPt.y); wCtx.lineTo(toPt.x, toPt.y);
-    wCtx.strokeStyle = color; wCtx.lineWidth = radius * 2; wCtx.lineCap = 'round'; wCtx.lineJoin = 'round'; wCtx.stroke();
-  }
-  
-  drawPage();
+  renderCompositeToContext(beforeCtx, page.originalImg, w, h);
 }
 
-// أداة دلو الطلاء (Flood Fill)
-function floodFill(startX, startY, fillColorHex) {
-  const page = pages[currentIdx];
-  const wCanvas = page.workCanvas;
-  const wCtx = wCanvas.getContext('2d', { willReadFrequently: true });
-  const w = wCanvas.width, h = wCanvas.height;
-  const imgData = wCtx.getImageData(0, 0, w, h);
-  const data = imgData.data;
-
-  const sx = Math.floor(startX), sy = Math.floor(startY);
-  if(sx < 0 || sx >= w || sy < 0 || sy >= h) return;
-
-  const targetIdx = (sy * w + sx) * 4;
-  const tr = data[targetIdx], tg = data[targetIdx+1], tb = data[targetIdx+2], ta = data[targetIdx+3];
-  
-  const hex = fillColorHex.replace('#','');
-  const fr = parseInt(hex.substring(0,2), 16), fg = parseInt(hex.substring(2,4), 16), fb = parseInt(hex.substring(4,6), 16);
-
-  if (tr === fr && tg === fg && tb === fb) return; // نفس اللون
-
-  const stack = [[sx, sy]];
-  while(stack.length) {
-    let [x, y] = stack.pop();
-    let idx = (y * w + x) * 4;
-    while(y >= 0 && matchColor(data, idx, tr, tg, tb)) { y--; idx -= w * 4; }
-    y++; idx += w * 4;
-    let reachLeft = false, reachRight = false;
-    while(y < h && matchColor(data, idx, tr, tg, tb)) {
-      data[idx] = fr; data[idx+1] = fg; data[idx+2] = fb; data[idx+3] = 255;
-      if(x > 0) {
-        if(matchColor(data, idx - 4, tr, tg, tb)) { if(!reachLeft){ stack.push([x-1, y]); reachLeft = true; } }
-        else if(reachLeft) reachLeft = false;
-      }
-      if(x < w - 1) {
-        if(matchColor(data, idx + 4, tr, tg, tb)) { if(!reachRight){ stack.push([x+1, y]); reachRight = true; } }
-        else if(reachRight) reachRight = false;
-      }
-      y++; idx += w * 4;
-    }
-  }
-  wCtx.putImageData(imgData, 0, 0);
-  drawPage();
-}
-function matchColor(data, idx, r, g, b) {
-  return Math.abs(data[idx]-r)<30 && Math.abs(data[idx+1]-g)<30 && Math.abs(data[idx+2]-b)<30;
+function updateCompareClip(percent) {
+  compareSplitPercent = Math.max(0, Math.min(100, percent));
+  beforeCanvas.style.clipPath = `polygon(0 0, ${compareSplitPercent}% 0, ${compareSplitPercent}% 100%, 0 100%)`;
+  compareSlider.style.left = `${compareSplitPercent}%`;
 }
 
+let draggingCompare = false;
+compareSlider.addEventListener('pointerdown', e => {
+  draggingCompare = true;
+  compareSlider.setPointerCapture(e.pointerId);
+  e.stopPropagation();
+});
+compareSlider.addEventListener('pointermove', e => {
+  if (!draggingCompare) return;
+  const rect = canvasStage.getBoundingClientRect();
+  const pct = ((e.clientX - rect.left) / rect.width) * 100;
+  updateCompareClip(pct);
+  e.stopPropagation();
+});
+compareSlider.addEventListener('pointerup', e => {
+  draggingCompare = false;
+  e.stopPropagation();
+});
+
+// ==========================================
+// 6. الخوارزميات: الفرشاة الذكية، الممحاة، التمويه، والدلو الآمن
+// ==========================================
 function hexToRgb(hex) {
-  const n = parseInt(hex.slice(1), 16); return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  const n = parseInt(hex.slice(1), 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
+
 function rgbToHex(r, g, b) {
   return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
 }
 
-// 4. أحداث اللمس والرسم والتحريك بإصبعين
-wrapper.addEventListener('touchstart', e => {
+// أداة الفرشاة الذكية (تحمي الخطوط العريضة المتصلة بالحواف وتمسح النصوص)
+function smartBrushAt(wCanvas, cx, cy, radius, fillHex) {
+  const wCtx = wCanvas.getContext('2d');
+  const x0 = Math.max(0, Math.floor(cx - radius));
+  const y0 = Math.max(0, Math.floor(cy - radius));
+  const x1 = Math.min(wCanvas.width - 1, Math.ceil(cx + radius));
+  const y1 = Math.min(wCanvas.height - 1, Math.ceil(cy + radius));
+  const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+  if (bw <= 2 || bh <= 2) return;
+
+  const imgData = wCtx.getImageData(x0, y0, bw, bh);
+  const data = imgData.data;
+  const rgb = hexToRgb(fillHex);
+  const rSq = radius * radius;
+
+  // تحديد البكسلات الداكنة المتصلة بحواف دائرة الفرشاة لحمايتها
+  const isDark = new Uint8Array(bw * bh);
+  const protectedDark = new Uint8Array(bw * bh);
+  const queue = new Int32Array(bw * bh);
+  let qHead = 0, qTail = 0;
+
+  for (let py = 0; py < bh; py++) {
+    for (let px = 0; px < bw; px++) {
+      const i = py * bw + px;
+      const idx = i * 4;
+      const lum = (data[idx] * 299 + data[idx + 1] * 587 + data[idx + 2] * 114) / 1000;
+      if (lum < 95) {
+        isDark[i] = 1;
+        if (px === 0 || py === 0 || px === bw - 1 || py === bh - 1) {
+          protectedDark[i] = 1;
+          queue[qTail++] = i;
+        }
+      }
+    }
+  }
+
+  while (qHead < qTail) {
+    const curr = queue[qHead++];
+    const cxIdx = curr % bw;
+    const cyIdx = (curr / bw) | 0;
+    const neighbors = [
+      cyIdx > 0 ? curr - bw : -1,
+      cyIdx < bh - 1 ? curr + bw : -1,
+      cxIdx > 0 ? curr - 1 : -1,
+      cxIdx < bw - 1 ? curr + 1 : -1
+    ];
+    for (let n of neighbors) {
+      if (n !== -1 && isDark[n] && !protectedDark[n]) {
+        protectedDark[n] = 1;
+        queue[qTail++] = n;
+      }
+    }
+  }
+
+  for (let py = 0; py < bh; py++) {
+    for (let px = 0; px < bw; px++) {
+      const dx = (x0 + px) - cx;
+      const dy = (y0 + py) - cy;
+      if (dx * dx + dy * dy <= rSq) {
+        const i = py * bw + px;
+        if (!protectedDark[i]) {
+          const idx = i * 4;
+          data[idx] = rgb.r;
+          data[idx + 1] = rgb.g;
+          data[idx + 2] = rgb.b;
+        }
+      }
+    }
+  }
+  wCtx.putImageData(imgData, x0, y0);
+}
+
+// أداة التمويه (Blur) لتنعيم التدرجات اللونية
+function blurBrushAt(wCanvas, cx, cy, radius) {
+  const wCtx = wCanvas.getContext('2d');
+  const x0 = Math.max(0, Math.floor(cx - radius));
+  const y0 = Math.max(0, Math.floor(cy - radius));
+  const x1 = Math.min(wCanvas.width - 1, Math.ceil(cx + radius));
+  const y1 = Math.min(wCanvas.height - 1, Math.ceil(cy + radius));
+  const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+  if (bw <= 4 || bh <= 4) return;
+
+  const imgData = wCtx.getImageData(x0, y0, bw, bh);
+  const src = new Uint8ClampedArray(imgData.data);
+  const dst = imgData.data;
+  const rSq = radius * radius;
+  const k = 2;
+
+  for (let py = k; py < bh - k; py++) {
+    for (let px = k; px < bw - k; px++) {
+      const dx = (x0 + px) - cx;
+      const dy = (y0 + py) - cy;
+      if (dx * dx + dy * dy <= rSq) {
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let ky = -k; ky <= k; ky++) {
+          for (let kx = -k; kx <= k; kx++) {
+            const idx = ((py + ky) * bw + (px + kx)) * 4;
+            r += src[idx]; g += src[idx + 1]; b += src[idx + 2];
+            count++;
+          }
+        }
+        const outIdx = (py * bw + px) * 4;
+        dst[outIdx] = r / count;
+        dst[outIdx + 1] = g / count;
+        dst[outIdx + 2] = b / count;
+      }
+    }
+  }
+  wCtx.putImageData(imgData, x0, y0);
+}
+
+// أداة الدلو (Flood Fill) السريعة والمحمية 100% من الحلقات اللانهائية
+function safeFloodFill(wCanvas, startX, startY, fillHex) {
+  const wCtx = wCanvas.getContext('2d');
+  const w = wCanvas.width, h = wCanvas.height;
+  const sx = Math.floor(startX), sy = Math.floor(startY);
+  if (sx < 0 || sx >= w || sy < 0 || sy >= h) return;
+
+  const imgData = wCtx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+  const startPos = (sy * w + sx) * 4;
+  const tr = data[startPos], tg = data[startPos + 1], tb = data[startPos + 2];
+  const fillRgb = hexToRgb(fillHex);
+
+  if (Math.abs(tr - fillRgb.r) < 3 && Math.abs(tg - fillRgb.g) < 3 && Math.abs(tb - fillRgb.b) < 3) return;
+
+  const tolerance = 32;
+  const visited = new Uint8Array(w * h);
+  const queue = new Int32Array(w * h);
+  let head = 0, tail = 0;
+
+  const startIdx = sy * w + sx;
+  visited[startIdx] = 1;
+  queue[tail++] = startIdx;
+
+  while (head < tail) {
+    const curr = queue[head++];
+    const p = curr * 4;
+    data[p] = fillRgb.r;
+    data[p + 1] = fillRgb.g;
+    data[p + 2] = fillRgb.b;
+    data[p + 3] = 255;
+
+    const cx = curr % w;
+    const cy = (curr / w) | 0;
+
+    // فحص الجيران الأربعة
+    if (cx > 0) {
+      const ni = curr - 1;
+      if (!visited[ni]) {
+        const np = ni * 4;
+        if (Math.abs(data[np] - tr) <= tolerance && Math.abs(data[np + 1] - tg) <= tolerance && Math.abs(data[np + 2] - tb) <= tolerance) {
+          visited[ni] = 1; queue[tail++] = ni;
+        }
+      }
+    }
+    if (cx < w - 1) {
+      const ni = curr + 1;
+      if (!visited[ni]) {
+        const np = ni * 4;
+        if (Math.abs(data[np] - tr) <= tolerance && Math.abs(data[np + 1] - tg) <= tolerance && Math.abs(data[np + 2] - tb) <= tolerance) {
+          visited[ni] = 1; queue[tail++] = ni;
+        }
+      }
+    }
+    if (cy > 0) {
+      const ni = curr - w;
+      if (!visited[ni]) {
+        const np = ni * 4;
+        if (Math.abs(data[np] - tr) <= tolerance && Math.abs(data[np + 1] - tg) <= tolerance && Math.abs(data[np + 2] - tb) <= tolerance) {
+          visited[ni] = 1; queue[tail++] = ni;
+        }
+      }
+    }
+    if (cy < h - 1) {
+      const ni = curr + w;
+      if (!visited[ni]) {
+        const np = ni * 4;
+        if (Math.abs(data[np] - tr) <= tolerance && Math.abs(data[np + 1] - tg) <= tolerance && Math.abs(data[np + 2] - tb) <= tolerance) {
+          visited[ni] = 1; queue[tail++] = ni;
+        }
+      }
+    }
+  }
+  wCtx.putImageData(imgData, 0, 0);
+}
+
+function strokeBrush(fromPt, toPt) {
+  const page = pages[currentIdx];
+  const wCanvas = page.workCanvas;
+  const wCtx = wCanvas.getContext('2d');
+  const rect = canvas.getBoundingClientRect();
+  const scaleFactor = canvas.width / rect.width;
+  const radius = (parseInt(document.getElementById('brushSize').value) / 2) * scaleFactor;
+  const color = document.getElementById('brushColor').value;
+
+  if (currentTool === 'brush') {
+    wCtx.save();
+    wCtx.beginPath();
+    wCtx.moveTo(fromPt.x, fromPt.y);
+    wCtx.lineTo(toPt.x, toPt.y);
+    wCtx.strokeStyle = color;
+    wCtx.lineWidth = radius * 2;
+    wCtx.lineCap = 'round';
+    wCtx.lineJoin = 'round';
+    wCtx.stroke();
+    wCtx.restore();
+  } else if (currentTool === 'eraser') {
+    // الممحاة: تسترجع الرسم الأصلي تحت مسار الممحاة
+    wCtx.save();
+    wCtx.beginPath();
+    wCtx.moveTo(fromPt.x, fromPt.y);
+    wCtx.lineTo(toPt.x, toPt.y);
+    wCtx.lineWidth = radius * 2;
+    wCtx.lineCap = 'round';
+    wCtx.lineJoin = 'round';
+    wCtx.clip();
+    wCtx.drawImage(page.originalImg, 0, 0);
+    wCtx.restore();
+  } else if (currentTool === 'smart') {
+    smartBrushAt(wCanvas, toPt.x, toPt.y, radius, color);
+  } else if (currentTool === 'blur') {
+    blurBrushAt(wCanvas, toPt.x, toPt.y, radius);
+  }
+  drawPage();
+}
+
+// ==========================================
+// 7. التحكم السلس بإصبعين (Pan & Zoom) والرسم بإصبع واحد
+// ==========================================
+function getCanvasCoords(clientX, clientY) {
+  const r = canvas.getBoundingClientRect();
+  return {
+    x: (clientX - r.left) * (canvas.width / r.width),
+    y: (clientY - r.top) * (canvas.height / r.height)
+  };
+}
+
+function updateStageTransform() {
+  canvasStage.style.transform = `translate3d(${viewX}px, ${viewY}px, 0) scale(${viewScale})`;
+  const zoomBtn = document.getElementById('resetZoomBtn');
+  if (Math.abs(viewScale - 1) > 0.05 || Math.abs(viewX) > 5 || Math.abs(viewY) > 5) {
+    zoomBtn.style.display = 'inline-block';
+    zoomBtn.innerText = `🔍 ${Math.round(viewScale * 100)}% إعادة ضبط`;
+  } else {
+    zoomBtn.style.display = 'none';
+  }
+}
+
+function resetZoom() {
+  viewScale = 1;
+  viewX = 0;
+  viewY = 0;
+  updateStageTransform();
+}
+
+viewportBox.addEventListener('touchstart', e => {
   if (!pages.length || isCompareMode) return;
-  
-  if (e.touches.length === 2) {
-    // وضع الزوم والتحريك (إصبعين)
+  if (e.target.closest('#compareSlider')) return;
+
+  // عند وضع إصبعين: تفعيل التحريك والزوم فوراً وإلغاء أي نقطة رسم غير مقصودة
+  if (e.touches.length >= 2) {
+    e.preventDefault();
+    if (isDrawing && strokeSnapshot && (Date.now() - strokeStartTime < 180)) {
+      pages[currentIdx].workCanvas.getContext('2d').putImageData(strokeSnapshot, 0, 0);
+      pages[currentIdx].history.pop();
+      drawPage();
+    }
     isDrawing = false;
-    isPanning = true;
-    startTouches = [{x: e.touches[0].clientX, y: e.touches[0].clientY}, {x: e.touches[1].clientX, y: e.touches[1].clientY}];
+    isTwoFingerGesture = true;
+
+    const t1 = e.touches[0], t2 = e.touches[1];
+    pinchStartDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    pinchStartScale = viewScale;
+    panStartMid = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
+    panStartOffset = { x: viewX, y: viewY };
     return;
   }
-  
-  if (e.touches.length === 1 && !isPanning) {
-    const pt = getCoords(e);
+
+  // إصبع واحد للرسم أو القطارة أو الدلو
+  if (e.touches.length === 1 && !isTwoFingerGesture) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const pt = getCanvasCoords(touch.clientX, touch.clientY);
     const page = pages[currentIdx];
+    if (pt.y > page.workCanvas.height) return;
 
     if (currentTool === 'picker') {
       const pixel = page.workCanvas.getContext('2d').getImageData(Math.floor(pt.x), Math.floor(pt.y), 1, 1).data;
-      setPresetColor(rgbToHex(pixel[0], pixel[1], pixel[2]));
-      setTool('brush'); return;
+      const pickedHex = rgbToHex(pixel[0], pixel[1], pixel[2]);
+      setPresetColor(pickedHex);
+      setTool('brush');
+      setStatus(`💉 تم التقاط اللون (${pickedHex}) وتفعيل الفرشاة`);
+      return;
     }
 
     saveHistory(page);
+    strokeSnapshot = page.history[page.history.length - 1];
+    strokeStartTime = Date.now();
+
     if (currentTool === 'bucket') {
-      floodFill(pt.x, pt.y, document.getElementById('brushColor').value);
-      autoSaveCurrentPage();
+      safeFloodFill(page.workCanvas, pt.x, pt.y, document.getElementById('brushColor').value);
+      drawPage();
+      scheduleAutoSave();
       return;
     }
 
@@ -457,121 +1017,94 @@ wrapper.addEventListener('touchstart', e => {
     lastPt = pt;
     strokeBrush(pt, pt);
   }
-}, {passive: false});
+}, { passive: false });
 
-wrapper.addEventListener('touchmove', e => {
-  e.preventDefault(); // منع سحب الصفحة بأكملها
-  if (isCompareMode) return;
+viewportBox.addEventListener('touchmove', e => {
+  if (!pages.length || isCompareMode) return;
 
-  if (isPanning && e.touches.length === 2) {
+  if (isTwoFingerGesture && e.touches.length >= 2) {
+    e.preventDefault();
     const t1 = e.touches[0], t2 = e.touches[1];
-    const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-    const startDist = Math.hypot(startTouches[0].x - startTouches[1].x, startTouches[0].y - startTouches[1].y);
-    
-    // زوم
-    let newScale = scale * (dist / startDist);
-    newScale = Math.max(0.5, Math.min(newScale, 5));
-    
-    // تحريك
-    const cx = (t1.clientX + t2.clientX)/2, cy = (t1.clientY + t2.clientY)/2;
-    const startCx = (startTouches[0].x + startTouches[1].x)/2;
-    const startCy = (startTouches[0].y + startTouches[1].y)/2;
-    
-    posX += cx - startCx;
-    posY += cy - startCy;
-    
-    scale = newScale;
-    applyTransform();
-    
-    startTouches = [{x: t1.clientX, y: t1.clientY}, {x: t2.clientX, y: t2.clientY}];
+    const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    const mid = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
+
+    const newScale = Math.max(0.8, Math.min(4.5, pinchStartScale * (dist / pinchStartDist)));
+    const boxRect = viewportBox.getBoundingClientRect();
+    const originX = panStartMid.x - boxRect.left;
+    const originY = panStartMid.y - boxRect.top;
+
+    viewX = mid.x - panStartMid.x + originX - (originX - panStartOffset.x) * (newScale / pinchStartScale);
+    viewY = mid.y - panStartMid.y + originY - (originY - panStartOffset.y) * (newScale / pinchStartScale);
+    viewScale = newScale;
+    updateStageTransform();
     return;
   }
 
-  if (isDrawing && e.touches.length === 1) {
-    const pt = getCoords(e);
+  if (isDrawing && e.touches.length === 1 && !isTwoFingerGesture) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const pt = getCanvasCoords(touch.clientX, touch.clientY);
     strokeBrush(lastPt, pt);
     lastPt = pt;
   }
-}, {passive: false});
+}, { passive: false });
 
-wrapper.addEventListener('touchend', e => {
-  if (isDrawing) { isDrawing = false; autoSaveCurrentPage(); }
-  if (e.touches.length < 2) isPanning = false;
-});
-
-// أحداث الماوس (للكمبيوتر)
-wrapper.addEventListener('mousedown', e => {
-  if (!pages.length || isCompareMode) return;
-  const pt = getCoords(e);
-  saveHistory(pages[currentIdx]);
-  if (currentTool === 'bucket') { floodFill(pt.x, pt.y, document.getElementById('brushColor').value); autoSaveCurrentPage(); return; }
-  isDrawing = true; lastPt = pt; strokeBrush(pt, pt);
-});
-wrapper.addEventListener('mousemove', e => {
-  if (!isDrawing || isCompareMode) return;
-  const pt = getCoords(e); strokeBrush(lastPt, pt); lastPt = pt;
-});
-window.addEventListener('mouseup', () => { if(isDrawing) { isDrawing = false; autoSaveCurrentPage(); } });
-
-function applyTransform() {
-  wrapper.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-}
-function resetTransform() {
-  scale = 1; posX = 0; posY = 0; applyTransform();
-}
-
-// 5. وضع المقارنة (Before / After)
-function toggleCompare() {
-  isCompareMode = !isCompareMode;
-  const btn = document.getElementById('btnCompare');
-  if (isCompareMode) {
-    btn.classList.add('active');
-    compareContainer.style.display = 'block';
-    updateCompareOverlay();
-    setStatus("🌗 وضع المقارنة: اسحب الخط الأبيض لرؤية الأصل والتعديل.");
-  } else {
-    btn.classList.remove('active');
-    compareContainer.style.display = 'none';
-    setStatus("🖌️ عدنا لوضع الرسم.");
+viewportBox.addEventListener('touchend', e => {
+  if (isDrawing) {
+    isDrawing = false;
+    lastPt = null;
+    scheduleAutoSave();
   }
-}
-
-function updateCompareOverlay() {
-  if (!pages.length || !isCompareMode) return;
-  const page = pages[currentIdx];
-  const overlayCanvas = document.getElementById('originalCanvasOverlay');
-  overlayCanvas.width = canvas.width; overlayCanvas.height = canvas.height;
-  const oCtx = overlayCanvas.getContext('2d');
-  
-  // رسم الصورة الأصلية
-  oCtx.drawImage(page.originalImg, 0, 0);
-  
-  // قص الصورة الأصلية بناءً على نسبة الشريط
-  compareOverlay.style.clipPath = `polygon(0 0, ${comparePercent}% 0, ${comparePercent}% 100%, 0 100%)`;
-  compareSliderWrap.style.left = `${comparePercent}%`;
-}
-
-// سحب شريط المقارنة
-compareSliderWrap.addEventListener('touchstart', e => { isDraggingCompare = true; }, {passive:true});
-compareSliderWrap.addEventListener('mousedown', e => { isDraggingCompare = true; });
-window.addEventListener('touchmove', e => {
-  if (!isDraggingCompare) return;
-  const rect = wrapper.getBoundingClientRect();
-  const touchX = e.touches[0].clientX - rect.left;
-  comparePercent = Math.max(0, Math.min(100, (touchX / rect.width) * 100));
-  updateCompareOverlay();
-}, {passive:true});
-window.addEventListener('mousemove', e => {
-  if (!isDraggingCompare) return;
-  const rect = wrapper.getBoundingClientRect();
-  const touchX = e.clientX - rect.left;
-  comparePercent = Math.max(0, Math.min(100, (touchX / rect.width) * 100));
-  updateCompareOverlay();
+  if (e.touches.length === 0) {
+    isTwoFingerGesture = false;
+  }
 });
-window.addEventListener('touchend', () => isDraggingCompare = false);
-window.addEventListener('mouseup', () => isDraggingCompare = false);
 
-// 6. التنقل والتراجع
+// دعم الماوس أيضاً في حال التجربة من متصفح سطح المكتب
+viewportBox.addEventListener('mousedown', e => {
+  if (!pages.length || isCompareMode || e.button !== 0) return;
+  if (e.target.closest('#compareSlider')) return;
+  const pt = getCanvasCoords(e.clientX, e.clientY);
+  const page = pages[currentIdx];
+  if (pt.y > page.workCanvas.height) return;
+
+  if (currentTool === 'picker') {
+    const pixel = page.workCanvas.getContext('2d').getImageData(Math.floor(pt.x), Math.floor(pt.y), 1, 1).data;
+    setPresetColor(rgbToHex(pixel[0], pixel[1], pixel[2]));
+    setTool('brush');
+    return;
+  }
+
+  saveHistory(page);
+  if (currentTool === 'bucket') {
+    safeFloodFill(page.workCanvas, pt.x, pt.y, document.getElementById('brushColor').value);
+    drawPage();
+    scheduleAutoSave();
+    return;
+  }
+  isDrawing = true;
+  lastPt = pt;
+  strokeBrush(pt, pt);
+});
+
+window.addEventListener('mousemove', e => {
+  if (!isDrawing || isCompareMode) return;
+  const pt = getCanvasCoords(e.clientX, e.clientY);
+  strokeBrush(lastPt, pt);
+  lastPt = pt;
+});
+
+window.addEventListener('mouseup', () => {
+  if (isDrawing) {
+    isDrawing = false;
+    lastPt = null;
+    scheduleAutoSave();
+  }
+});
+
+// ==========================================
+// 8. التراجع، الإعادة، والتنقل السريع بين الصفحات
+// ==========================================
 function undoLastAction() {
   if (!pages.length) return;
   const page = pages[currentIdx];
@@ -579,29 +1112,104 @@ function undoLastAction() {
     const prev = page.history.pop();
     page.workCanvas.getContext('2d').putImageData(prev, 0, 0);
     drawPage();
-    autoSaveCurrentPage();
+    scheduleAutoSave();
+    setStatus("↩️ تم التراجع عن الخطوة الأخيرة");
   }
+}
+
+function resetCurrentPage() {
+  if (!pages.length) return;
+  if (!confirm("هل تريد استرجاع هذه الصفحة لحالتها الأصلية؟")) return;
+  const page = pages[currentIdx];
+  saveHistory(page);
+  page.workCanvas.getContext('2d').drawImage(page.originalImg, 0, 0);
+  drawPage();
+  scheduleAutoSave();
+  setStatus("🔄 تمت إعادة الصفحة لحالتها الأصلية");
 }
 
 function changePage(dir) {
   const next = currentIdx + dir;
   if (next >= 0 && next < pages.length) {
-    currentIdx = next; resetTransform(); drawPage(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    currentIdx = next;
+    resetZoom();
+    drawPage();
+    saveCurrentPageToDB();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
-// 7. تصدير الفصل كملف ZIP
+function togglePagesModal() {
+  if (!pages.length) return;
+  const modal = document.getElementById('pagesModal');
+  const grid = document.getElementById('pagesGrid');
+  if (!modal.classList.contains('open')) {
+    grid.innerHTML = '';
+    pages.forEach((p, idx) => {
+      const div = document.createElement('div');
+      div.className = 'page-card' + (idx === currentIdx ? ' current' : '');
+      div.innerText = `صفحة ${idx + 1}`;
+      div.onclick = () => {
+        currentIdx = idx;
+        resetZoom();
+        drawPage();
+        saveCurrentPageToDB();
+        modal.classList.remove('open');
+      };
+      grid.appendChild(div);
+    });
+    modal.classList.add('open');
+  } else {
+    modal.classList.remove('open');
+  }
+}
+
+// ==========================================
+// 9. تصدير الفصل بصيغة WebP ZIP أو إرساله للنشر
+// ==========================================
+async function generateFinalZipBlob() {
+  const zip = new JSZip();
+  const savedIdx = currentIdx;
+  const wasCompare = isCompareMode;
+  if (wasCompare) toggleCompareMode();
+
+  for (let i = 0; i < pages.length; i++) {
+    currentIdx = i;
+    drawPage();
+    const webpBlob = await new Promise(res => canvas.toBlob(res, 'image/webp', 0.85));
+    zip.file(`page_${String(i + 1).padStart(3, '0')}.webp`, webpBlob);
+  }
+  currentIdx = savedIdx;
+  drawPage();
+  return await zip.generateAsync({ type: 'blob' });
+}
+
 async function downloadZip() {
   if (!pages.length) return;
   setStatus("⏳ جاري ضغط الصفحات بصيغة WebP...");
-  const zip = new JSZip();
-  for (let i = 0; i < pages.length; i++) {
-    const webpBlob = await new Promise(res => pages[i].workCanvas.toBlob(res, 'image/webp', 0.85));
-    zip.file(`page_${String(i + 1).padStart(3, '0')}.webp`, webpBlob);
-  }
-  const blob = await zip.generateAsync({ type: 'blob' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "futaarab_cleaned.zip"; a.click();
+  const blob = await generateFinalZipBlob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = "futaarab_cleaned_chapter.zip";
+  a.click();
   setStatus("✅ تم تحميل ملف الـ ZIP بنجاح!");
+}
+
+async function sendToUploaderPage() {
+  if (!pages.length) return;
+  setStatus("⏳ جاري تجهيز الفصل ونقله إلى صفحة الرفع...");
+  const zipBlob = await generateFinalZipBlob();
+
+  const req = indexedDB.open("FutaArabBridgeDB", 1);
+  req.onupgradeneeded = e => e.target.result.createObjectStore("files");
+  req.onsuccess = e => {
+    const db = e.target.result;
+    const tx = db.transaction("files", "readwrite");
+    tx.objectStore("files").put(zipBlob, "readyChapterZip");
+    tx.oncomplete = () => {
+      window.location.href = "uploader.html?autoLoad=true";
+    };
+  };
 }
 </script>
 </body>
