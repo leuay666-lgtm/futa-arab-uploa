@@ -35,7 +35,6 @@
       touch-action: pan-y;
     }
 
-    /* تفعيل النسخ واللصق المباشر من الهاتف في جميع الحقول */
     input, textarea, [contenteditable="true"] {
       user-select: text !important;
       -webkit-user-select: text !important;
@@ -148,66 +147,150 @@
     }
     canvas { width: 100%; height: auto; display: block; pointer-events: none; }
 
-    /* طبقة مربعات النصوص التفاعلية فوق الصفحة */
+    /* ====================================================
+       صندوق النص الاحترافي المطابق لتطبيق PicsArt
+       ==================================================== */
     #textLayer {
       position: absolute; inset: 0; pointer-events: none; z-index: 25; overflow: hidden;
     }
     .manga-textbox {
+      --inv-scale: 1;
       position: absolute;
-      transform: translate(-50%, -50%);
-      padding: 6px 8px;
-      min-width: 48px;
+      transform-origin: center center;
+      padding: 8px 10px;
       text-align: center;
       font-family: 'Almarai', 'Cairo', sans-serif;
       font-weight: 800;
       line-height: 1.32;
+      /* منع كسر الأحرف العربية نهائياً والالتفاف عند المسافات فقط */
       white-space: pre-wrap;
-      word-break: break-word;
+      word-break: keep-all;
+      overflow-wrap: normal;
       pointer-events: auto;
       cursor: move;
       border: 1.5px solid transparent;
-      border-radius: 6px;
       touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .manga-textbox.selected {
-      border: 2px dashed var(--accent);
-      background: rgba(255, 42, 95, 0.09);
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
+      border: calc(1.5px * var(--inv-scale)) solid rgba(20, 20, 25, 0.85);
+      box-shadow: 0 0 0 calc(1px * var(--inv-scale)) rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.04);
     }
-    .manga-textbox.locked {
+    .manga-textbox.locked.selected {
       border-color: #f59e0b;
-      cursor: default;
+      box-shadow: 0 0 0 calc(1.5px * var(--inv-scale)) rgba(245, 158, 11, 0.85);
     }
 
-    /* شريط التحكم العائم فوق مربع النص (القفل + التعديل + النسخ + الحذف) */
-    .tbox-controls {
-      position: absolute; top: -38px; left: 50%; transform: translateX(-50%);
+    /* مقابض PicsArt الدائرية (حجمها يبقى ثابتاً ومريحاً للإصبع مهما صغر أو كبر النص) */
+    .picsart-handle {
+      position: absolute;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      color: #1e293b;
+      border: 1.5px solid rgba(0, 0, 0, 0.35);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+      z-index: 10;
+      touch-action: none;
+    }
+    .manga-textbox.selected:not(.locked) .picsart-handle {
+      display: flex;
+    }
+
+    /* منطقة لمس موسعة لكل مقبض لسهولة الالتقاط باليد */
+    .picsart-handle::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+    }
+
+    /* 1. زر الحذف (أعلى اليسار ✕) */
+    .pa-btn-delete {
+      top: 0; left: 0;
+      width: 26px; height: 26px; border-radius: 50%;
+      font-size: 14px; font-weight: 900;
+      transform: translate(-55%, -55%) scale(var(--inv-scale));
+      cursor: pointer;
+    }
+
+    /* 2. مقبض التدوير (أعلى اليمين ↻) */
+    .pa-btn-rotate {
+      top: 0; right: 0;
+      width: 26px; height: 26px; border-radius: 50%;
+      font-size: 15px; font-weight: 900;
+      transform: translate(55%, -55%) scale(var(--inv-scale));
+      cursor: grab;
+    }
+
+    /* 3. مقبض التكبير والتصغير المتناسب (أسفل اليمين ⤡) */
+    .pa-btn-scale {
+      bottom: 0; right: 0;
+      width: 28px; height: 28px; border-radius: 50%;
+      font-size: 15px; font-weight: 900;
+      transform: translate(55%, 55%) scale(var(--inv-scale));
+      cursor: nwse-resize;
+    }
+
+    /* 4. مقبض الكبسولة الجانبي الأيمن لتغيير عرض السطر (|) */
+    .pa-pill-right {
+      top: 50%; right: 0;
+      width: 14px; height: 32px; border-radius: 10px;
+      border: 2px solid #38bdf8;
+      transform: translate(55%, -50%) scale(var(--inv-scale));
+      cursor: ew-resize;
+    }
+    .pa-pill-right::before {
+      content: '';
+      width: 2.5px; height: 14px;
+      background: #1e293b; border-radius: 2px;
+    }
+
+    /* 5. النقطة الجانبية اليسرى لتغيير عرض السطر */
+    .pa-dot-left {
+      top: 50%; left: 0;
+      width: 14px; height: 14px; border-radius: 50%;
+      transform: translate(-55%, -50%) scale(var(--inv-scale));
+      cursor: ew-resize;
+    }
+
+    /* 6. النقاط العلوية والسفلية الوسطى كما في PicsArt */
+    .pa-dot-top {
+      top: 0; left: 50%;
+      width: 13px; height: 13px; border-radius: 50%;
+      transform: translate(-50%, -55%) scale(var(--inv-scale));
+      pointer-events: none;
+    }
+    .pa-dot-bottom {
+      bottom: 0; left: 50%;
+      width: 13px; height: 13px; border-radius: 50%;
+      transform: translate(-50%, 55%) scale(var(--inv-scale));
+      pointer-events: none;
+    }
+
+    /* شريط القفل والنسخ والتعديل العائم أعلى النص */
+    .pa-top-bar {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translate(-50%, calc(-100% - 14px)) scale(var(--inv-scale));
+      transform-origin: bottom center;
       display: none; align-items: center; gap: 5px;
-      background: rgba(12, 12, 18, 0.96); border: 1px solid rgba(255,255,255,0.22);
-      padding: 4px 8px; border-radius: 20px; white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.85); z-index: 5;
+      background: rgba(12, 12, 18, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 3px 8px; border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      z-index: 12; white-space: nowrap;
     }
-    .manga-textbox.selected .tbox-controls { display: flex; }
+    .manga-textbox.selected .pa-top-bar { display: flex; }
 
-    .tbox-ctrl-btn {
-      width: 26px; height: 26px; border-radius: 50%; border: none;
+    .pa-mini-btn {
+      width: 24px; height: 24px; border-radius: 50%; border: none;
       background: rgba(255,255,255,0.12); color: #fff; font-size: 12px;
       display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
-    .tbox-ctrl-btn.lock-active { background: #f59e0b; color: #000; }
-    .tbox-ctrl-btn.delete-btn { background: rgba(239, 68, 68, 0.28); color: #fca5a5; }
-
-    /* مقبض التكبير والتصغير في زاوية مربع النص */
-    .tbox-resize-handle {
-      position: absolute; bottom: -12px; left: -12px;
-      width: 26px; height: 26px; border-radius: 50%;
-      background: var(--accent); color: #fff; border: 2px solid #fff;
-      font-size: 13px; font-weight: 900;
-      display: none; align-items: center; justify-content: center;
-      cursor: nwse-resize; box-shadow: 0 2px 8px rgba(0,0,0,0.75);
-      touch-action: none;
-    }
-    .manga-textbox.selected:not(.locked) .tbox-resize-handle { display: flex; }
+    .pa-mini-btn.locked { background: #f59e0b; color: #000; }
 
     /* خط المقارنة (Before / After) */
     #compareOverlay {
@@ -442,7 +525,7 @@
 
   <!-- شريط الإرشادات وحالة الزوم -->
   <div class="chapter-banner">
-    <div class="status-text" id="statusMsg">ارفع صورة أو ملف ZIP للبدء (رفع أي ملف جديد يُضاف لعملك الحالي ولا يمسحه)...</div>
+    <div class="status-text" id="statusMsg">ارفع صورة أو ملف ZIP للبدء (تحكم بالنصوص على طراز PicsArt بدون كسر الأحرف)...</div>
     <button class="zoom-pill" id="resetZoomBtn" onclick="resetZoom()">🔍 100%</button>
   </div>
 
@@ -456,7 +539,7 @@
       <div class="canvas-stage" id="canvasStage">
         <canvas id="pageCanvas"></canvas>
 
-        <!-- طبقة النصوص التفاعلية -->
+        <!-- طبقة النصوص التفاعلية بنظام PicsArt -->
         <div id="textLayer"></div>
 
         <!-- طبقة خط المقارنة المتحرك -->
@@ -505,7 +588,7 @@
     </div>
   </div>
 
-  <!-- نافذة تعديل النص عند الضغط مرتين (مع دعم النسخ واللصق المباشر) -->
+  <!-- نافذة تعديل النص عند الضغط مرتين -->
   <div class="modal-backdrop" id="editTextModal">
     <div class="modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
@@ -515,7 +598,7 @@
           <button class="btn-action primary" onclick="pasteIntoInput('modalTextInput')">📋 لصق من الهاتف</button>
         </div>
       </div>
-      <textarea id="modalTextInput" rows="4" placeholder="اكتب أو الصق النص هنا مباشرة من لوحة مفاتيح الهاتف..." style="width:100%; border-radius:12px; background:#09090f; color:#fff; border:1.5px solid var(--accent); padding:10px; font-family:'Almarai','Cairo',sans-serif; font-weight:800; font-size:15px;"></textarea>
+      <textarea id="modalTextInput" rows="4" placeholder="اكتب أو الصق النص هنا مباشرة..." style="width:100%; border-radius:12px; background:#09090f; color:#fff; border:1.5px solid var(--accent); padding:10px; font-family:'Almarai','Cairo',sans-serif; font-weight:800; font-size:15px;"></textarea>
       <div style="display:flex; gap:8px; justify-content:flex-end;">
         <button class="btn-action" onclick="closeEditModal()">إلغاء</button>
         <button class="btn-action success" onclick="saveEditedText()">حفظ التعديل ✅</button>
@@ -598,8 +681,9 @@
           <div class="color-dot" style="background:#ff2a5f;" onclick="changeSelectedTextColor('#ff2a5f')" title="أحمر"></div>
         </div>
 
-        <input type="range" class="size-slider" id="textSizeSlider" min="10" max="85" value="24" oninput="changeSelectedTextSize(this.value)">
-        <span id="textSizeVal" style="font-size:11px; font-weight:900; min-width:24px; text-align:center;">24</span>
+        <!-- شريط تكبير وتصغير متناسب سلس جداً بدون كسر الأحرف -->
+        <input type="range" class="size-slider" id="textSizeSlider" min="15" max="350" value="100" oninput="changeSelectedTextScaleSlider(this.value)">
+        <span id="textSizeVal" style="font-size:11px; font-weight:900; min-width:34px; text-align:center;">100%</span>
 
         <button class="tool-btn" id="btnCompareText" style="flex:0 0 auto; padding:5px 10px;" onclick="toggleCompareMode()">
           <span class="icon">🌗</span><span>مقارنة</span>
@@ -632,12 +716,12 @@ const pickerLoupe = document.getElementById('pickerLoupe');
 const pickerHexText = document.getElementById('pickerHexText');
 const bucketTarget = document.getElementById('bucketTarget');
 
-// كل صفحة تحتفظ بـ origCanvas (للرسم الفوري بالممحاة والمقارنة) و workCanvas (للتبييض)
-// pages = [{ name, origCanvas, workCanvas, history: [], texts: [] }]
+// كل صفحة تحتفظ بـ origCanvas و workCanvas ومصفوفة النصوص بنظام PicsArt
+// tb = { id, text, xPct, yPct, baseWidth, fontSize, scale, rotation, color, locked }
 let pages = [];
 let currentIdx = 0;
-let currentStage = 'clean'; // 'clean' or 'text'
-let currentTool = 'brush';  // 'brush', 'smart', 'eraser', 'blur', 'bucket', 'picker', or null
+let currentStage = 'clean';
+let currentTool = 'brush';
 let isCompareMode = false;
 let compareSplitPercent = 50;
 
@@ -661,7 +745,6 @@ let strokeStartTime = 0;
 let previewTimer = null;
 let saveTimer = null;
 
-// متغيرات الزوم والتحريك للصفحة أو للنص بإصبعين
 let viewScale = 1;
 let viewX = 0;
 let viewY = 0;
@@ -670,12 +753,12 @@ let pinchStartScale = 1;
 let panStartMid = { x: 0, y: 0 };
 let panStartOffset = { x: 0, y: 0 };
 let compareScrollStartY = 0;
-let compareStartViewY = 0;
 
-// متغيرات تحريك وتكبير النص بإصبعين
+// متغيرات تحريك وتكبير وتدوير النص بإصبعين (PicsArt Touch Gesture)
 let textPinchStartDist = 0;
-let textPinchStartFont = 24;
-let textPinchStartWidthPct = 38;
+let textPinchStartScale = 1;
+let textPinchStartAngle = 0;
+let textPinchStartRot = 0;
 let textPanStartMid = { x: 0, y: 0 };
 let textStartXPct = 50;
 let textStartYPct = 50;
@@ -748,7 +831,6 @@ async function pasteAndCreateOrFill() {
   setStatus("📋 اضغط 'لصق' من شريط كيبورد الهاتف ثم اضغط (+ إضافة)");
 }
 
-// عندما يقوم المستخدم باللصق مباشرة عبر كيبورد الهاتف في الحقل السريع
 document.getElementById('quickTextInput').addEventListener('paste', () => {
   setTimeout(() => {
     setStatus("📋 تم لصق النص! اضغط (+ إضافة) لوضعه على الصفحة");
@@ -758,7 +840,7 @@ document.getElementById('quickTextInput').addEventListener('paste', () => {
 // ====================================================
 // 1. نظام الحفظ التلقائي الشامل في IndexedDB ضد الريلود
 // ====================================================
-const DB_NAME = "FutaStudioProDB_v4";
+const DB_NAME = "FutaStudioProDB_v5";
 const DB_VERSION = 1;
 
 function openSessionDB() {
@@ -841,6 +923,21 @@ async function saveFullProjectToDB() {
   }
 }
 
+function normalizeTextBoxObject(tb) {
+  return {
+    id: tb.id || ('tb_' + Date.now() + Math.random()),
+    text: tb.text || 'نص',
+    xPct: typeof tb.xPct === 'number' ? tb.xPct : 50,
+    yPct: typeof tb.yPct === 'number' ? tb.yPct : 45,
+    baseWidth: typeof tb.baseWidth === 'number' ? tb.baseWidth : 155,
+    fontSize: typeof tb.fontSize === 'number' ? tb.fontSize : 22,
+    scale: typeof tb.scale === 'number' ? tb.scale : 1,
+    rotation: typeof tb.rotation === 'number' ? tb.rotation : 0,
+    color: tb.color || '#000000',
+    locked: !!tb.locked
+  };
+}
+
 async function restoreSessionOnLoad() {
   try {
     const db = await openSessionDB();
@@ -884,7 +981,7 @@ async function restoreSessionOnLoad() {
         origCanvas: origC,
         workCanvas: workC,
         history: [],
-        texts: meta[i].texts || []
+        texts: (meta[i].texts || []).map(normalizeTextBoxObject)
       });
     }
 
@@ -910,29 +1007,13 @@ async function restoreSessionOnLoad() {
 
 async function clearSavedSession() {
   if (!confirm("هل تريد مسح جميع الصفحات المحفوظة والبدء من الصفر؟")) return;
-  const db = await openSessionDB();
-  const tx = db.transaction("session", "readwrite");
-  tx.objectStore("session").clear();
-  pages = [];
-  currentIdx = 0;
-  selectedTextId = null;
-  textLayer.innerHTML = '';
-  canvasStage.style.display = 'none';
-  document.getElementById('emptyPlaceholder').style.display = 'block';
-  document.getElementById('pageCount').innerHTML = "0 / <b>0</b>";
-  document.getElementById('layerSquareBtn1').innerText = "0";
-  document.getElementById('layerSquareBtn2').innerText = "0";
-  document.getElementById('zipBtn').disabled = true;
-  document.getElementById('sendBtn').disabled = true;
-  document.getElementById('clearSessionBtn').style.display = 'none';
-  document.getElementById('nextStageBtn').style.display = 'none';
-  setStatus("🗑️ تم مسح الجلسة بالكامل.");
+  await clearSavedSessionSilent();
 }
 
 window.addEventListener('DOMContentLoaded', restoreSessionOnLoad);
 
 // ====================================================
-// 2. رفع وإضافة الصور وملفات الـ ZIP (تُضاف فوق العمل الحالي ولا تمسحه)
+// 2. رفع وإضافة الصور وملفات الـ ZIP
 // ====================================================
 function loadImgFromBlob(blob) {
   return new Promise((resolve, reject) => {
@@ -998,7 +1079,6 @@ async function handleFilesUpload(fileList) {
       w = maxDim;
     }
 
-    // حفظ نسخة أصلية مطابقة للأبعاد تماماً لكي تعمل الممحاة والمقارنة بدقة 100%
     const origC = document.createElement('canvas');
     origC.width = w;
     origC.height = h;
@@ -1068,38 +1148,48 @@ function switchStage(stage, skipSave = false) {
     renderTextLayer();
     setStatus("🖌️ مرحلة التبييض: الفرشاة والممحاة والدلو جاهزة، وإصبعين للزوم والتحريك");
   } else {
-    setStatus("✍️ مرحلة الكتابة: حدد النص وحركه/كبره بإصبعين أو بإصبع واحد، واضغط مرتين لتعديله");
+    setStatus("✍️ مرحلة الكتابة (PicsArt): اسحب ⤡ للتكبير/التصغير بدون كسر الأحرف، و | لتوسيع السطر، و ↻ للتدوير");
   }
   if (!skipSave) scheduleAutoSave();
 }
 
 // ====================================================
-// 4. عرض الصفحة + العلامة المائية + العبارة المطلوبة
+// 4. عرض الصفحة + طباعة نصوص PicsArt عند التصدير
 // ====================================================
 function renderCompositeToContext(targetCtx, sourceDrawable, width, height, pageTexts = null) {
   const footerH = Math.max(36, Math.floor(height * 0.03));
   targetCtx.clearRect(0, 0, width, height + footerH);
   targetCtx.drawImage(sourceDrawable, 0, 0, width, height);
 
+  // طباعة النصوص المضافة بنفس التحجيم المتناسب (scale) والتدوير (rotation) بدون كسر الأحرف
   if (pageTexts && pageTexts.length > 0) {
-    pageTexts.forEach(tb => {
+    const ratio = width / 360;
+    pageTexts.forEach(rawTb => {
+      const tb = normalizeTextBoxObject(rawTb);
       targetCtx.save();
-      const pxFontSize = Math.round((tb.fontSize / 360) * width);
+
+      const centerX = (tb.xPct / 100) * width;
+      const centerY = (tb.yPct / 100) * height;
+      const rotRad = (tb.rotation * Math.PI) / 180;
+
+      targetCtx.translate(centerX, centerY);
+      targetCtx.rotate(rotRad);
+      targetCtx.scale(tb.scale, tb.scale);
+
+      const pxFontSize = tb.fontSize * ratio;
+      const maxLineWidth = Math.max(20, (tb.baseWidth - 20) * ratio);
+
       targetCtx.font = `800 ${pxFontSize}px 'Almarai', 'Cairo', sans-serif`;
       targetCtx.fillStyle = tb.color || '#000000';
       targetCtx.textAlign = 'center';
       targetCtx.textBaseline = 'middle';
 
-      const centerX = (tb.xPct / 100) * width;
-      const centerY = (tb.yPct / 100) * height;
-      const maxLineWidth = ((tb.widthPct || 38) / 100) * width;
-
       const lines = wrapArabicText(targetCtx, tb.text, maxLineWidth);
       const lineHeight = pxFontSize * 1.32;
-      const startY = centerY - ((lines.length - 1) * lineHeight) / 2;
+      const startY = -((lines.length - 1) * lineHeight) / 2;
 
       lines.forEach((line, i) => {
-        targetCtx.fillText(line, centerX, startY + i * lineHeight);
+        targetCtx.fillText(line, 0, startY + i * lineHeight);
       });
       targetCtx.restore();
     });
@@ -1169,95 +1259,144 @@ function drawPage() {
 }
 
 // ====================================================
-// 5. مربعات الكتابة التفاعلية + التحكم بإصبعين + النسخ واللصق + القفل
+// 5. مربعات الكتابة التفاعلية بنظام PicsArt الكامل
 // ====================================================
+function applyTextBoxTransformDOM(el, tb, imgHeightRatio) {
+  const invScale = 1 / Math.max(0.12, tb.scale * Math.sqrt(viewScale));
+  el.style.setProperty('--inv-scale', invScale.toFixed(4));
+  el.style.left = `${tb.xPct}%`;
+  el.style.top = `${tb.yPct * imgHeightRatio}%`;
+  el.style.transform = `translate(-50%, -50%) rotate(${tb.rotation}deg) scale(${tb.scale})`;
+}
+
 function renderTextLayer() {
   textLayer.innerHTML = '';
   if (!pages.length) return;
   const page = pages[currentIdx];
   const h = page.workCanvas.height;
   const stageRect = canvas.getBoundingClientRect();
-  const baseWidth = (stageRect.width / viewScale) || 360;
+  const baseStageWidth = (stageRect.width / viewScale) || 360;
+  const ratio = baseStageWidth / 360;
 
   const footerH = Math.max(36, Math.floor(h * 0.03));
   const imgHeightRatio = h / (h + footerH);
 
-  page.texts.forEach(tb => {
+  page.texts.forEach((rawTb, i) => {
+    const tb = normalizeTextBoxObject(rawTb);
+    page.texts[i] = tb;
+
     const el = document.createElement('div');
     el.className = 'manga-textbox' +
       (tb.id === selectedTextId ? ' selected' : '') +
       (tb.locked ? ' locked' : '');
     el.dataset.id = tb.id;
-    el.style.left = `${tb.xPct}%`;
-    el.style.top = `${tb.yPct * imgHeightRatio}%`;
-    el.style.width = `${tb.widthPct || 38}%`;
+
+    // العرض وحجم الخط الأساسيان ثابتان، والتكبير/التصغير يتم عبر transform: scale() لمنع انكسار الأحرف نهائياً
+    el.style.width = `${tb.baseWidth * ratio}px`;
+    el.style.fontSize = `${tb.fontSize * ratio}px`;
+    el.style.padding = `${8 * ratio}px ${10 * ratio}px`;
     el.style.color = tb.color || '#000000';
 
-    const scaledFont = Math.max(10, (tb.fontSize / 360) * baseWidth);
-    el.style.fontSize = `${scaledFont}px`;
+    applyTextBoxTransformDOM(el, tb, imgHeightRatio);
 
-    // شريط الأزرار العلوي (القفل + التعديل + النسخ + الحذف)
-    const ctrlBar = document.createElement('div');
-    ctrlBar.className = 'tbox-controls';
+    // شريط القفل والنسخ والتعديل المصغر أعلى الصندوق
+    const topBar = document.createElement('div');
+    topBar.className = 'pa-top-bar';
 
     const lockBtn = document.createElement('button');
-    lockBtn.className = 'tbox-ctrl-btn' + (tb.locked ? ' lock-active' : '');
+    lockBtn.className = 'pa-mini-btn' + (tb.locked ? ' locked' : '');
     lockBtn.innerText = tb.locked ? '🔒' : '🔓';
+    lockBtn.title = tb.locked ? 'فتح القفل' : 'قفل النص';
     lockBtn.onpointerdown = e => {
       e.stopPropagation();
       tb.locked = !tb.locked;
       renderTextLayer();
       scheduleAutoSave();
-      setStatus(tb.locked ? "🔒 تم قفل النص (لا يمكن تحريكه أو تعديله حتى تفتح القفل)" : "🔓 تم فتح قفل النص");
+      setStatus(tb.locked ? "🔒 تم قفل النص" : "🔓 تم فتح قفل النص");
     };
-    ctrlBar.appendChild(lockBtn);
+    topBar.appendChild(lockBtn);
 
     const copyBtn = document.createElement('button');
-    copyBtn.className = 'tbox-ctrl-btn';
+    copyBtn.className = 'pa-mini-btn';
     copyBtn.innerText = '📄';
-    copyBtn.title = 'نسخ هذا النص';
+    copyBtn.title = 'نسخ النص';
     copyBtn.onpointerdown = e => {
       e.stopPropagation();
       copyTextToPhone(tb.text);
     };
-    ctrlBar.appendChild(copyBtn);
+    topBar.appendChild(copyBtn);
 
     if (!tb.locked) {
       const editBtn = document.createElement('button');
-      editBtn.className = 'tbox-ctrl-btn';
+      editBtn.className = 'pa-mini-btn';
       editBtn.innerText = '✏️';
+      editBtn.title = 'تعديل النص';
       editBtn.onpointerdown = e => {
         e.stopPropagation();
         openEditModal(tb.id);
       };
-      ctrlBar.appendChild(editBtn);
-
-      const delBtn = document.createElement('button');
-      delBtn.className = 'tbox-ctrl-btn delete-btn';
-      delBtn.innerText = '✕';
-      delBtn.onpointerdown = e => {
-        e.stopPropagation();
-        page.texts = page.texts.filter(t => t.id !== tb.id);
-        if (selectedTextId === tb.id) selectedTextId = null;
-        renderTextLayer();
-        scheduleAutoSave();
-      };
-      ctrlBar.appendChild(delBtn);
+      topBar.appendChild(editBtn);
     }
+    el.appendChild(topBar);
 
-    el.appendChild(ctrlBar);
+    // محتوى النص
+    const textContent = document.createElement('div');
+    textContent.innerText = tb.text;
+    el.appendChild(textContent);
 
-    const span = document.createElement('div');
-    span.innerText = tb.text;
-    el.appendChild(span);
+    // مقابض PicsArt الستة حول الإطار
+    // 1. زر الحذف (أعلى اليسار ✕)
+    const delHandle = document.createElement('div');
+    delHandle.className = 'picsart-handle pa-btn-delete';
+    delHandle.innerText = '✕';
+    delHandle.onpointerdown = e => {
+      e.stopPropagation();
+      page.texts = page.texts.filter(t => t.id !== tb.id);
+      if (selectedTextId === tb.id) selectedTextId = null;
+      renderTextLayer();
+      scheduleAutoSave();
+      setStatus("🗑️ تم حذف النص");
+    };
+    el.appendChild(delHandle);
 
-    const resizeHandle = document.createElement('div');
-    resizeHandle.className = 'tbox-resize-handle';
-    resizeHandle.innerText = '⤡';
-    setupResizeTextEvents(resizeHandle, tb);
-    el.appendChild(resizeHandle);
+    // 2. مقبض التدوير (أعلى اليمين ↻)
+    const rotHandle = document.createElement('div');
+    rotHandle.className = 'picsart-handle pa-btn-rotate';
+    rotHandle.innerText = '↻';
+    setupPicsArtRotateHandle(rotHandle, el, tb, imgHeightRatio);
+    el.appendChild(rotHandle);
 
-    setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio);
+    // 3. مقبض التحجيم المتناسب (أسفل اليمين ⤡) - يصغر ويكبر بحرية بدون كسر الأحرف
+    const scaleHandle = document.createElement('div');
+    scaleHandle.className = 'picsart-handle pa-btn-scale';
+    scaleHandle.innerText = '⤡';
+    setupPicsArtScaleHandle(scaleHandle, el, tb, imgHeightRatio);
+    el.appendChild(scaleHandle);
+
+    // 4. مقبض الكبسولة الجانبي الأيمن (|) لتوسيع أو تضييق عرض السطر
+    const rightPill = document.createElement('div');
+    rightPill.className = 'picsart-handle pa-pill-right';
+    setupPicsArtWidthHandle(rightPill, el, tb, ratio, +1);
+    el.appendChild(rightPill);
+
+    // 5. النقطة الجانبية اليسرى لتوسيع أو تضييق عرض السطر
+    const leftDot = document.createElement('div');
+    leftDot.className = 'picsart-handle pa-dot-left';
+    setupPicsArtWidthHandle(leftDot, el, tb, ratio, -1);
+    el.appendChild(leftDot);
+
+    // 6. النقطتان العلوية والسفلية كما في تصميم PicsArt
+    const topDot = document.createElement('div');
+    topDot.className = 'picsart-handle pa-dot-top';
+    el.appendChild(topDot);
+
+    const bottomDot = document.createElement('div');
+    bottomDot.className = 'picsart-handle pa-dot-bottom';
+    el.appendChild(bottomDot);
+
+    // السحب الفوري بلمسة واحدة والضغط مرتين للتعديل
+    setupInstantDragAndDoubleTap(el, tb, imgHeightRatio);
+
     textLayer.appendChild(el);
   });
 }
@@ -1270,28 +1409,32 @@ function addNewTextBox() {
   const input = document.getElementById('quickTextInput');
   const content = input.value.trim() || "نص جديد";
   const color = document.getElementById('textColorPicker').value;
-  const fontSize = parseInt(document.getElementById('textSizeSlider').value) || 24;
 
-  const newTb = {
+  const newTb = normalizeTextBoxObject({
     id: 'tb_' + Date.now(),
     text: content,
     xPct: 50,
     yPct: 45,
-    fontSize: fontSize,
+    baseWidth: 160,
+    fontSize: 22,
+    scale: 1.0,
+    rotation: 0,
     color: color,
-    widthPct: 38,
     locked: false
-  };
+  });
 
   pages[currentIdx].texts.push(newTb);
   selectedTextId = newTb.id;
+  document.getElementById('textSizeSlider').value = 100;
+  document.getElementById('textSizeVal').innerText = '100%';
   input.value = '';
   renderTextLayer();
   scheduleAutoSave();
-  setStatus("✅ تمت إضافة النص! يمكنك تحريكه وتكبيره بإصبعين أو من المربع المحيط");
+  setStatus("✅ تمت إضافة النص! اسحبه مباشرة لتحريكه، أو اسحب ⤡ لتكبيره وتصغيره بدون كسر الأحرف");
 }
 
-function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
+// تحريك فوري وسلس بلمسة واحدة (بدون الحاجة للضغط أولاً ثم السحب مرة ثانية)
+function setupInstantDragAndDoubleTap(el, tb, imgHeightRatio) {
   let dragging = false;
   let startX = 0, startY = 0;
   let origXPct = 0, origYPct = 0;
@@ -1299,9 +1442,8 @@ function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
 
   el.addEventListener('pointerdown', e => {
     if (isCompareMode) return;
-    if (e.target.closest('.tbox-controls') || e.target.closest('.tbox-resize-handle')) return;
+    if (e.target.closest('.picsart-handle') || e.target.closest('.pa-top-bar')) return;
 
-    // إذا وضع المستخدم إصبعاً ثانياً، نترك التحكم لنظام الإصبعين في viewportBox
     if (!e.isPrimary) {
       dragging = false;
       return;
@@ -1311,7 +1453,7 @@ function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
     if (currentStage !== 'text') switchStage('text');
 
     const now = Date.now();
-    if (now - lastBoxTap < 340) {
+    if (now - lastBoxTap < 330) {
       lastBoxTap = 0;
       dragging = false;
       if (tb.locked) {
@@ -1323,12 +1465,15 @@ function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
     }
     lastBoxTap = now;
 
+    // تفعيل التحديد في نفس اللحظة دون إعادة بناء الـ DOM لكي لا ينقطع السحب الفوري!
     if (selectedTextId !== tb.id) {
       selectedTextId = tb.id;
+      document.querySelectorAll('.manga-textbox.selected').forEach(node => node.classList.remove('selected'));
+      el.classList.add('selected');
       document.getElementById('textColorPicker').value = tb.color || '#000000';
-      document.getElementById('textSizeSlider').value = tb.fontSize || 24;
-      document.getElementById('textSizeVal').innerText = Math.round(tb.fontSize || 24);
-      renderTextLayer();
+      const pctScale = Math.round((tb.scale || 1) * 100);
+      document.getElementById('textSizeSlider').value = pctScale;
+      document.getElementById('textSizeVal').innerText = pctScale + '%';
     }
 
     if (tb.locked) {
@@ -1351,11 +1496,10 @@ function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
     const dxPct = ((e.clientX - startX) / rect.width) * 100;
     const dyPct = ((e.clientY - startY) / (rect.height * imgHeightRatio)) * 100;
 
-    tb.xPct = Math.max(5, Math.min(95, origXPct + dxPct));
-    tb.yPct = Math.max(3, Math.min(97, origYPct + dyPct));
+    tb.xPct = Math.max(2, Math.min(98, origXPct + dxPct));
+    tb.yPct = Math.max(2, Math.min(98, origYPct + dyPct));
 
-    el.style.left = `${tb.xPct}%`;
-    el.style.top = `${tb.yPct * imgHeightRatio}%`;
+    applyTextBoxTransformDOM(el, tb, imgHeightRatio);
   });
 
   el.addEventListener('pointerup', () => {
@@ -1366,39 +1510,131 @@ function setupDragAndDoubleTapTextEvents(el, tb, imgHeightRatio) {
   });
 }
 
-function setupResizeTextEvents(handle, tb) {
-  let resizing = false;
-  let startX = 0, startY = 0;
-  let startFont = 24, startWidthPct = 38;
+// مقبض التحجيم المتناسب (⤡) على طريقة PicsArt: يصغر لأدنى حد ويكبر بدون أن يغير تقسيم الكلمات أو يكسر الحروف!
+function setupPicsArtScaleHandle(handle, el, tb, imgHeightRatio) {
+  let scaling = false;
+  let centerScreen = { x: 0, y: 0 };
+  let startDist = 1;
+  let startScale = 1;
 
   handle.addEventListener('pointerdown', e => {
     e.stopPropagation();
     if (tb.locked) return;
-    resizing = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    startFont = tb.fontSize;
-    startWidthPct = tb.widthPct || 38;
+    scaling = true;
+
+    const boxRect = el.getBoundingClientRect();
+    centerScreen = {
+      x: boxRect.left + boxRect.width / 2,
+      y: boxRect.top + boxRect.height / 2
+    };
+    startDist = Math.max(12, Math.hypot(e.clientX - centerScreen.x, e.clientY - centerScreen.y));
+    startScale = tb.scale || 1;
     handle.setPointerCapture(e.pointerId);
   });
 
   handle.addEventListener('pointermove', e => {
-    if (!resizing || tb.locked) return;
+    if (!scaling || tb.locked) return;
     e.stopPropagation();
-    const deltaY = e.clientY - startY;
-    const deltaX = startX - e.clientX;
+    const currDist = Math.hypot(e.clientX - centerScreen.x, e.clientY - centerScreen.y);
+    const ratio = currDist / startDist;
 
-    tb.fontSize = Math.max(10, Math.min(85, Math.round(startFont + deltaY * 0.2)));
-    tb.widthPct = Math.max(14, Math.min(90, startWidthPct + deltaX * 0.16));
+    // يسمح بتصغير النص حتى 12% أو تكبيره حتى 600% مع الحفاظ التام على شكل الكلمات والأسطر
+    tb.scale = Math.max(0.12, Math.min(6.0, startScale * ratio));
 
-    document.getElementById('textSizeSlider').value = tb.fontSize;
-    document.getElementById('textSizeVal').innerText = tb.fontSize;
-    renderTextLayer();
+    const pct = Math.round(tb.scale * 100);
+    document.getElementById('textSizeSlider').value = Math.min(350, Math.max(15, pct));
+    document.getElementById('textSizeVal').innerText = pct + '%';
+
+    applyTextBoxTransformDOM(el, tb, imgHeightRatio);
   });
 
   handle.addEventListener('pointerup', () => {
-    if (resizing) {
-      resizing = false;
+    if (scaling) {
+      scaling = false;
+      scheduleAutoSave();
+    }
+  });
+}
+
+// مقبض التدوير الدائري (↻) على طريقة PicsArt
+function setupPicsArtRotateHandle(handle, el, tb, imgHeightRatio) {
+  let rotating = false;
+  let centerScreen = { x: 0, y: 0 };
+  let startAngle = 0;
+  let startRot = 0;
+
+  handle.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    if (tb.locked) return;
+    rotating = true;
+
+    const boxRect = el.getBoundingClientRect();
+    centerScreen = {
+      x: boxRect.left + boxRect.width / 2,
+      y: boxRect.top + boxRect.height / 2
+    };
+    startAngle = Math.atan2(e.clientY - centerScreen.y, e.clientX - centerScreen.x) * (180 / Math.PI);
+    startRot = tb.rotation || 0;
+    handle.setPointerCapture(e.pointerId);
+  });
+
+  handle.addEventListener('pointermove', e => {
+    if (!rotating || tb.locked) return;
+    e.stopPropagation();
+    const currAngle = Math.atan2(e.clientY - centerScreen.y, e.clientX - centerScreen.x) * (180 / Math.PI);
+    let newRot = startRot + (currAngle - startAngle);
+
+    // مغناطيس خفيف عند الزاوية 0 لسهولة تسوية النص أفقياً
+    if (Math.abs(newRot % 360) < 4) newRot = 0;
+    tb.rotation = newRot;
+
+    applyTextBoxTransformDOM(el, tb, imgHeightRatio);
+  });
+
+  handle.addEventListener('pointerup', () => {
+    if (rotating) {
+      rotating = false;
+      scheduleAutoSave();
+    }
+  });
+}
+
+// مقبض الكبسولة الجانبية (|) لتوسيع أو تضييق عرض الصندوق (عدد الكلمات في السطر)
+function setupPicsArtWidthHandle(handle, el, tb, stageRatio, dirSign) {
+  let adjustingWidth = false;
+  let startX = 0, startY = 0;
+  let startBaseWidth = 160;
+
+  handle.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    if (tb.locked) return;
+    adjustingWidth = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    startBaseWidth = tb.baseWidth || 160;
+    handle.setPointerCapture(e.pointerId);
+  });
+
+  handle.addEventListener('pointermove', e => {
+    if (!adjustingWidth || tb.locked) return;
+    e.stopPropagation();
+
+    // حساب الإزاحة باتجاه زاوية دوران الصندوق
+    const rad = ((tb.rotation || 0) * Math.PI) / 180;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const projDelta = (dx * Math.cos(rad) + dy * Math.sin(rad)) * dirSign;
+
+    const effectiveScale = (tb.scale || 1) * stageRatio * viewScale;
+    const deltaLogical = (projDelta * 2) / Math.max(0.15, effectiveScale);
+
+    tb.baseWidth = Math.max(55, Math.min(340, startBaseWidth + deltaLogical));
+    el.style.width = `${tb.baseWidth * stageRatio}px`;
+  });
+
+  handle.addEventListener('pointerup', () => {
+    if (adjustingWidth) {
+      adjustingWidth = false;
       scheduleAutoSave();
     }
   });
@@ -1416,15 +1652,21 @@ function changeSelectedTextColor(hex) {
   }
 }
 
-function changeSelectedTextSize(val) {
+function changeSelectedTextScaleSlider(val) {
   if (isCompareMode) disableCompareMode();
-  const size = parseInt(val);
-  document.getElementById('textSizeVal').innerText = size;
+  const pct = parseInt(val);
+  document.getElementById('textSizeVal').innerText = pct + '%';
   if (!pages.length || !selectedTextId) return;
   const tb = pages[currentIdx].texts.find(t => t.id === selectedTextId);
   if (tb && !tb.locked) {
-    tb.fontSize = size;
-    renderTextLayer();
+    tb.scale = pct / 100;
+    const el = textLayer.querySelector(`.manga-textbox[data-id="${tb.id}"]`);
+    if (el) {
+      const page = pages[currentIdx];
+      const h = page.workCanvas.height;
+      const footerH = Math.max(36, Math.floor(h * 0.03));
+      applyTextBoxTransformDOM(el, tb, h / (h + footerH));
+    }
     scheduleAutoSave();
   }
 }
@@ -1457,7 +1699,7 @@ function saveEditedText() {
 }
 
 // ====================================================
-// 6. خط المقارنة الفريد (يطفئ الأدوات الأخرى، وينطفئ عند اختيار أي أداة، ويدعم التمرير بيد واحدة)
+// 6. خط المقارنة الفريد
 // ====================================================
 const toolButtons = {
   brush: 'btnBrush',
@@ -1479,7 +1721,6 @@ function disableCompareMode() {
 function toggleCompareMode() {
   if (!pages.length) return;
   if (!isCompareMode) {
-    // تشغيل المقارنة -> إطفاء كل الأدوات الأخرى وتحديدات النص
     isCompareMode = true;
     currentTool = null;
     Object.values(toolButtons).forEach(id => document.getElementById(id).classList.remove('active'));
@@ -1540,13 +1781,10 @@ compareSlider.addEventListener('pointerup', e => {
 });
 
 // ====================================================
-// 7. جميع أدوات التبييض (الفرشاة، الذكية، الممحاة المصلحة 100%، التمويه، الدلو، القطارة)
+// 7. جميع أدوات التبييض
 // ====================================================
 function toggleTool(tool) {
-  // إذا كان زر المقارنة مفعلاً وضغط المستخدم على أي أداة، ينطفئ زر المقارنة فوراً
-  if (isCompareMode) {
-    disableCompareMode();
-  }
+  if (isCompareMode) disableCompareMode();
 
   if (currentTool === tool) {
     currentTool = null;
@@ -1901,7 +2139,7 @@ function blurBrushAt(wCanvas, cx, cy, radius) {
   wCtx.putImageData(imgData, x0, y0);
 }
 
-// الرسم بالفرشاة والممحاة المصلحة 100% عبر CanvasPattern
+// الرسم بالفرشاة والممحاة
 function strokeBrush(fromPt, toPt) {
   const page = pages[currentIdx];
   const wCanvas = page.workCanvas;
@@ -1930,7 +2168,6 @@ function strokeBrush(fromPt, toPt) {
     }
     wCtx.restore();
   } else if (currentTool === 'eraser') {
-    // الممحاة: تستخدم نقش الصورة الأصلية لإرجاع البكسلات الأصلية على طول مسار الإصبع فوراً!
     wCtx.save();
     const origPattern = wCtx.createPattern(page.origCanvas, 'no-repeat');
     wCtx.fillStyle = origPattern;
@@ -1958,7 +2195,7 @@ function strokeBrush(fromPt, toPt) {
 }
 
 // ====================================================
-// 8. التحكم باللمس: (المقارنة بيد واحدة، تحريك وتكبير النص بإصبعين، والزوم بإصبعين)
+// 8. التحكم باللمس: (PicsArt Two-Finger Scale/Rotate/Move + الزوم)
 // ====================================================
 function getCanvasCoords(clientX, clientY) {
   const r = canvas.getBoundingClientRect();
@@ -1992,6 +2229,16 @@ function updateStageTransform() {
     zoomBtn.innerText = `🔍 ${Math.round(viewScale * 100)}% إعادة`;
   } else {
     zoomBtn.style.display = 'none';
+  }
+  // تحديث حجم مقابض PicsArt لتبقى ثابتة ومريحة للمس عند الزوم
+  if (selectedTextId && pages.length) {
+    const tb = pages[currentIdx].texts.find(t => t.id === selectedTextId);
+    const el = textLayer.querySelector(`.manga-textbox[data-id="${selectedTextId}"]`);
+    if (tb && el) {
+      const h = pages[currentIdx].workCanvas.height;
+      const footerH = Math.max(36, Math.floor(h * 0.03));
+      applyTextBoxTransformDOM(el, tb, h / (h + footerH));
+    }
   }
 }
 
@@ -2047,12 +2294,11 @@ viewportBox.addEventListener('touchstart', e => {
 
   const page = pages[currentIdx];
 
-  // 1. إذا كان وضع المقارنة مفعلاً: إصبع واحد يحرك الصفحة للأعلى والأسفل بيد واحدة!
+  // 1. وضع المقارنة: إصبع واحد يحرك الصفحة للأعلى والأسفل
   if (isCompareMode && e.touches.length === 1) {
     e.preventDefault();
     isCompareOneFingerScroll = true;
     compareScrollStartY = e.touches[0].clientY;
-    compareStartViewY = viewY;
     panStartMid = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     panStartOffset = { x: viewX, y: viewY };
     return;
@@ -2063,7 +2309,6 @@ viewportBox.addEventListener('touchstart', e => {
     e.preventDefault();
     isCompareOneFingerScroll = false;
 
-    // إلغاء أي نقطة رسم غير مقصودة
     if (isDrawing && strokeSnapshot && (Date.now() - strokeStartTime < 220)) {
       page.workCanvas.getContext('2d').putImageData(strokeSnapshot, 0, 0);
       page.history.pop();
@@ -2079,32 +2324,33 @@ viewportBox.addEventListener('touchstart', e => {
     const t1 = e.touches[0], t2 = e.touches[1];
     const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
     const mid = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
+    const angle = Math.atan2(t2.clientY - t1.clientY, t2.clientX - t1.clientX) * (180 / Math.PI);
 
-    // فحص ما إذا كان المستخدم يضغط بإصبعين على كتابة (أو محدد لنص في مرحلة الكتابة) لتحريكها وتكبيرها وتصغيرها
     const touchedBoxEl = e.touches[0].target.closest?.('.manga-textbox') || e.touches[1].target.closest?.('.manga-textbox');
     if (touchedBoxEl && touchedBoxEl.dataset.id) {
       selectedTextId = touchedBoxEl.dataset.id;
       if (currentStage !== 'text') switchStage('text');
     }
 
+    // تحجيم وتدوير وتحريك النص بإصبعين بنظام PicsArt (بدون كسر الأحرف!)
     if (currentStage === 'text' && selectedTextId && !isCompareMode) {
       const tb = page.texts.find(t => t.id === selectedTextId);
       if (tb && !tb.locked) {
         isTwoFingerTextGesture = true;
         isTwoFingerGesture = false;
-        textPinchStartDist = Math.max(20, dist);
-        textPinchStartFont = tb.fontSize || 24;
-        textPinchStartWidthPct = tb.widthPct || 38;
+        textPinchStartDist = Math.max(18, dist);
+        textPinchStartScale = tb.scale || 1;
+        textPinchStartAngle = angle;
+        textPinchStartRot = tb.rotation || 0;
         textPanStartMid = mid;
         textStartXPct = tb.xPct;
         textStartYPct = tb.yPct;
         renderTextLayer();
-        setStatus("✌️ تحكم بإصبعين في النص: حرك إصبعيك لنقله، وافتحهما/أغلقهما لتكبيره وتصغيره!");
+        setStatus("✌️ تحكم PicsArt بإصبعين: كبر/صغر، دور، وحرك النص بحرية بدون انكسار الأحرف!");
         return;
       }
     }
 
-    // وإلا: زوم وتحريك للصفحة بإصبعين
     isTwoFingerGesture = true;
     isTwoFingerTextGesture = false;
     pinchStartDist = Math.max(20, dist);
@@ -2140,7 +2386,6 @@ viewportBox.addEventListener('touchstart', e => {
       return;
     }
 
-    // فحص الضغط مرتين للزوم في مرحلة التبييض
     if (now - lastTapTime < 280 && tapDist < 32) {
       if (strokeSnapshot && page.history.length > 0) {
         page.workCanvas.getContext('2d').putImageData(strokeSnapshot, 0, 0);
@@ -2194,7 +2439,6 @@ viewportBox.addEventListener('touchmove', e => {
   if (!pages.length) return;
   const page = pages[currentIdx];
 
-  // تحريك الصفحة للأعلى والأسفل بيد واحدة أثناء تفعيل زر المقارنة
   if (isCompareMode && isCompareOneFingerScroll && e.touches.length === 1) {
     e.preventDefault();
     const touch = e.touches[0];
@@ -2211,7 +2455,7 @@ viewportBox.addEventListener('touchmove', e => {
     return;
   }
 
-  // تحريك وتكبير وتصغير الكتابة بإصبعين
+  // تحريك وتكبير وتصغير وتدوير الكتابة بإصبعين (PicsArt Smooth Transform)
   if (isTwoFingerTextGesture && e.touches.length >= 2 && selectedTextId) {
     e.preventDefault();
     const tb = page.texts.find(t => t.id === selectedTextId);
@@ -2220,10 +2464,14 @@ viewportBox.addEventListener('touchmove', e => {
     const t1 = e.touches[0], t2 = e.touches[1];
     const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
     const mid = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
+    const angle = Math.atan2(t2.clientY - t1.clientY, t2.clientX - t1.clientX) * (180 / Math.PI);
 
     const scaleRatio = dist / textPinchStartDist;
-    tb.fontSize = Math.max(10, Math.min(85, Math.round(textPinchStartFont * scaleRatio)));
-    tb.widthPct = Math.max(14, Math.min(92, textPinchStartWidthPct * Math.sqrt(scaleRatio)));
+    tb.scale = Math.max(0.12, Math.min(6.0, textPinchStartScale * scaleRatio));
+
+    let newRot = textPinchStartRot + (angle - textPinchStartAngle);
+    if (Math.abs(newRot % 360) < 4) newRot = 0;
+    tb.rotation = newRot;
 
     const rect = canvas.getBoundingClientRect();
     const h = page.workCanvas.height;
@@ -2233,12 +2481,17 @@ viewportBox.addEventListener('touchmove', e => {
     const dxPct = ((mid.x - textPanStartMid.x) / rect.width) * 100;
     const dyPct = ((mid.y - textPanStartMid.y) / (rect.height * imgHeightRatio)) * 100;
 
-    tb.xPct = Math.max(5, Math.min(95, textStartXPct + dxPct));
-    tb.yPct = Math.max(3, Math.min(97, textStartYPct + dyPct));
+    tb.xPct = Math.max(2, Math.min(98, textStartXPct + dxPct));
+    tb.yPct = Math.max(2, Math.min(98, textStartYPct + dyPct));
 
-    document.getElementById('textSizeSlider').value = tb.fontSize;
-    document.getElementById('textSizeVal').innerText = tb.fontSize;
-    renderTextLayer();
+    const pct = Math.round(tb.scale * 100);
+    document.getElementById('textSizeSlider').value = Math.min(350, Math.max(15, pct));
+    document.getElementById('textSizeVal').innerText = pct + '%';
+
+    const el = textLayer.querySelector(`.manga-textbox[data-id="${tb.id}"]`);
+    if (el) {
+      applyTextBoxTransformDOM(el, tb, imgHeightRatio);
+    }
     return;
   }
 
@@ -2261,7 +2514,6 @@ viewportBox.addEventListener('touchmove', e => {
     return;
   }
 
-  // الرسم أو التصويب بإصبع واحد
   if (e.touches.length === 1 && !isTwoFingerGesture && !isTwoFingerTextGesture && !isCompareMode) {
     const touch = e.touches[0];
 
@@ -2339,7 +2591,7 @@ viewportBox.addEventListener('touchend', e => {
   }
 });
 
-// دعم الماوس أيضاً (للتجربة على الكمبيوتر)
+// دعم الماوس أيضاً
 viewportBox.addEventListener('mousedown', e => {
   if (!pages.length || e.button !== 0) return;
   if (e.target.closest('#compareSlider') || e.target.closest('.manga-textbox')) return;
@@ -2513,7 +2765,6 @@ function renderPagesManagerGrid() {
     const actions = document.createElement('div');
     actions.className = 'page-card-actions';
 
-    // زر تقديم الترتيب
     const moveUpBtn = document.createElement('button');
     moveUpBtn.className = 'page-ctrl-btn';
     moveUpBtn.innerText = '🔼 تقديم';
@@ -2524,7 +2775,6 @@ function renderPagesManagerGrid() {
     };
     actions.appendChild(moveUpBtn);
 
-    // زر تأخير الترتيب
     const moveDownBtn = document.createElement('button');
     moveDownBtn.className = 'page-ctrl-btn';
     moveDownBtn.innerText = '🔽 تأخير';
@@ -2535,7 +2785,6 @@ function renderPagesManagerGrid() {
     };
     actions.appendChild(moveDownBtn);
 
-    // زر مسح الصفحة
     const delBtn = document.createElement('button');
     delBtn.className = 'page-ctrl-btn del';
     delBtn.innerText = '🗑️ مسح';
