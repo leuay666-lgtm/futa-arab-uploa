@@ -110,21 +110,31 @@
       color: #fff; box-shadow: 0 4px 14px var(--accent-glow);
     }
 
-    /* شريط الحالة والزوم */
+    /* شريط الحالة وأزرار الزوم السريعة */
     .chapter-banner {
       max-width: 780px; margin: 6px auto; padding: 7px 12px;
-      background: rgba(18, 18, 28, 0.8); border: 1px solid var(--glass-border);
+      background: rgba(18, 18, 28, 0.85); border: 1px solid var(--glass-border);
       border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
       user-select: none; -webkit-user-select: none;
     }
-    .status-text { font-size: 11.5px; font-weight: 700; color: #fbbf24; line-height: 1.4; }
+    .status-text { font-size: 11.5px; font-weight: 700; color: #fbbf24; line-height: 1.4; flex: 1; }
+
+    .zoom-controls {
+      display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+    .zoom-btn {
+      width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.08); color: #fff; font-size: 14px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .zoom-btn:active { background: var(--accent); }
     .zoom-pill {
       background: var(--accent-soft); border: 1px solid var(--accent);
-      color: #fff; font-size: 11px; font-weight: 800; padding: 3px 10px;
-      border-radius: 20px; cursor: pointer; white-space: nowrap; display: none;
+      color: #fff; font-size: 11px; font-weight: 800; padding: 3px 8px;
+      border-radius: 8px; cursor: pointer; min-width: 46px; text-align: center; direction: ltr;
     }
 
-    /* منطقة الصفحة والـ Viewport */
+    /* منطقة الصفحة والـ Viewport (تم ضبطها كـ block لضمان دقة نقطة ارتكاز الزوم 100%) */
     .workspace {
       width: 100%; max-width: 780px; margin: 6px auto; padding: 0 8px; position: relative;
       user-select: none; -webkit-user-select: none;
@@ -136,10 +146,10 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
       touch-action: none;
-      display: flex; align-items: center; justify-content: center;
+      display: block;
     }
     .empty-placeholder {
-      padding: 40px 20px; text-align: center; color: var(--muted); font-size: 13px; font-weight: 700;
+      padding: 150px 20px; text-align: center; color: var(--muted); font-size: 13px; font-weight: 700;
     }
     .canvas-stage {
       position: relative; width: 100%; transform-origin: 0 0; will-change: transform; display: none;
@@ -162,7 +172,6 @@
       font-family: 'Almarai', 'Cairo', sans-serif;
       font-weight: 800;
       line-height: 1.32;
-      /* منع كسر الأحرف العربية نهائياً والالتفاف عند المسافات فقط */
       white-space: pre-wrap;
       word-break: keep-all;
       overflow-wrap: normal;
@@ -183,7 +192,6 @@
       box-shadow: 0 0 0 calc(1.5px * var(--inv-scale)) rgba(245, 158, 11, 0.85);
     }
 
-    /* مقابض PicsArt الدائرية (حجمها يبقى ثابتاً ومريحاً للإصبع مهما صغر أو كبر النص) */
     .picsart-handle {
       position: absolute;
       display: none;
@@ -199,15 +207,12 @@
     .manga-textbox.selected:not(.locked) .picsart-handle {
       display: flex;
     }
-
-    /* منطقة لمس موسعة لكل مقبض لسهولة الالتقاط باليد */
     .picsart-handle::after {
       content: '';
       position: absolute;
       inset: -10px;
     }
 
-    /* 1. زر الحذف (أعلى اليسار ✕) */
     .pa-btn-delete {
       top: 0; left: 0;
       width: 26px; height: 26px; border-radius: 50%;
@@ -216,7 +221,6 @@
       cursor: pointer;
     }
 
-    /* 2. مقبض التدوير (أعلى اليمين ↻) */
     .pa-btn-rotate {
       top: 0; right: 0;
       width: 26px; height: 26px; border-radius: 50%;
@@ -225,7 +229,6 @@
       cursor: grab;
     }
 
-    /* 3. مقبض التكبير والتصغير المتناسب (أسفل اليمين ⤡) */
     .pa-btn-scale {
       bottom: 0; right: 0;
       width: 28px; height: 28px; border-radius: 50%;
@@ -234,7 +237,6 @@
       cursor: nwse-resize;
     }
 
-    /* 4. مقبض الكبسولة الجانبي الأيمن لتغيير عرض السطر (|) */
     .pa-pill-right {
       top: 50%; right: 0;
       width: 14px; height: 32px; border-radius: 10px;
@@ -248,7 +250,6 @@
       background: #1e293b; border-radius: 2px;
     }
 
-    /* 5. النقطة الجانبية اليسرى لتغيير عرض السطر */
     .pa-dot-left {
       top: 50%; left: 0;
       width: 14px; height: 14px; border-radius: 50%;
@@ -256,7 +257,6 @@
       cursor: ew-resize;
     }
 
-    /* 6. النقاط العلوية والسفلية الوسطى كما في PicsArt */
     .pa-dot-top {
       top: 0; left: 50%;
       width: 13px; height: 13px; border-radius: 50%;
@@ -270,7 +270,6 @@
       pointer-events: none;
     }
 
-    /* شريط القفل والنسخ والتعديل العائم أعلى النص */
     .pa-top-bar {
       position: absolute;
       top: 0; left: 50%;
@@ -425,7 +424,6 @@
       user-select: none; -webkit-user-select: none;
     }
 
-    /* أدوات مرحلة الكتابة داخل الشريط السفلي */
     .text-input-bar {
       display: flex; gap: 5px; width: 100%; align-items: center;
     }
@@ -523,10 +521,14 @@
     </button>
   </div>
 
-  <!-- شريط الإرشادات وحالة الزوم -->
+  <!-- شريط الإرشادات والتحكم السريع بالزوم -->
   <div class="chapter-banner">
-    <div class="status-text" id="statusMsg">ارفع صورة أو ملف ZIP للبدء (تحكم بالنصوص على طراز PicsArt بدون كسر الأحرف)...</div>
-    <button class="zoom-pill" id="resetZoomBtn" onclick="resetZoom()">🔍 100%</button>
+    <div class="status-text" id="statusMsg">ارفع صورة أو ملف ZIP للبدء (الزوم بإصبعين أو بأزرار + / - يعمل بنعومة فائقة)...</div>
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="stepZoom(-0.35)" title="تصغير">−</button>
+      <div class="zoom-pill" id="resetZoomBtn" onclick="resetZoom()" title="إعادة الزوم 100%">100%</div>
+      <button class="zoom-btn" onclick="stepZoom(0.35)" title="تكبير">+</button>
+    </div>
   </div>
 
   <!-- مساحة العمل (الزوم يعمل داخل المانغا فقط) -->
@@ -681,7 +683,6 @@
           <div class="color-dot" style="background:#ff2a5f;" onclick="changeSelectedTextColor('#ff2a5f')" title="أحمر"></div>
         </div>
 
-        <!-- شريط تكبير وتصغير متناسب سلس جداً بدون كسر الأحرف -->
         <input type="range" class="size-slider" id="textSizeSlider" min="15" max="350" value="100" oninput="changeSelectedTextScaleSlider(this.value)">
         <span id="textSizeVal" style="font-size:11px; font-weight:900; min-width:34px; text-align:center;">100%</span>
 
@@ -694,7 +695,7 @@
   </div>
 
 <script>
-// منع الزوم خارج منطقة المانغا فقط
+// منع الزوم الافتراضي للمتصفح خارج منطقة المانغا فقط
 document.addEventListener('gesturestart', e => {
   if (!e.target.closest('#viewportBox')) e.preventDefault();
 }, { passive: false });
@@ -716,8 +717,6 @@ const pickerLoupe = document.getElementById('pickerLoupe');
 const pickerHexText = document.getElementById('pickerHexText');
 const bucketTarget = document.getElementById('bucketTarget');
 
-// كل صفحة تحتفظ بـ origCanvas و workCanvas ومصفوفة النصوص بنظام PicsArt
-// tb = { id, text, xPct, yPct, baseWidth, fontSize, scale, rotation, color, locked }
 let pages = [];
 let currentIdx = 0;
 let currentStage = 'clean';
@@ -728,8 +727,13 @@ let compareSplitPercent = 50;
 let selectedTextId = null;
 let editingTextId = null;
 
-// متغيرات اللمس والتحريك والزوم
+// متغيرات اللمس والرسم والزوم المحسنة (بدون أي تقطيع عند وضع إصبعين)
 let isDrawing = false;
+let isPendingBrush = false;
+let pendingBrushTimer = null;
+let pendingStartClient = { x: 0, y: 0 };
+let pendingStartPt = null;
+
 let isAimingBucket = false;
 let isAimingPicker = false;
 let isSingleFingerPan = false;
@@ -740,21 +744,18 @@ let isTwoFingerTextGesture = false;
 let activePt = null;
 let pickedHexLive = "#ffffff";
 let lastPt = null;
-let strokeSnapshot = null;
-let strokeStartTime = 0;
 let previewTimer = null;
 let saveTimer = null;
 
+// متغيرات الزوم والتحريك الدقيق للصفحة (Frame-by-Frame Focal Zoom)
 let viewScale = 1;
 let viewX = 0;
 let viewY = 0;
-let pinchStartDist = 0;
-let pinchStartScale = 1;
-let panStartMid = { x: 0, y: 0 };
-let panStartOffset = { x: 0, y: 0 };
-let compareScrollStartY = 0;
+let lastPinchDist = 0;
+let lastPinchMid = { x: 0, y: 0 };
+let lastSinglePanPt = { x: 0, y: 0 };
 
-// متغيرات تحريك وتكبير وتدوير النص بإصبعين (PicsArt Touch Gesture)
+// متغيرات تحريك وتكبير وتدوير النص بإصبعين عند لمس النص مباشرة
 let textPinchStartDist = 0;
 let textPinchStartScale = 1;
 let textPinchStartAngle = 0;
@@ -1146,9 +1147,9 @@ function switchStage(stage, skipSave = false) {
   if (stage === 'clean') {
     selectedTextId = null;
     renderTextLayer();
-    setStatus("🖌️ مرحلة التبييض: الفرشاة والممحاة والدلو جاهزة، وإصبعين للزوم والتحريك");
+    setStatus("🖌️ مرحلة التبييض: امسح بإصبع واحد، أو ضع إصبعين في أي وقت للزوم والتحريك السلس");
   } else {
-    setStatus("✍️ مرحلة الكتابة (PicsArt): اسحب ⤡ للتكبير/التصغير بدون كسر الأحرف، و | لتوسيع السطر، و ↻ للتدوير");
+    setStatus("✍️ مرحلة الكتابة: تحكم بالنص عبر مقابض PicsArt (⤡ للتكبير، ↻ للتدوير، | للعرض) أو كبر الصفحة بإصبعين");
   }
   if (!skipSave) scheduleAutoSave();
 }
@@ -1161,7 +1162,6 @@ function renderCompositeToContext(targetCtx, sourceDrawable, width, height, page
   targetCtx.clearRect(0, 0, width, height + footerH);
   targetCtx.drawImage(sourceDrawable, 0, 0, width, height);
 
-  // طباعة النصوص المضافة بنفس التحجيم المتناسب (scale) والتدوير (rotation) بدون كسر الأحرف
   if (pageTexts && pageTexts.length > 0) {
     const ratio = width / 360;
     pageTexts.forEach(rawTb => {
@@ -1274,8 +1274,7 @@ function renderTextLayer() {
   if (!pages.length) return;
   const page = pages[currentIdx];
   const h = page.workCanvas.height;
-  const stageRect = canvas.getBoundingClientRect();
-  const baseStageWidth = (stageRect.width / viewScale) || 360;
+  const baseStageWidth = canvasStage.offsetWidth || viewportBox.clientWidth || 360;
   const ratio = baseStageWidth / 360;
 
   const footerH = Math.max(36, Math.floor(h * 0.03));
@@ -1291,7 +1290,6 @@ function renderTextLayer() {
       (tb.locked ? ' locked' : '');
     el.dataset.id = tb.id;
 
-    // العرض وحجم الخط الأساسيان ثابتان، والتكبير/التصغير يتم عبر transform: scale() لمنع انكسار الأحرف نهائياً
     el.style.width = `${tb.baseWidth * ratio}px`;
     el.style.fontSize = `${tb.fontSize * ratio}px`;
     el.style.padding = `${8 * ratio}px ${10 * ratio}px`;
@@ -1299,7 +1297,6 @@ function renderTextLayer() {
 
     applyTextBoxTransformDOM(el, tb, imgHeightRatio);
 
-    // شريط القفل والنسخ والتعديل المصغر أعلى الصندوق
     const topBar = document.createElement('div');
     topBar.className = 'pa-top-bar';
 
@@ -1339,12 +1336,10 @@ function renderTextLayer() {
     }
     el.appendChild(topBar);
 
-    // محتوى النص
     const textContent = document.createElement('div');
     textContent.innerText = tb.text;
     el.appendChild(textContent);
 
-    // مقابض PicsArt الستة حول الإطار
     // 1. زر الحذف (أعلى اليسار ✕)
     const delHandle = document.createElement('div');
     delHandle.className = 'picsart-handle pa-btn-delete';
@@ -1366,7 +1361,7 @@ function renderTextLayer() {
     setupPicsArtRotateHandle(rotHandle, el, tb, imgHeightRatio);
     el.appendChild(rotHandle);
 
-    // 3. مقبض التحجيم المتناسب (أسفل اليمين ⤡) - يصغر ويكبر بحرية بدون كسر الأحرف
+    // 3. مقبض التحجيم المتناسب (أسفل اليمين ⤡)
     const scaleHandle = document.createElement('div');
     scaleHandle.className = 'picsart-handle pa-btn-scale';
     scaleHandle.innerText = '⤡';
@@ -1379,13 +1374,13 @@ function renderTextLayer() {
     setupPicsArtWidthHandle(rightPill, el, tb, ratio, +1);
     el.appendChild(rightPill);
 
-    // 5. النقطة الجانبية اليسرى لتوسيع أو تضييق عرض السطر
+    // 5. النقطة الجانبية اليسرى
     const leftDot = document.createElement('div');
     leftDot.className = 'picsart-handle pa-dot-left';
     setupPicsArtWidthHandle(leftDot, el, tb, ratio, -1);
     el.appendChild(leftDot);
 
-    // 6. النقطتان العلوية والسفلية كما في تصميم PicsArt
+    // 6. النقطتان العلوية والسفلية
     const topDot = document.createElement('div');
     topDot.className = 'picsart-handle pa-dot-top';
     el.appendChild(topDot);
@@ -1394,9 +1389,7 @@ function renderTextLayer() {
     bottomDot.className = 'picsart-handle pa-dot-bottom';
     el.appendChild(bottomDot);
 
-    // السحب الفوري بلمسة واحدة والضغط مرتين للتعديل
     setupInstantDragAndDoubleTap(el, tb, imgHeightRatio);
-
     textLayer.appendChild(el);
   });
 }
@@ -1433,7 +1426,6 @@ function addNewTextBox() {
   setStatus("✅ تمت إضافة النص! اسحبه مباشرة لتحريكه، أو اسحب ⤡ لتكبيره وتصغيره بدون كسر الأحرف");
 }
 
-// تحريك فوري وسلس بلمسة واحدة (بدون الحاجة للضغط أولاً ثم السحب مرة ثانية)
 function setupInstantDragAndDoubleTap(el, tb, imgHeightRatio) {
   let dragging = false;
   let startX = 0, startY = 0;
@@ -1465,7 +1457,6 @@ function setupInstantDragAndDoubleTap(el, tb, imgHeightRatio) {
     }
     lastBoxTap = now;
 
-    // تفعيل التحديد في نفس اللحظة دون إعادة بناء الـ DOM لكي لا ينقطع السحب الفوري!
     if (selectedTextId !== tb.id) {
       selectedTextId = tb.id;
       document.querySelectorAll('.manga-textbox.selected').forEach(node => node.classList.remove('selected'));
@@ -1490,7 +1481,7 @@ function setupInstantDragAndDoubleTap(el, tb, imgHeightRatio) {
   });
 
   el.addEventListener('pointermove', e => {
-    if (!dragging || tb.locked || isTwoFingerTextGesture) return;
+    if (!dragging || tb.locked || isTwoFingerTextGesture || isTwoFingerGesture) return;
     e.stopPropagation();
     const rect = canvas.getBoundingClientRect();
     const dxPct = ((e.clientX - startX) / rect.width) * 100;
@@ -1510,7 +1501,6 @@ function setupInstantDragAndDoubleTap(el, tb, imgHeightRatio) {
   });
 }
 
-// مقبض التحجيم المتناسب (⤡) على طريقة PicsArt: يصغر لأدنى حد ويكبر بدون أن يغير تقسيم الكلمات أو يكسر الحروف!
 function setupPicsArtScaleHandle(handle, el, tb, imgHeightRatio) {
   let scaling = false;
   let centerScreen = { x: 0, y: 0 };
@@ -1538,7 +1528,6 @@ function setupPicsArtScaleHandle(handle, el, tb, imgHeightRatio) {
     const currDist = Math.hypot(e.clientX - centerScreen.x, e.clientY - centerScreen.y);
     const ratio = currDist / startDist;
 
-    // يسمح بتصغير النص حتى 12% أو تكبيره حتى 600% مع الحفاظ التام على شكل الكلمات والأسطر
     tb.scale = Math.max(0.12, Math.min(6.0, startScale * ratio));
 
     const pct = Math.round(tb.scale * 100);
@@ -1556,7 +1545,6 @@ function setupPicsArtScaleHandle(handle, el, tb, imgHeightRatio) {
   });
 }
 
-// مقبض التدوير الدائري (↻) على طريقة PicsArt
 function setupPicsArtRotateHandle(handle, el, tb, imgHeightRatio) {
   let rotating = false;
   let centerScreen = { x: 0, y: 0 };
@@ -1584,7 +1572,6 @@ function setupPicsArtRotateHandle(handle, el, tb, imgHeightRatio) {
     const currAngle = Math.atan2(e.clientY - centerScreen.y, e.clientX - centerScreen.x) * (180 / Math.PI);
     let newRot = startRot + (currAngle - startAngle);
 
-    // مغناطيس خفيف عند الزاوية 0 لسهولة تسوية النص أفقياً
     if (Math.abs(newRot % 360) < 4) newRot = 0;
     tb.rotation = newRot;
 
@@ -1599,7 +1586,6 @@ function setupPicsArtRotateHandle(handle, el, tb, imgHeightRatio) {
   });
 }
 
-// مقبض الكبسولة الجانبية (|) لتوسيع أو تضييق عرض الصندوق (عدد الكلمات في السطر)
 function setupPicsArtWidthHandle(handle, el, tb, stageRatio, dirSign) {
   let adjustingWidth = false;
   let startX = 0, startY = 0;
@@ -1619,7 +1605,6 @@ function setupPicsArtWidthHandle(handle, el, tb, stageRatio, dirSign) {
     if (!adjustingWidth || tb.locked) return;
     e.stopPropagation();
 
-    // حساب الإزاحة باتجاه زاوية دوران الصندوق
     const rad = ((tb.rotation || 0) * Math.PI) / 180;
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
@@ -1800,7 +1785,7 @@ function setTool(tool) {
   currentTool = tool;
   Object.values(toolButtons).forEach(id => document.getElementById(id).classList.remove('active'));
   const messages = {
-    brush: '🖌️ الفرشاة العادية: امسح بإصبع واحد، واستخدم إصبعين للزوم والتحريك',
+    brush: '🖌️ الفرشاة العادية: امسح بإصبع واحد، واستخدم إصبعين للزوم والتحريك السلس',
     smart: '✨ الفرشاة الذكية: تمسح الكلام وتحمي الخطوط السوداء العريضة',
     eraser: '🧽 الممحاة: مرر إصبعك لاسترجاع الرسم الأصلي بدقة في مكان المسح!',
     blur: '💧 التمويه (Blur): لتنعيم التدرجات اللونية',
@@ -2195,7 +2180,7 @@ function strokeBrush(fromPt, toPt) {
 }
 
 // ====================================================
-// 8. التحكم باللمس: (PicsArt Two-Finger Scale/Rotate/Move + الزوم)
+// 8. نظام الزوم والتحريك المصلح بالكامل (Focal Point Zoom & Pan)
 // ====================================================
 function getCanvasCoords(clientX, clientY) {
   const r = canvas.getBoundingClientRect();
@@ -2206,7 +2191,7 @@ function getCanvasCoords(clientX, clientY) {
 }
 
 function clampPanOffsets() {
-  if (viewScale <= 1) {
+  if (viewScale <= 1.005) {
     viewScale = 1;
     viewX = 0;
     viewY = 0;
@@ -2216,21 +2201,17 @@ function clampPanOffsets() {
   const stageH = canvasStage.offsetHeight || viewportBox.clientHeight;
   const minX = stageW - stageW * viewScale;
   const minY = stageH - stageH * viewScale;
-  viewX = Math.min(stageW * 0.25, Math.max(minX - stageW * 0.25, viewX));
-  viewY = Math.min(stageH * 0.25, Math.max(minY - stageH * 0.25, viewY));
+
+  viewX = Math.min(0, Math.max(minX, viewX));
+  viewY = Math.min(0, Math.max(minY, viewY));
 }
 
 function updateStageTransform() {
   clampPanOffsets();
   canvasStage.style.transform = `translate3d(${viewX}px, ${viewY}px, 0) scale(${viewScale})`;
   const zoomBtn = document.getElementById('resetZoomBtn');
-  if (viewScale > 1.02 || Math.abs(viewX) > 5 || Math.abs(viewY) > 5) {
-    zoomBtn.style.display = 'inline-block';
-    zoomBtn.innerText = `🔍 ${Math.round(viewScale * 100)}% إعادة`;
-  } else {
-    zoomBtn.style.display = 'none';
-  }
-  // تحديث حجم مقابض PicsArt لتبقى ثابتة ومريحة للمس عند الزوم
+  zoomBtn.innerText = `${Math.round(viewScale * 100)}%`;
+
   if (selectedTextId && pages.length) {
     const tb = pages[currentIdx].texts.find(t => t.id === selectedTextId);
     const el = textLayer.querySelector(`.manga-textbox[data-id="${selectedTextId}"]`);
@@ -2249,8 +2230,25 @@ function resetZoom() {
   updateStageTransform();
 }
 
+// تكبير وتصغير عبر أزرار (+ / -) حول منتصف الشاشة المرئية
+function stepZoom(delta) {
+  if (!pages.length) return;
+  const nextScale = Math.max(1, Math.min(5, viewScale + delta));
+  if (nextScale === viewScale) return;
+
+  const boxRect = viewportBox.getBoundingClientRect();
+  const visibleCenterX = (window.innerWidth / 2) - boxRect.left;
+  const visibleCenterY = Math.max(0, Math.min(boxRect.height, (window.innerHeight / 2) - boxRect.top));
+
+  const factor = nextScale / viewScale;
+  viewX = visibleCenterX - (visibleCenterX - viewX) * factor;
+  viewY = visibleCenterY - (visibleCenterY - viewY) * factor;
+  viewScale = nextScale;
+  updateStageTransform();
+}
+
 function toggleDoubleTapZoom(clientX, clientY) {
-  if (viewScale > 1.1) {
+  if (viewScale > 1.15) {
     resetZoom();
     setStatus("🔍 تم إرجاع الزوم إلى 100%");
   } else {
@@ -2288,36 +2286,45 @@ function updateLiveBucketTarget(clientX, clientY) {
   bucketTarget.style.top = clientY + 'px';
 }
 
+function cancelPendingBrush() {
+  if (pendingBrushTimer) {
+    clearTimeout(pendingBrushTimer);
+    pendingBrushTimer = null;
+  }
+  isPendingBrush = false;
+  pendingStartPt = null;
+}
+
+function commitPendingBrush() {
+  if (!isPendingBrush || !pages.length || !pendingStartPt) return;
+  if (pendingBrushTimer) {
+    clearTimeout(pendingBrushTimer);
+    pendingBrushTimer = null;
+  }
+  isPendingBrush = false;
+  const page = pages[currentIdx];
+  saveHistory(page);
+  isDrawing = true;
+  lastPt = pendingStartPt;
+  strokeBrush(pendingStartPt, pendingStartPt);
+  pendingStartPt = null;
+}
+
 viewportBox.addEventListener('touchstart', e => {
   if (!pages.length) return;
   if (e.target.closest('#compareSlider')) return;
 
   const page = pages[currentIdx];
 
-  // 1. وضع المقارنة: إصبع واحد يحرك الصفحة للأعلى والأسفل
-  if (isCompareMode && e.touches.length === 1) {
-    e.preventDefault();
-    isCompareOneFingerScroll = true;
-    compareScrollStartY = e.touches[0].clientY;
-    panStartMid = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    panStartOffset = { x: viewX, y: viewY };
-    return;
-  }
-
-  // 2. عند وضع إصبعين:
+  // 1. عند وضع إصبعين: إلغاء أي انتظار للفرشاة وتفعيل الزوم السلس فوراً (بدون أي لاغ!)
   if (e.touches.length >= 2) {
     e.preventDefault();
-    isCompareOneFingerScroll = false;
-
-    if (isDrawing && strokeSnapshot && (Date.now() - strokeStartTime < 220)) {
-      page.workCanvas.getContext('2d').putImageData(strokeSnapshot, 0, 0);
-      page.history.pop();
-      drawPage();
-    }
+    cancelPendingBrush();
     isDrawing = false;
     isAimingBucket = false;
     isAimingPicker = false;
     isSingleFingerPan = false;
+    isCompareOneFingerScroll = false;
     pickerLoupe.style.display = 'none';
     bucketTarget.style.display = 'none';
 
@@ -2326,14 +2333,11 @@ viewportBox.addEventListener('touchstart', e => {
     const mid = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
     const angle = Math.atan2(t2.clientY - t1.clientY, t2.clientX - t1.clientX) * (180 / Math.PI);
 
-    const touchedBoxEl = e.touches[0].target.closest?.('.manga-textbox') || e.touches[1].target.closest?.('.manga-textbox');
-    if (touchedBoxEl && touchedBoxEl.dataset.id) {
+    // إذا كان أحد الإصبعين يلمس صندوق نص مباشرة -> نحرك ونكبر النص بإصبعين
+    const touchedBoxEl = t1.target.closest?.('.manga-textbox') || t2.target.closest?.('.manga-textbox');
+    if (touchedBoxEl && touchedBoxEl.dataset.id && !isCompareMode) {
       selectedTextId = touchedBoxEl.dataset.id;
       if (currentStage !== 'text') switchStage('text');
-    }
-
-    // تحجيم وتدوير وتحريك النص بإصبعين بنظام PicsArt (بدون كسر الأحرف!)
-    if (currentStage === 'text' && selectedTextId && !isCompareMode) {
       const tb = page.texts.find(t => t.id === selectedTextId);
       if (tb && !tb.locked) {
         isTwoFingerTextGesture = true;
@@ -2346,17 +2350,23 @@ viewportBox.addEventListener('touchstart', e => {
         textStartXPct = tb.xPct;
         textStartYPct = tb.yPct;
         renderTextLayer();
-        setStatus("✌️ تحكم PicsArt بإصبعين: كبر/صغر، دور، وحرك النص بحرية بدون انكسار الأحرف!");
         return;
       }
     }
 
+    // وإلا -> زوم وتحريك سلس للصفحة نفسها (يعمل في التبييض والكتابة والمقارنة!)
     isTwoFingerGesture = true;
     isTwoFingerTextGesture = false;
-    pinchStartDist = Math.max(20, dist);
-    pinchStartScale = viewScale;
-    panStartMid = mid;
-    panStartOffset = { x: viewX, y: viewY };
+    lastPinchDist = Math.max(12, dist);
+    lastPinchMid = mid;
+    return;
+  }
+
+  // 2. وضع المقارنة بإصبع واحد: تمرير وتحريك سلس للصفحة بيد واحدة
+  if (isCompareMode && e.touches.length === 1) {
+    e.preventDefault();
+    isCompareOneFingerScroll = true;
+    lastSinglePanPt = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     return;
   }
 
@@ -2368,7 +2378,8 @@ viewportBox.addEventListener('touchstart', e => {
     const now = Date.now();
     const tapDist = Math.hypot(touch.clientX - lastTapPos.x, touch.clientY - lastTapPos.y);
 
-    if (currentStage === 'text') {
+    // في مرحلة الكتابة أو عند عدم اختيار أداة: الضغط مرتين للزوم، والسحب لتحريك الصفحة
+    if (currentStage === 'text' || currentTool === null) {
       if (selectedTextId) {
         selectedTextId = null;
         renderTextLayer();
@@ -2381,33 +2392,7 @@ viewportBox.addEventListener('touchstart', e => {
       lastTapTime = now;
       lastTapPos = { x: touch.clientX, y: touch.clientY };
       isSingleFingerPan = true;
-      panStartMid = { x: touch.clientX, y: touch.clientY };
-      panStartOffset = { x: viewX, y: viewY };
-      return;
-    }
-
-    if (now - lastTapTime < 280 && tapDist < 32) {
-      if (strokeSnapshot && page.history.length > 0) {
-        page.workCanvas.getContext('2d').putImageData(strokeSnapshot, 0, 0);
-        page.history.pop();
-        drawPage();
-      }
-      isDrawing = false;
-      isAimingBucket = false;
-      isAimingPicker = false;
-      pickerLoupe.style.display = 'none';
-      bucketTarget.style.display = 'none';
-      lastTapTime = 0;
-      toggleDoubleTapZoom(touch.clientX, touch.clientY);
-      return;
-    }
-    lastTapTime = now;
-    lastTapPos = { x: touch.clientX, y: touch.clientY };
-
-    if (currentTool === null) {
-      isSingleFingerPan = true;
-      panStartMid = { x: touch.clientX, y: touch.clientY };
-      panStartOffset = { x: viewX, y: viewY };
+      lastSinglePanPt = { x: touch.clientX, y: touch.clientY };
       return;
     }
 
@@ -2426,12 +2411,13 @@ viewportBox.addEventListener('touchstart', e => {
       return;
     }
 
-    saveHistory(page);
-    strokeSnapshot = page.history[page.history.length - 1];
-    strokeStartTime = now;
-    isDrawing = true;
-    lastPt = pt;
-    strokeBrush(pt, pt);
+    // تأخير ذكي (45ms) قبل بدء الفرشاة حتى لو وضع المستخدم إصبعه الثاني للزوم لا يحدث أي تقطيع أو رسم خاطئ!
+    isPendingBrush = true;
+    pendingStartClient = { x: touch.clientX, y: touch.clientY };
+    pendingStartPt = pt;
+    pendingBrushTimer = setTimeout(() => {
+      commitPendingBrush();
+    }, 45);
   }
 }, { passive: false });
 
@@ -2439,23 +2425,50 @@ viewportBox.addEventListener('touchmove', e => {
   if (!pages.length) return;
   const page = pages[currentIdx];
 
-  if (isCompareMode && isCompareOneFingerScroll && e.touches.length === 1) {
+  // 1. الزوم والتحريك السلس للصفحة بإصبعين (Focal Point Delta Tracking)
+  if (isTwoFingerGesture && e.touches.length >= 2) {
     e.preventDefault();
-    const touch = e.touches[0];
-    const dy = touch.clientY - compareScrollStartY;
-    compareScrollStartY = touch.clientY;
+    const t1 = e.touches[0], t2 = e.touches[1];
+    const currDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    const currMid = {
+      x: (t1.clientX + t2.clientX) / 2,
+      y: (t1.clientY + t2.clientY) / 2
+    };
 
-    if (viewScale > 1.02) {
-      viewX = panStartOffset.x + (touch.clientX - panStartMid.x);
-      viewY += dy;
-      updateStageTransform();
-    } else {
-      window.scrollBy(0, -dy);
+    const boxRect = viewportBox.getBoundingClientRect();
+    const focalX = currMid.x - boxRect.left;
+    const focalY = currMid.y - boxRect.top;
+
+    const panDX = currMid.x - lastPinchMid.x;
+    const panDY = currMid.y - lastPinchMid.y;
+
+    viewX += panDX;
+    viewY += panDY;
+
+    if (lastPinchDist > 10) {
+      const scaleFactor = currDist / lastPinchDist;
+      const nextScale = Math.max(1, Math.min(5.0, viewScale * scaleFactor));
+      const actualFactor = nextScale / viewScale;
+
+      viewX = focalX - (focalX - viewX) * actualFactor;
+      viewY = focalY - (focalY - viewY) * actualFactor;
+      viewScale = nextScale;
     }
+
+    // إذا كانت الصفحة طويلة ووصل التحريك لنهاية حدود الزوم، نمرر الشاشة تلقائياً بنعومة
+    const beforeClampY = viewY;
+    updateStageTransform();
+    const clampedDiffY = beforeClampY - viewY;
+    if (Math.abs(clampedDiffY) > 0.5 && Math.abs(panDY) > 1) {
+      window.scrollBy(0, -panDY);
+    }
+
+    lastPinchDist = currDist;
+    lastPinchMid = currMid;
     return;
   }
 
-  // تحريك وتكبير وتصغير وتدوير الكتابة بإصبعين (PicsArt Smooth Transform)
+  // 2. تحريك وتكبير وتدوير النص بإصبعين عند الإمساك بالنص مباشرة
   if (isTwoFingerTextGesture && e.touches.length >= 2 && selectedTextId) {
     e.preventDefault();
     const tb = page.texts.find(t => t.id === selectedTextId);
@@ -2495,41 +2508,31 @@ viewportBox.addEventListener('touchmove', e => {
     return;
   }
 
-  // الزوم والتحريك للصفحة بإصبعين
-  if (isTwoFingerGesture && e.touches.length >= 2) {
+  // 3. التمرير والتحريك بيد واحدة في وضع المقارنة أو وضع التحريك الحر
+  if ((isCompareOneFingerScroll || isSingleFingerPan) && e.touches.length === 1) {
     e.preventDefault();
-    const t1 = e.touches[0], t2 = e.touches[1];
-    const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-    const mid = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
+    const touch = e.touches[0];
+    const dx = touch.clientX - lastSinglePanPt.x;
+    const dy = touch.clientY - lastSinglePanPt.y;
+    lastSinglePanPt = { x: touch.clientX, y: touch.clientY };
 
-    const newScale = Math.max(1, Math.min(4.5, pinchStartScale * (dist / pinchStartDist)));
-    const boxRect = viewportBox.getBoundingClientRect();
-    const originX = panStartMid.x - boxRect.left;
-    const originY = panStartMid.y - boxRect.top;
-
-    viewX = mid.x - panStartMid.x + originX - (originX - panStartOffset.x) * (newScale / pinchStartScale);
-    viewY = mid.y - panStartMid.y + originY - (originY - panStartOffset.y) * (newScale / pinchStartScale);
-    viewScale = newScale;
-    updateStageTransform();
+    if (viewScale > 1.01) {
+      viewX += dx;
+      viewY += dy;
+      const beforeY = viewY;
+      updateStageTransform();
+      if (Math.abs(beforeY - viewY) > 0.5) {
+        window.scrollBy(0, -dy);
+      }
+    } else {
+      window.scrollBy(0, -dy);
+    }
     return;
   }
 
+  // 4. الرسم والتصويب بإصبع واحد في مرحلة التبييض
   if (e.touches.length === 1 && !isTwoFingerGesture && !isTwoFingerTextGesture && !isCompareMode) {
     const touch = e.touches[0];
-
-    if (isSingleFingerPan) {
-      e.preventDefault();
-      if (viewScale > 1.02) {
-        viewX = panStartOffset.x + (touch.clientX - panStartMid.x);
-        viewY = panStartOffset.y + (touch.clientY - panStartMid.y);
-        updateStageTransform();
-      } else {
-        const dy = touch.clientY - panStartMid.y;
-        panStartMid.y = touch.clientY;
-        window.scrollBy(0, -dy);
-      }
-      return;
-    }
 
     if (isAimingPicker) {
       e.preventDefault();
@@ -2543,6 +2546,14 @@ viewportBox.addEventListener('touchmove', e => {
       return;
     }
 
+    if (isPendingBrush) {
+      e.preventDefault();
+      const moveDist = Math.hypot(touch.clientX - pendingStartClient.x, touch.clientY - pendingStartClient.y);
+      if (moveDist > 3.5) {
+        commitPendingBrush();
+      }
+    }
+
     if (isDrawing) {
       e.preventDefault();
       const pt = getCanvasCoords(touch.clientX, touch.clientY);
@@ -2553,6 +2564,11 @@ viewportBox.addEventListener('touchmove', e => {
 }, { passive: false });
 
 viewportBox.addEventListener('touchend', e => {
+  // إذا رفع المستخدم إصبعه سريعاً (نقطة فرشاة سريعة)
+  if (isPendingBrush && !isTwoFingerGesture) {
+    commitPendingBrush();
+  }
+
   if (isAimingPicker) {
     isAimingPicker = false;
     pickerLoupe.style.display = 'none';
@@ -2583,15 +2599,34 @@ viewportBox.addEventListener('touchend', e => {
     scheduleAutoSave();
   }
 
-  if (e.touches.length === 0) {
+  if (e.touches.length < 2) {
     isTwoFingerGesture = false;
-    isTwoFingerTextGesture = false;
+  }
+
+  if (e.touches.length === 0) {
     isSingleFingerPan = false;
     isCompareOneFingerScroll = false;
   }
 });
 
-// دعم الماوس أيضاً
+// دعم عجلة الماوس للزوم على الكمبيوتر + السحب
+viewportBox.addEventListener('wheel', e => {
+  if (!pages.length) return;
+  if (e.ctrlKey || viewScale > 1) {
+    e.preventDefault();
+    const boxRect = viewportBox.getBoundingClientRect();
+    const focalX = e.clientX - boxRect.left;
+    const focalY = e.clientY - boxRect.top;
+    const delta = e.deltaY < 0 ? 1.15 : 0.87;
+    const nextScale = Math.max(1, Math.min(5, viewScale * delta));
+    const actualFactor = nextScale / viewScale;
+    viewX = focalX - (focalX - viewX) * actualFactor;
+    viewY = focalY - (focalY - viewY) * actualFactor;
+    viewScale = nextScale;
+    updateStageTransform();
+  }
+}, { passive: false });
+
 viewportBox.addEventListener('mousedown', e => {
   if (!pages.length || e.button !== 0) return;
   if (e.target.closest('#compareSlider') || e.target.closest('.manga-textbox')) return;
@@ -2602,8 +2637,7 @@ viewportBox.addEventListener('mousedown', e => {
       renderTextLayer();
     }
     isSingleFingerPan = true;
-    panStartMid = { x: e.clientX, y: e.clientY };
-    panStartOffset = { x: viewX, y: viewY };
+    lastSinglePanPt = { x: e.clientX, y: e.clientY };
     return;
   }
 
@@ -2631,13 +2665,14 @@ viewportBox.addEventListener('mousedown', e => {
 window.addEventListener('mousemove', e => {
   if (!pages.length) return;
   if (isSingleFingerPan) {
-    if (viewScale > 1.02) {
-      viewX = panStartOffset.x + (e.clientX - panStartMid.x);
-      viewY = panStartOffset.y + (e.clientY - panStartMid.y);
+    const dx = e.clientX - lastSinglePanPt.x;
+    const dy = e.clientY - lastSinglePanPt.y;
+    lastSinglePanPt = { x: e.clientX, y: e.clientY };
+    if (viewScale > 1.01) {
+      viewX += dx;
+      viewY += dy;
       updateStageTransform();
     } else {
-      const dy = e.clientY - panStartMid.y;
-      panStartMid.y = e.clientY;
       window.scrollBy(0, -dy);
     }
     return;
